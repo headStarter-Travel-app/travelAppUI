@@ -3,10 +3,10 @@ import { Account, Client, ID } from "react-native-appwrite";
 export const appwriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
   platform: "com.nnagelia.headstarterProject",
-  projectId: "6692ea7c003a371bf7fc",
-  databaseId: "6692eb680034074ed8a8",
-  userCollectionId: "6692eb7b001aff29193e",
-  storageId: "6692ecc20014ff41b1cc",
+  projectId: "66930c61001b090ab206",
+  databaseId: "66930e1000087eb0d4bd",
+  userCollectionId: "66930e5900107bc194dc",
+  storageId: "66930ebf003d9d175225",
 };
 // Init your React Native SDK
 const client = new Client();
