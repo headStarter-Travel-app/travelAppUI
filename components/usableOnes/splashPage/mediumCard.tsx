@@ -1,102 +1,93 @@
 import React from "react";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
 const priceTagImage = require("@/assets/public/splashImages/priceTag.png");
-interface MediumCardProps {
+
+interface CardProps {
   title: string;
   priceRangeLower: number;
   priceRangeUpper: number;
   image: any;
 }
 
-const MediumCard: React.FC<MediumCardProps> = ({
+const Card: React.FC<CardProps> = ({
   title,
   priceRangeLower,
   priceRangeUpper,
   image,
 }) => {
-  let lower = "$";
-  let higher = "$$";
-  if (priceRangeLower == 1) {
-    lower = "$";
-  } else if (priceRangeLower == 2) {
-    lower = "$$";
-  } else if (priceRangeLower == 3) {
-    lower = "$$$";
-  }
-  if (priceRangeUpper == 1) {
-    higher = "$";
-  } else if (priceRangeUpper == 2) {
-    higher = "$$";
-  } else if (priceRangeUpper == 3) {
-    higher = "$$$";
-  }
+  const priceRange = getPriceRange(priceRangeLower, priceRangeUpper);
 
   return (
-    <View className="rounded-2xl overflow-hidden w-[100%] h-[215px] border-2 border-[#CACBD4]">
-      <Image
-        source={image}
-        style={{ height: 140, width: "100%" }}
-        className="rounded-t-2xl"
-      />
-      <View className="bg-[#E3E4EB] p-2 flex-1">
-        <Text className="text-black text-bs font-dmSansBold">{title}</Text>
-        <View className="flex flex-row items-center space-x-1">
-          <Image source={priceTagImage} style={{ height: 15, width: 15 }} />
-          <Text className="text-black text-md font-dmSansRegular">
-            {" "}
-            {lower}-{higher}{" "}
-          </Text>
+    <View style={styles.card}>
+      <Image source={image} style={styles.image} />
+      <LinearGradient
+        colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.7)"]}
+        style={styles.gradient}
+      >
+        <Text style={styles.title}>{title}</Text>
+        <View style={styles.priceContainer}>
+          <Image source={priceTagImage} style={styles.priceTag} />
+          <Text style={styles.priceText}>{priceRange}</Text>
         </View>
-      </View>
-    </View>
-  );
-};
-export const SmallCard: React.FC<MediumCardProps> = ({
-  title,
-  priceRangeLower,
-  priceRangeUpper,
-  image,
-}) => {
-  let lower = "$";
-  let higher = "$$";
-  if (priceRangeLower == 1) {
-    lower = "$";
-  } else if (priceRangeLower == 2) {
-    lower = "$$";
-  } else if (priceRangeLower == 3) {
-    lower = "$$$";
-  }
-  if (priceRangeUpper == 1) {
-    higher = "$";
-  } else if (priceRangeUpper == 2) {
-    higher = "$$";
-  } else if (priceRangeUpper == 3) {
-    higher = "$$$";
-  }
-
-  return (
-    <View className="rounded-2xl overflow-hidden w-[100%] h-[140px] border-2 border-[#CACBD4]">
-      <Image
-        source={image}
-        style={{ height: 90, width: "100%" }}
-        className="rounded-t-2xl"
-      />
-      <View className="bg-[#E3E4EB] p-2 flex-1">
-        <Text
-          style={{ color: "black", fontSize: 10, fontFamily: "DMSans-Bold" }}
-        >
-          {title}
-        </Text>
-        <View className="flex flex-row items-center space-x-1">
-          <Image source={priceTagImage} style={{ height: 12, width: 12 }} />
-          <Text className="text-black font-dmSansRegular text-xs">
-            {" "}
-            {lower}-{higher}{" "}
-          </Text>
-        </View>
-      </View>
+      </LinearGradient>
     </View>
   );
 };
 
-export default MediumCard;
+const getPriceRange = (lower: number, upper: number) => {
+  const getPriceSymbol = (value: number) => "$".repeat(Math.min(value, 3));
+  return `${getPriceSymbol(lower)}-${getPriceSymbol(upper)}`;
+};
+
+const styles = StyleSheet.create({
+  card: {
+    width: 300,
+    height: 200,
+    borderRadius: 15,
+    overflow: "hidden",
+    backgroundColor: "#fff",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  gradient: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: "50%",
+    justifyContent: "flex-end",
+    padding: 15,
+  },
+  title: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  priceTag: {
+    height: 15,
+    width: 15,
+    marginRight: 5,
+    tintColor: "#fff",
+  },
+  priceText: {
+    color: "#fff",
+    fontSize: 14,
+  },
+});
+
+export default Card;

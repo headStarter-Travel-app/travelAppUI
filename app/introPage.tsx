@@ -1,26 +1,136 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Dimensions,
+  Platform,
+  TouchableOpacity,
+  Animated,
+} from "react-native";
 import AppButton from "@/components/usableOnes/button";
-import { CreateUser } from "@/lib/appwrite";
 import MediumCard from "@/components/usableOnes/splashPage/mediumCard";
-import { SmallCard } from "@/components/usableOnes/splashPage/mediumCard";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
+
+const { width } = Dimensions.get("window");
+const isDesktop = Platform.OS === "web" && width > 768;
 
 const IntroPage = () => {
   const router = useRouter();
+  const [cards, setCards] = useState([
+    {
+      id: 1,
+      title: "Find Date Locations!",
+      priceRangeLower: 2,
+      priceRangeUpper: 3,
+      image: require("@/public/date.png"),
+    },
+    {
+      id: 2,
+      title: "Find new Hangout Spots!",
+      priceRangeLower: 1,
+      priceRangeUpper: 2,
+      image: require("@/public/Theatres.png"),
+    },
+    {
+      id: 3,
+      title: "Plan Group Adventures!",
+      priceRangeLower: 1,
+      priceRangeUpper: 3,
+      image: require("@/public/golf.png"),
+    },
+  ]);
+
+  const animatedValues = useRef(cards.map(() => new Animated.Value(0))).current;
+
+  useEffect(() => {
+    animatedValues.forEach((value, index) => {
+      Animated.timing(value, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    });
+  }, [cards]);
+
+  const handleCardTap = () => {
+    Animated.parallel(
+      animatedValues.map((value) =>
+        Animated.timing(value, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        })
+      )
+    ).start(() => {
+      setCards((prevCards) => {
+        const newCards = [...prevCards];
+        const firstCard = newCards.shift();
+        if (firstCard) {
+          newCards.push(firstCard);
+        }
+        return newCards;
+      });
+    });
+  };
 
   const handleSignUp = () => {
-    // Here you would typically handle the sign-up process
-    // For now, we'll just navigate to the tabs
     router.push("/register");
   };
 
+  const getCardStyle = (index: number) => {
+    const rotate = animatedValues[index].interpolate({
+      inputRange: [0, 1],
+      outputRange: [
+        index === 0 ? "-4deg" : index === 1 ? "2deg" : "-3deg",
+        index === 0 ? "-5deg" : index === 1 ? "3deg" : "-1deg",
+      ],
+    });
+
+    const translateY = animatedValues[index].interpolate({
+      inputRange: [0, 1],
+      outputRange: [index * 30, index * 20],
+    });
+
+    const translateX = animatedValues[index].interpolate({
+      inputRange: [0, 1],
+      outputRange: [index * 5 - 5, index * 3 - 3],
+    });
+
+    const scale = animatedValues[index].interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.95, 1],
+    });
+
+    return {
+      transform: [{ rotate }, { translateY }, { translateX }, { scale }],
+      opacity: animatedValues[index],
+    };
+  };
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.text}>ProxiLink </Text>
-      <CardsGallery />
-      <Text style={[styles.text, styles.subtitle]}>
+      <Text style={styles.title}>ProxiLink</Text>
+      <View style={styles.cardsContainer}>
+        {cards.map((card, index) => (
+          <TouchableOpacity
+            key={card.id}
+            style={[styles.card, { zIndex: cards.length - index }]}
+            onPress={handleCardTap}
+            activeOpacity={0.9}
+          >
+            <Animated.View style={getCardStyle(index)}>
+              <MediumCard
+                title={card.title}
+                priceRangeLower={card.priceRangeLower}
+                priceRangeUpper={card.priceRangeUpper}
+                image={card.image}
+              />
+            </Animated.View>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <Text style={styles.subtitle}>
         Your AI Guide for Group Adventures, Dates, and Vacations
       </Text>
       <AppButton title="Sign Up With Email" onPress={handleSignUp} />
@@ -33,86 +143,39 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 75, // Adjust this value as needed to position the text at the top
+    paddingTop: 80,
     paddingHorizontal: 20,
-    backgroundColor: "white",
+    backgroundColor: "#f5f5dc",
   },
-  text: {
-    fontFamily: "spaceGroteskBold", // Use the font you loaded
-    fontSize: 25,
+  title: {
+    fontFamily: "spaceGroteskBold",
+    fontSize: 32,
     fontWeight: "bold",
     textAlign: "center",
+    marginBottom: 30,
+  },
+  cardsContainer: {
+    width: "100%",
+    height: 400,
+    position: "relative",
+    marginBottom: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  card: {
+    position: "absolute",
+    width: "100%",
+    maxWidth: 300,
+    alignSelf: "center",
+    elevation: 5,
   },
   subtitle: {
-    marginVertical: 20,
-  },
-  galleryContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    width: "100%",
-    marginBottom: 10,
-  },
-  leftColumn: {
-    flex: 1.7,
-  },
-  rightColumn: {
-    flex: 1,
-  },
-  cardSpacing: {
-    marginBottom: 12, // Add space between elements
+    fontFamily: "spaceGroteskBold",
+    fontSize: 22,
+    textAlign: "center",
+    marginBottom: 20,
+    maxWidth: 300,
   },
 });
-
-const CardsGallery = () => {
-  return (
-    <View style={styles.galleryContainer}>
-      <View style={styles.leftColumn}>
-        <View style={styles.cardSpacing}>
-          <MediumCard
-            title="Unwind at Local Bars Near You!"
-            priceRangeLower={2}
-            priceRangeUpper={3}
-            image={require("@/public/date.png")}
-          />
-        </View>
-        <View style={styles.cardSpacing}>
-          <MediumCard
-            title="Find Theatres Near You!"
-            priceRangeLower={0}
-            priceRangeUpper={100}
-            image={require("@/public/Theatres.png")}
-          />
-        </View>
-      </View>
-      <View style={styles.rightColumn}>
-        <View style={styles.cardSpacing}>
-          <SmallCard
-            title="Explore Nearby Parks!"
-            priceRangeLower={1}
-            priceRangeUpper={2}
-            image={require("@/public/parks.png")}
-          />
-        </View>
-        <View style={styles.cardSpacing}>
-          <SmallCard
-            title="Discover Events!"
-            priceRangeLower={2}
-            priceRangeUpper={3}
-            image={require("@/public/golf.png")}
-          />
-        </View>
-        <View style={styles.cardSpacing}>
-          <SmallCard
-            title="Explore Restaurants!"
-            priceRangeLower={1}
-            priceRangeUpper={2}
-            image={require("@/public/dining.png")}
-          />
-        </View>
-      </View>
-    </View>
-  );
-};
 
 export default IntroPage;
