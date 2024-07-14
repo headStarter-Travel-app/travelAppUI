@@ -1,34 +1,32 @@
 // app/index.js or app/index.tsx
-import { Redirect } from "expo-router";
+import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export default function Index() {
-  const [isLogged, setIsLogged] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
         const token = await AsyncStorage.getItem("userToken");
         console.log("token", token);
-        setIsLogged(!!token);
+
+        if (token) {
+          // If a token exists, consider it a valid session
+          router.replace("/(tabs)");
+        } else {
+          router.replace("/introPage");
+        }
       } catch (error) {
         console.error("Failed to check login status:", error);
-        setIsLogged(false);
+        router.replace("/introPage");
       }
     };
 
     checkLoginStatus();
-  }, []);
+  }, [router]);
 
-  if (isLogged === null) {
-    // Optionally, you can return a loading indicator here
-    return null;
-  }
-
-  if (isLogged) {
-    return <Redirect href="/(tabs)" />;
-  } else {
-    return <Redirect href="/introPage" />;
-  }
+  // While checking, return null or a loading indicator
+  return null;
 }
