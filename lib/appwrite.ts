@@ -1,14 +1,12 @@
-import { Account, Client, ID } from "react-native-appwrite"
-
-
+import { Account, Client, ID } from "react-native-appwrite";
 
 export const appwriteConfig = {
-  endpoint: process.env.APPWRITE_ENDPOINT!,
-  platform: process.env.APPWRITE_PLATFORM!,
-  projectId: process.env.APPWRITE_PROJECT_ID!,
-  databaseId: process.env.APPWRITE_DATABASE_ID!,
-  userCollectionId: process.env.APPWRITE_USER_COLLECTION_ID!,
-  storageId: process.env.APPWRITE_STORAGE_ID!,
+  endpoint: "https://cloud.appwrite.io/v1",
+  platform: "com.nnagelia.headstarterProject",
+  projectId: "66930c61001b090ab206",
+  databaseId: "66930e1000087eb0d4bd",
+  userCollectionId: "66930e5900107bc194dc",
+  storageId: "66930ebf003d9d175225",
 };
 // Init your React Native SDK
 const client = new Client();
@@ -21,7 +19,7 @@ client
 const account = new Account(client);
 
 // Register User
-export const CreateUser = (email: string , password: string) => {
+export const CreateUser = (email: string, password: string) => {
   account.create(ID.unique(), email, password).then(
     function (response) {
       console.log(response);
