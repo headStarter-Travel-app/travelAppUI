@@ -5,8 +5,17 @@ import { CreateUser } from "@/lib/appwrite";
 import MediumCard from "@/components/usableOnes/splashPage/mediumCard";
 import { SmallCard } from "@/components/usableOnes/splashPage/mediumCard";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { Link, useRouter } from "expo-router";
 
-const SplashPage = () => {
+const IntroPage = () => {
+  const router = useRouter();
+
+  const handleSignUp = () => {
+    // Here you would typically handle the sign-up process
+    // For now, we'll just navigate to the tabs
+    router.push("/register");
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.text}>ProxiLink </Text>
@@ -14,12 +23,7 @@ const SplashPage = () => {
       <Text style={[styles.text, styles.subtitle]}>
         Your AI Guide for Group Adventures, Dates, and Vacations
       </Text>
-      <AppButton
-        title="Sign Up With Email"
-        onPress={() => {
-          // Navigate to the sign up page
-        }}
-      />
+      <AppButton title="Sign Up With Email" onPress={handleSignUp} />
     </ScrollView>
   );
 };
@@ -110,4 +114,4 @@ const CardsGallery = () => {
   );
 };
 
-export default SplashPage;
+export default IntroPage;
