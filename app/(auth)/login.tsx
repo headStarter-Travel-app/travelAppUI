@@ -37,13 +37,19 @@ const LoginPage = () => {
     try {
       const session = await LoginUser(email, password);
       if (session && session.$id) {
-        await AsyncStorage.setItem('userToken', session.$id);
+        await AsyncStorage.setItem('userSession', session.$id);
         Alert.alert("Login successful");
+        router.replace("/(tabs)");
       } else {
         throw new Error("Invalid session object");
       }
     } catch (error: any) {
-      Alert.alert("Login failed", error.message);
+      if (error.message.includes("Session already exists")) {
+        Alert.alert("Error", "Session already exists, You are already logged in.");
+        router.replace("/(tabs)");
+      } else {
+        Alert.alert("Login failed", error.message);
+      }
     }
   };
 
