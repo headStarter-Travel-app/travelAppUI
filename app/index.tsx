@@ -9,7 +9,7 @@ export default function Index() {
     const checkLoginStatus = async () => {
       try {
         const session = await AsyncStorage.getItem("userSession");
-        setIsLogged(session !== null);
+        setIsLogged(session != null);
       } catch (error) {
         console.error("Failed to check login status:", error);
         setIsLogged(false);
