@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput } from "react-native";
 import AppButton from "@/components/usableOnes/button";
 import { CreateUser } from "@/lib/appwrite";
+import { Link, useRouter } from "expo-router";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -9,6 +10,7 @@ const RegisterPage = () => {
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const router = useRouter();
 
   const handleRegister = () => {
     if (password === confirmPassword) {
@@ -16,6 +18,10 @@ const RegisterPage = () => {
     } else {
       alert("Passwords do not match");
     }
+  };
+  
+  const handleLoginPress = () => {
+    router.push('/login') // Replace 'your-login-url' with the actual login URL
   };
 
   return (
@@ -60,7 +66,7 @@ const RegisterPage = () => {
       />
       <AppButton title="Register" onPress={handleRegister} />
       <Text style={styles.loginText}>
-        Already have an account? <Text style={styles.loginTextBold}>Login</Text>
+        Already have an account? <Text style={styles.loginTextBold} onPress={handleLoginPress}>Login</Text>
       </Text>
     </View>
   );
