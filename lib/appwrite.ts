@@ -65,7 +65,6 @@ export const CreateUser = async (
     const session = await account.createEmailPasswordSession(email, password);
     await AsyncStorage.setItem("userSession", JSON.stringify(session));
     await AsyncStorage.setItem("userToken", session.$id);
-    router.replace("/");
     return session; // Return the session object
   } catch (error: any) {
     console.log(error);
