@@ -6,7 +6,17 @@ module.exports = {
     "./app/(tabs)/**/*.{js,jsx,ts,tsx}", // Add this line
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        dmSansBold: ["DMSans-Bold", "sans-serif"],
+        dmSansRegular: ["DMSans-Regular", "sans-serif"],
+        dmSansMedium: ["DMSans-Medium", "sans-serif"],
+        spaceGroteskBold: ["SpaceGrotesk-Bold", "sans-serif"],
+        spaceGroteskRegular: ["SpaceGrotesk-Regular", "sans-serif"],
+        spaceGroteskMedium: ["SpaceGrotesk-Medium", "sans-serif"],
+        s,
+      },
+    },
   },
 
   plugins: [],
