@@ -2,22 +2,43 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
 import AppButton from "@/components/usableOnes/button";
 import { LoginUser } from "@/lib/appwrite"; // Assuming you have a login function in your appwrite library
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 import { Link, useRouter } from "expo-router";
+
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    return password.length >= 8;
+  };
+
   const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "All fields are required.");
+      return;
+    }
+    if (!validateEmail(email)) {
+      Alert.alert("Error", "Invalid email format.");
+      return;
+    }
+    if (!validatePassword(password)) {
+      Alert.alert("Error", "Password must be at least 8 characters long.");
+      return;
+    }
     try {
       const session = await LoginUser(email, password);
       if (session && session.$id) {
-        await AsyncStorage.setItem("userToken", session.$id);
+        await AsyncStorage.setItem('userToken', session.$id);
         Alert.alert("Login successful");
-        router.push("/(tabs)"); // Replace 'your-tabs-url' with the actual tabs URL
       } else {
         throw new Error("Invalid session object");
       }
