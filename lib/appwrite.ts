@@ -21,8 +21,8 @@ client
 const account = new Account(client);
 
 // Register User
-export const CreateUser = () => {
-  account.create(ID.unique(), "ahmadbasyouni2004@gmail.com", "pasdadsword", "ddfeegwgdd").then(
+export const CreateUser = (email: string , password: string) => {
+  account.create(ID.unique(), email, password).then(
     function (response) {
       console.log(response);
     },
@@ -31,4 +31,3 @@ export const CreateUser = () => {
     }
   );
 };
-

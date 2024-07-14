@@ -17,7 +17,7 @@ const SplashPage = () => {
       <AppButton
         title="Sign Up With Email"
         onPress={() => {
-          CreateUser();
+          // Navigate to the sign up page
         }}
       />
     </ScrollView>
