@@ -17,7 +17,23 @@ const LoginPage = () => {
     return re.test(email);
   };
 
+  const validatePassword = (password: string) => {
+    return password.length >= 8;
+  };
+
   const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "All fields are required.");
+      return;
+    }
+    if (!validateEmail(email)) {
+      Alert.alert("Error", "Invalid email format.");
+      return;
+    }
+    if (!validatePassword(password)) {
+      Alert.alert("Error", "Password must be at least 8 characters long.");
+      return;
+    }
     try {
       const session = await LoginUser(email, password);
       if (session && session.$id) {
