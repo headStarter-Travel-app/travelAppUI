@@ -10,7 +10,6 @@ export const appwriteConfig = {
   userCollectionId: "66930e5900107bc194dc",
   storageId: "66930ebf003d9d175225",
 };
-const router = useRouter();
 
 // Init your React Native SDK
 const client = new Client();
@@ -20,8 +19,8 @@ client
   .setProject(appwriteConfig.projectId) // Your project ID
   .setPlatform(appwriteConfig.platform); // Your application ID or bundle ID.
 
-export const account = new Account(client);
-export const databases = new Databases(client);
+const account = new Account(client);
+const databases = new Databases(client);
 
 // Register User
 export const CreateUser = async (
@@ -64,13 +63,11 @@ export const CreateUser = async (
     // Log the user in and create a session
     const session = await account.createEmailPasswordSession(email, password);
     await AsyncStorage.setItem("userSession", JSON.stringify(session));
-    await AsyncStorage.setItem("userToken", session.$id);
     return session; // Return the session object
   } catch (error: any) {
     console.log(error);
     if (error.code === 401 && error.type === "user_session_already_exists") {
       const existingSession = await AsyncStorage.getItem("userSession");
-
       return existingSession;
     }
     alert(error.message);
@@ -117,6 +114,12 @@ export const LoginUser = async (email: string, password: string) => {
       throw error;
     }
   }
+};
+
+// Check if user is logged in
+export const isLoggedIn = async () => {
+  const session = await AsyncStorage.getItem("userSession");
+  return session !== null;
 };
 
 // Logout User
