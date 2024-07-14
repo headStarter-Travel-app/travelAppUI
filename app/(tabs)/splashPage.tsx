@@ -1,15 +1,17 @@
-import { Button, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import AppButton from "@/components/usableOnes/button";
 import { CreateUser } from "@/lib/appwrite";
 import MediumCard from "@/components/usableOnes/splashPage/mediumCard";
-const image1 = require("@/public/date.png");
+import { SmallCard } from "@/components/usableOnes/splashPage/mediumCard";
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+
 const SplashPage = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Splash Page</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.text}>ProxiLink </Text>
       <CardsGallery />
-      <Text style={styles.text} className="text-center">
+      <Text style={[styles.text, styles.subtitle]}>
         Your AI Guide for Group Adventures, Dates, and Vacations
       </Text>
       <AppButton
@@ -18,36 +20,92 @@ const SplashPage = () => {
           CreateUser();
         }}
       />
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: "flex-start",
     alignItems: "center",
     paddingTop: 75, // Adjust this value as needed to position the text at the top
+    paddingHorizontal: 20,
   },
   text: {
     fontFamily: "spaceGroteskBold", // Use the font you loaded
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: "bold",
     textAlign: "center",
-    paddingHorizontal: 20,
+  },
+  subtitle: {
+    marginVertical: 20,
+  },
+  galleryContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 10,
+  },
+  leftColumn: {
+    flex: 1.7,
+  },
+  rightColumn: {
+    flex: 1,
+  },
+  cardSpacing: {
+    marginBottom: 12, // Add space between elements
   },
 });
 
 const CardsGallery = () => {
   return (
-    <View>
-      <Text>Card Gallery</Text>
-      <MediumCard
-        title="Card Title"
-        priceRangeLower={0}
-        PriceRangeUpper={100}
-        image={require("@/public/date.png")}
-      />
+    <View style={styles.galleryContainer}>
+      <View style={styles.leftColumn}>
+        <View style={styles.cardSpacing}>
+          <MediumCard
+            title="Unwind at Local Bars Near You!"
+            priceRangeLower={2}
+            priceRangeUpper={3}
+            image={require("@/public/date.png")}
+          />
+        </View>
+        <View style={styles.cardSpacing}>
+          <MediumCard
+            title="Find Theatres Near You!"
+            priceRangeLower={0}
+            priceRangeUpper={100}
+            image={require("@/public/Theatres.png")}
+          />
+        </View>
+      </View>
+      <View style={styles.rightColumn}>
+        <View style={styles.cardSpacing}>
+          <SmallCard
+            title="Explore Nearby Parks!"
+            priceRangeLower={1}
+            priceRangeUpper={2}
+            image={require("@/public/parks.png")}
+          />
+        </View>
+        <View style={styles.cardSpacing}>
+          <SmallCard
+            title="Discover Events!"
+            priceRangeLower={2}
+            priceRangeUpper={3}
+            image={require("@/public/golf.png")}
+          />
+        </View>
+        <View style={styles.cardSpacing}>
+          <SmallCard
+            title="Explore Restaurants!"
+            priceRangeLower={1}
+            priceRangeUpper={2}
+            image={require("@/public/dining.png")}
+          />
+        </View>
+      </View>
     </View>
   );
 };
