@@ -73,6 +73,7 @@ export const CreateUser = async (
 
       return existingSession;
     }
+    alert(error.message);
     return error.message;
   }
 };
