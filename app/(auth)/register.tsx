@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput } from "react-native";
+import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
 import AppButton from "@/components/usableOnes/button";
 import { CreateUser } from "@/lib/appwrite";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, useRouter } from "expo-router";
 
 const RegisterPage = () => {
@@ -12,16 +13,29 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const router = useRouter();
 
-  const handleRegister = () => {
+
+  const handleRegister = async () => {
     if (password === confirmPassword) {
-      CreateUser(email, password, firstName, lastName);
+      try {
+        const session = await CreateUser(email, password, firstName, lastName);
+        if (session && session.$id) {
+          await AsyncStorage.setItem('userToken', session.$id);
+          Alert.alert("Registration successful");
+          router.replace("/(tabs)");
+        } else {
+          throw new Error("Invalid session object");
+        }
+      } catch (error: any) {
+        console.error("Registration failed:", error);
+        Alert.alert("Registration failed. Please try again.");
+      }
     } else {
-      alert("Passwords do not match");
+      Alert.alert("Passwords do not match");
     }
   };
-  
+
   const handleLoginPress = () => {
-    router.push('/login') // Replace 'your-login-url' with the actual login URL
+    router.push('/login');
   };
 
   return (
