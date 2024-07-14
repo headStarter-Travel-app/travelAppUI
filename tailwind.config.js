@@ -14,7 +14,6 @@ module.exports = {
         spaceGroteskBold: ["SpaceGrotesk-Bold", "sans-serif"],
         spaceGroteskRegular: ["SpaceGrotesk-Regular", "sans-serif"],
         spaceGroteskMedium: ["SpaceGrotesk-Medium", "sans-serif"],
-        s,
       },
     },
   },
