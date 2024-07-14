@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 75, // Adjust this value as needed to position the text at the top
     paddingHorizontal: 20,
+    backgroundColor: "white",
   },
   text: {
     fontFamily: "spaceGroteskBold", // Use the font you loaded
