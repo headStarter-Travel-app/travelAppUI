@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
 import AppButton from "@/components/usableOnes/button";
 import { LoginUser } from "@/lib/appwrite"; // Assuming you have a login function in your appwrite library
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 import { Link, useRouter } from "expo-router";
-
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -16,9 +15,9 @@ const LoginPage = () => {
     try {
       const session = await LoginUser(email, password);
       if (session && session.$id) {
-        await AsyncStorage.setItem('userToken', session.$id);
+        await AsyncStorage.setItem("userToken", session.$id);
         Alert.alert("Login successful");
-        router.push('/(tabs)'); // Replace 'your-tabs-url' with the actual tabs URL
+        router.push("/(tabs)"); // Replace 'your-tabs-url' with the actual tabs URL
       } else {
         throw new Error("Invalid session object");
       }

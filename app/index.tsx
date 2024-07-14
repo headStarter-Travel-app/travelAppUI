@@ -9,7 +9,8 @@ export default function Index() {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const token = await AsyncStorage.getItem('userToken');
+        const token = await AsyncStorage.getItem("userToken");
+        console.log("token", token);
         setIsLogged(!!token);
       } catch (error) {
         console.error("Failed to check login status:", error);

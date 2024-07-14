@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { Pressable, Text, StyleSheet } from "react-native";
 
 interface ButtonProps {
   title: string;
@@ -8,9 +8,15 @@ interface ButtonProps {
 
 const AppButton: React.FC<ButtonProps> = ({ title, onPress }) => {
   return (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
+    <Pressable
+      style={({ pressed }) => [
+        styles.button,
+        { opacity: pressed ? 0.5 : 1 }, // Dim the button to 50% opacity when pressed
+      ]}
+      onPress={onPress}
+    >
       <Text style={styles.text}>{title}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
