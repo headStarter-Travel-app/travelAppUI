@@ -40,6 +40,13 @@ const IntroPage = () => {
       priceRangeUpper: 3,
       image: require("@/public/golf.png"),
     },
+    {
+      id: 4,
+      title: "Use AI to plan your next Vacation!",
+      priceRangeLower: 2,
+      priceRangeUpper: 3,
+      image: require("@/public/vacation.jpg"),
+    },
   ]);
 
   const animatedValues = useRef(cards.map(() => new Animated.Value(0))).current;
@@ -143,16 +150,16 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 80,
+    paddingTop: 90,
     paddingHorizontal: 20,
-    backgroundColor: "#f5f5dc",
+    backgroundColor: "#DFF2F9",
   },
   title: {
     fontFamily: "spaceGroteskBold",
     fontSize: 32,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 30,
+    marginBottom: 25,
   },
   cardsContainer: {
     width: "100%",
