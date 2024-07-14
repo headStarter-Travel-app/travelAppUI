@@ -19,9 +19,9 @@ const RegisterPage = () => {
       alert("Passwords do not match");
     }
   };
-  
+
   const handleLoginPress = () => {
-    router.push('/login') // Replace 'your-login-url' with the actual login URL
+    router.push("/login"); // Replace 'your-login-url' with the actual login URL
   };
 
   return (
@@ -66,7 +66,10 @@ const RegisterPage = () => {
       />
       <AppButton title="Register" onPress={handleRegister} />
       <Text style={styles.loginText}>
-        Already have an account? <Text style={styles.loginTextBold} onPress={handleLoginPress}>Login</Text>
+        Already have an account?{" "}
+        <Text style={styles.loginTextBold} onPress={handleLoginPress}>
+          Login
+        </Text>
       </Text>
     </View>
   );
