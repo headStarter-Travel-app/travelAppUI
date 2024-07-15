@@ -1,6 +1,5 @@
 import { Account, Client, Databases, ID } from "react-native-appwrite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
 
 export const appwriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -30,23 +29,10 @@ export const CreateUser = async (
   lastName: string
 ) => {
   const userID = ID.unique();
-  console.log("Creating account for user", userID);
   const name = `${firstName} ${lastName}`;
-
   try {
-    // Check if there is an existing session
-    const existingSession = await AsyncStorage.getItem("userSession");
-
-    if (existingSession) {
-      console.log("Session already exists:", existingSession);
-      return JSON.parse(existingSession);
-    }
-
-    // Create a new user account
     const response = await account.create(userID, email, password, name);
     console.log("Successfully created account");
-
-    // Create a new user document in the database
     await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
@@ -59,38 +45,21 @@ export const CreateUser = async (
       }
     );
     console.log("Successfully created user document");
-
-    // Log the user in and create a session
-    const session = await account.createEmailPasswordSession(email, password);
+    const session = await account.createSession(email, password);
     await AsyncStorage.setItem("userSession", JSON.stringify(session));
-    return session; // Return the session object
-  } catch (error: any) {
+    return session; // Ensure this returns the session object
+  } catch (error) {
     console.log(error);
-    if (error.code === 401 && error.type === "user_session_already_exists") {
-      const existingSession = await AsyncStorage.getItem("userSession");
-      return existingSession;
-    }
-    alert(error.message);
-    return error.message;
+    throw error;
   }
 };
 
+// Login User
 export const LoginUser = async (email: string, password: string) => {
   try {
-    // Check if there is an existing session
-    const existingSession = await AsyncStorage.getItem("userSession");
-
-    if (existingSession) {
-      console.log("Session already exists:", existingSession);
-      return JSON.parse(existingSession);
-    }
-
-    // Attempt to create a session with email and password
-    const session = await account.createEmailPasswordSession(email, password);
-    // Store session in AsyncStorage
+    const session = await account.createSession(email, password);
     await AsyncStorage.setItem("userSession", JSON.stringify(session));
-    // Return the session object
-    return session;
+    return session; // Ensure this returns the session object
   } catch (error: any) {
     // Enhanced logging for debugging
     console.error("Login failed with error:", error);
@@ -131,6 +100,33 @@ export const LogoutUser = async () => {
     console.log("Logout successful");
   } catch (error) {
     console.error("Logout failed", error);
+    throw error;
+  }
+};
+
+export const initiatePasswordRecovery = async (email: string) => {
+  try {
+    const response = await account.createRecovery(
+      email,
+      "http://localhost:8081/reset-password"
+    );
+    console.log(response);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const completePasswordRecovery = async (
+  userId: string,
+  secret: string,
+  newPassword: string
+) => {
+  try {
+    const response = await account.updateRecovery(userId, secret, newPassword);
+    console.log(response);
+  } catch (error) {
+    console.error(error);
     throw error;
   }
 };

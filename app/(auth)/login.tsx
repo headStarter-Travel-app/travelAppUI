@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import AppButton from "@/components/usableOnes/button";
-import { LoginUser } from "@/lib/appwrite"; // Assuming you have a login function in your appwrite library
+import { LoginUser, initiatePasswordRecovery } from "@/lib/appwrite"; // Assuming you have a login function in your appwrite library
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { Link, useRouter } from "expo-router";
@@ -72,6 +72,40 @@ const LoginPage = () => {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!email) {
+      Alert.alert("Error", "Email is required.");
+      return;
+    }
+    if (!validateEmail(email)) {
+      Alert.alert("Error", "Invalid email format.");
+      return;
+    }
+    try {
+      await initiatePasswordRecovery(email);
+      Alert.alert("Reset password email sent successfully");
+    } catch (error: any) {
+      Alert.alert("Reset password failed. Please try again.");
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      Alert.alert("Error", "Email is required.");
+      return;
+    }
+    if (!validateEmail(email)) {
+      Alert.alert("Error", "Invalid email format.");
+      return;
+    }
+    try {
+      await initiatePasswordRecovery(email);
+      Alert.alert("Reset password email sent successfully");
+    } catch (error: any) {
+      Alert.alert("Reset password failed. Please try again.");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
@@ -81,6 +115,7 @@ const LoginPage = () => {
         value={email}
         onChangeText={setEmail}
       />
+
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -88,11 +123,10 @@ const LoginPage = () => {
         value={password}
         onChangeText={setPassword}
       />
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <AppButton title="Login" onPress={handleLogin} />
-      )}
+
+      <AppButton title="Login" onPress={handleLogin} />
+      <View style={{ height: 10 }} />
+      <AppButton title="Forgot Password" onPress={handleResetPassword} />
       <Text style={styles.registerText}>
         Don't have an account?{" "}
         <Link href="/register" asChild>
