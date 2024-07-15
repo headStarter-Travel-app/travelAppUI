@@ -94,7 +94,7 @@ export const LogoutUser = async () => {
 
 export const initiatePasswordRecovery = async (email: string) => {
   try {
-    const response = await account.createRecovery(email, 'https://example.com/reset-password');
+    const response = await account.createRecovery(email, 'http://localhost:8081/reset-password');
     console.log(response);
   } catch (error) {
     console.error(error);

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
 import AppButton from "@/components/usableOnes/button";
-import { LoginUser } from "@/lib/appwrite"; // Assuming you have a login function in your appwrite library
+import { LoginUser, initiatePasswordRecovery } from "@/lib/appwrite"; // Assuming you have a login function in your appwrite library
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { Link, useRouter } from "expo-router";
@@ -63,7 +63,13 @@ const LoginPage = () => {
       Alert.alert("Error", "Invalid email format.");
       return;
     }
-    router.push("/(auth)/resetPassword");
+    try {
+      await initiatePasswordRecovery(email);
+      Alert.alert("Reset password email sent successfully");
+    }
+    catch (error: any) {
+      Alert.alert("Reset password failed. Please try again.");
+    }
   };
 
   return (
@@ -76,7 +82,7 @@ const LoginPage = () => {
         value={email}
         onChangeText={setEmail}
       />
-
+      
       <TextInput
         style={styles.input}
         placeholder="Password"
