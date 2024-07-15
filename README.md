@@ -48,3 +48,9 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+Web Deploy:
+
+1. npx expo export -p web
+2. netlify deploy --dir dist
+3. netlify deploy --prod --dir dist

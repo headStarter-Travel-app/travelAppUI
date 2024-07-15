@@ -138,7 +138,8 @@ const IntroPage = () => {
         ))}
       </View>
       <Text style={styles.subtitle}>
-        Your AI Guide for Group Adventures, Dates, and Vacations
+        Unite, Explore, Enjoy: ProxiLink's AI Platform Will Help You Find Your
+        Next Perfectly Curated Adventure, Date, or Vacation!{" "}
       </Text>
       <AppButton title="Sign Up With Email" onPress={handleSignUp} />
     </ScrollView>
