@@ -1,20 +1,34 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import AppButton from "@/components/usableOnes/button";
 import { completePasswordRecovery } from "@/lib/appwrite"; // Import the function
 import { useLocalSearchParams } from "expo-router";
-
+import { Link, useRouter } from "expo-router";
 const ResetPasswordPage = () => {
+  const router = useRouter();
+
   const [newPassword, setNewPassword] = useState("");
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
   const searchParams = useLocalSearchParams();
   const userId = searchParams.userId as string;
   const secret = searchParams.secret as string;
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const validatePassword = (password: string) => {
     return password.length >= 8;
   };
 
   const handleResetPassword = async () => {
+    setLoading(true);
     if (!newPassword) {
       Alert.alert("Error", "Password is required.");
       return;
@@ -24,11 +38,16 @@ const ResetPasswordPage = () => {
       return;
     }
     try {
-      await completePasswordRecovery(userId as string, secret as string, newPassword);
-      Alert.alert("Password reset successfully");
-      // Redirect to login page or another page
+      await completePasswordRecovery(
+        userId as string,
+        secret as string,
+        newPassword
+      );
+      router.replace("/login");
+      setLoading(false);
     } catch (error: any) {
-      Alert.alert("Password reset failed. Please try again.");
+      alert("Password reset failed. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -43,8 +62,18 @@ const ResetPasswordPage = () => {
         value={newPassword}
         onChangeText={setNewPassword}
       />
-
-      <AppButton title="Reset Password" onPress={handleResetPassword} />
+      <TextInput
+        style={styles.input}
+        placeholder="Confirm New Password"
+        secureTextEntry={true}
+        value={newPasswordConfirm}
+        onChangeText={setNewPasswordConfirm}
+      />
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <AppButton title="Reset Password" onPress={handleResetPassword} />
+      )}
     </View>
   );
 };

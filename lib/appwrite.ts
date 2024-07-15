@@ -57,7 +57,7 @@ export const CreateUser = async (
 // Login User
 export const LoginUser = async (email: string, password: string) => {
   try {
-    const session = await account.createSession(email, password);
+    const session = await account.createEmailPasswordSession(email, password);
     await AsyncStorage.setItem("userSession", JSON.stringify(session));
     return session; // Ensure this returns the session object
   } catch (error: any) {
@@ -97,6 +97,7 @@ export const LogoutUser = async () => {
   try {
     await account.deleteSession("current");
     await AsyncStorage.removeItem("userSession");
+    await AsyncStorage.clear();
     console.log("Logout successful");
   } catch (error) {
     console.error("Logout failed", error);
@@ -108,7 +109,7 @@ export const initiatePasswordRecovery = async (email: string) => {
   try {
     const response = await account.createRecovery(
       email,
-      "http://localhost:8081/reset-password"
+      "http://localhost:8081/reset"
     );
     console.log(response);
   } catch (error) {
@@ -124,7 +125,7 @@ export const completePasswordRecovery = async (
 ) => {
   try {
     const response = await account.updateRecovery(userId, secret, newPassword);
-    console.log(response);
+    alert("Password reset successfully");
   } catch (error) {
     console.error(error);
     throw error;

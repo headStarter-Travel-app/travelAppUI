@@ -75,18 +75,18 @@ const LoginPage = () => {
 
   const handleResetPassword = async () => {
     if (!email) {
-      Alert.alert("Error", "Email is required.");
+      alert("Email is required.");
       return;
     }
     if (!validateEmail(email)) {
-      Alert.alert("Error", "Invalid email format.");
+      alert("Invalid email format.");
       return;
     }
     try {
       await initiatePasswordRecovery(email);
-      Alert.alert("Reset password email sent successfully");
+      alert("Reset password email sent successfully");
     } catch (error: any) {
-      Alert.alert("Reset password failed. Please try again.");
+      alert("Reset password failed. Please try again.");
     }
   };
 
@@ -107,8 +107,11 @@ const LoginPage = () => {
         value={password}
         onChangeText={setPassword}
       />
-
-      <AppButton title="Login" onPress={handleLogin} />
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <AppButton title="Login" onPress={handleLogin} />
+      )}
       <View style={{ height: 10 }} />
       <AppButton title="Forgot Password" onPress={handleResetPassword} />
       <Text style={styles.registerText}>
