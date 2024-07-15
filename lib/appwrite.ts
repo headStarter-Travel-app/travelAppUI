@@ -95,6 +95,7 @@ export const LoginUser = async (email: string, password: string) => {
     // Enhanced logging for debugging
     console.error("Login failed with error:", error);
     console.error("Error details:", error.response); // Log additional details if available
+    alert(error.message);
 
     // Handling different error codes
     if (error.code === 401) {

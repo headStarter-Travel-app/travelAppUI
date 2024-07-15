@@ -31,7 +31,7 @@ const IntroPage = () => {
       title: "Find new Hangout Spots!",
       priceRangeLower: 1,
       priceRangeUpper: 2,
-      image: require("@/public/Theatres.png"),
+      image: require("@/public/Theatres.jpg"),
     },
     {
       id: 3,

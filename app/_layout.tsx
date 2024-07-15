@@ -8,16 +8,24 @@ import { useFonts } from "expo-font";
 import { Redirect, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import "react-native-reanimated";
-import { View, Text } from "react-native"; // Add this import
+import { View, Text, Image } from "react-native"; // Add this import
 import { useColorScheme } from "@/hooks/useColorScheme";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+const splashImage = require("../public/splashImage.png");
 
 // Create a simple Splash component
 const Splash = () => (
-  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-    <Text>Your Splash Screen</Text>
+  <View
+    style={{
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "black",
+    }}
+  >
+    <Image source={splashImage} style={{ width: 200, height: 200 }} />
   </View>
 );
 

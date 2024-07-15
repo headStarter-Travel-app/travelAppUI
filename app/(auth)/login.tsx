@@ -1,16 +1,23 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import AppButton from "@/components/usableOnes/button";
 import { LoginUser } from "@/lib/appwrite"; // Assuming you have a login function in your appwrite library
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 import { Link, useRouter } from "expo-router";
-
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,33 +29,45 @@ const LoginPage = () => {
   };
 
   const handleLogin = async () => {
+    setLoading(true);
     if (!email || !password) {
       Alert.alert("Error", "All fields are required.");
+      setLoading(false);
       return;
     }
     if (!validateEmail(email)) {
       Alert.alert("Error", "Invalid email format.");
+      setLoading(false);
+
       return;
     }
     if (!validatePassword(password)) {
       Alert.alert("Error", "Password must be at least 8 characters long.");
+      setLoading(false);
+
       return;
     }
     try {
       const session = await LoginUser(email, password);
       if (session && session.$id) {
-        await AsyncStorage.setItem('userSession', session.$id);
+        await AsyncStorage.setItem("userSession", session.$id);
         Alert.alert("Login successful");
+        setLoading(false);
         router.replace("/(tabs)");
       } else {
         throw new Error("Invalid session object");
       }
     } catch (error: any) {
       if (error.message.includes("Session already exists")) {
-        Alert.alert("Error", "Session already exists, You are already logged in.");
+        Alert.alert(
+          "Error",
+          "Session already exists, You are already logged in."
+        );
+        setLoading(false);
         router.replace("/(tabs)");
       } else {
         Alert.alert("Login failed", error.message);
+        setLoading(false);
       }
     }
   };
@@ -56,14 +75,12 @@ const LoginPage = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
-
       <TextInput
         style={styles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
       />
-
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -71,8 +88,11 @@ const LoginPage = () => {
         value={password}
         onChangeText={setPassword}
       />
-
-      <AppButton title="Login" onPress={handleLogin} />
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <AppButton title="Login" onPress={handleLogin} />
+      )}
       <Text style={styles.registerText}>
         Don't have an account?{" "}
         <Link href="/register" asChild>
