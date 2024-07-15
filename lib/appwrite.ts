@@ -1,6 +1,5 @@
 import { Account, Client, Databases, ID } from "react-native-appwrite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
 
 export const appwriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -30,23 +29,10 @@ export const CreateUser = async (
   lastName: string
 ) => {
   const userID = ID.unique();
-  console.log("Creating account for user", userID);
   const name = `${firstName} ${lastName}`;
-
   try {
-    // Check if there is an existing session
-    const existingSession = await AsyncStorage.getItem("userSession");
-
-    if (existingSession) {
-      console.log("Session already exists:", existingSession);
-      return JSON.parse(existingSession);
-    }
-
-    // Create a new user account
     const response = await account.create(userID, email, password, name);
     console.log("Successfully created account");
-
-    // Create a new user document in the database
     await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
@@ -59,54 +45,26 @@ export const CreateUser = async (
       }
     );
     console.log("Successfully created user document");
-
-    // Log the user in and create a session
-    const session = await account.createEmailPasswordSession(email, password);
-    await AsyncStorage.setItem("userSession", JSON.stringify(session));
-    return session; // Return the session object
-  } catch (error: any) {
+    const session = await account.createSession(email, password);
+    await AsyncStorage.setItem('userSession', JSON.stringify(session));
+    return session; // Ensure this returns the session object
+  } catch (error) {
     console.log(error);
-    if (error.code === 401 && error.type === "user_session_already_exists") {
-      const existingSession = await AsyncStorage.getItem("userSession");
-      return existingSession;
-    }
-    alert(error.message);
-    return error.message;
+    throw error;
   }
 };
 
+// Login User
 export const LoginUser = async (email: string, password: string) => {
   try {
-    // Check if there is an existing session
-    const existingSession = await AsyncStorage.getItem("userSession");
-
-    if (existingSession) {
-      console.log("Session already exists:", existingSession);
-      return JSON.parse(existingSession);
-    }
-
-    // Attempt to create a session with email and password
-    const session = await account.createEmailPasswordSession(email, password);
-    // Store session in AsyncStorage
-    await AsyncStorage.setItem("userSession", JSON.stringify(session));
-    // Return the session object
-    return session;
+    const session = await account.createSession(email, password);
+    await AsyncStorage.setItem('userSession', JSON.stringify(session));
+    return session; // Ensure this returns the session object
   } catch (error: any) {
-    // Enhanced logging for debugging
-    console.error("Login failed with error:", error);
-    console.error("Error details:", error.response); // Log additional details if available
-
-    // Handling different error codes
-    if (error.code === 401) {
-      if (error.type === "user_session_already_exists") {
-        console.error("Session already exists");
-        const existingSession = await AsyncStorage.getItem("userSession");
-        return existingSession;
-      } else {
-        console.error("Invalid password");
-        throw new Error("Invalid password");
-      }
-    } else if (error.code === 404) {
+    if (error.code === 401) { // Assuming 401 is the error code for invalid credentials
+      console.error("Invalid password");
+      throw new Error("Invalid password");
+    } else if (error.code === 404) { // Assuming 404 is the error code for user not found
       console.error("User does not exist, please register");
       throw new Error("User does not exist, please register");
     } else {
@@ -118,18 +76,28 @@ export const LoginUser = async (email: string, password: string) => {
 
 // Check if user is logged in
 export const isLoggedIn = async () => {
-  const session = await AsyncStorage.getItem("userSession");
+  const session = await AsyncStorage.getItem('userSession');
   return session !== null;
 };
 
 // Logout User
 export const LogoutUser = async () => {
   try {
-    await account.deleteSession("current");
-    await AsyncStorage.removeItem("userSession");
+    await account.deleteSession('current');
+    await AsyncStorage.removeItem('userSession');
     console.log("Logout successful");
   } catch (error) {
     console.error("Logout failed", error);
     throw error;
   }
 };
+
+export const initiatePasswordRecovery = async (email: string) => {
+  try {
+    const response = await account.createRecovery(email, 'https://example.com/reset-password');
+    console.log(response);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
