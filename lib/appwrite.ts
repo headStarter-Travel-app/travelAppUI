@@ -101,3 +101,13 @@ export const initiatePasswordRecovery = async (email: string) => {
     throw error;
   }
 }
+
+export const completePasswordRecovery = async (userId: string, secret: string, newPassword: string) => {
+  try {
+    const response = await account.updateRecovery(userId, secret, newPassword);
+    console.log(response);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
