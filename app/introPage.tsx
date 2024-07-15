@@ -8,6 +8,7 @@ import {
   Platform,
   TouchableOpacity,
   Animated,
+  Image,
 } from "react-native";
 import AppButton from "@/components/usableOnes/button";
 import MediumCard from "@/components/usableOnes/splashPage/mediumCard";
@@ -117,7 +118,17 @@ const IntroPage = () => {
   };
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>ProxiLink</Text>
+      <View style={styles.titleContainer}>
+        <Image
+          source={require("@/public/splashImage.png")}
+          alt="ProxiLink Logo"
+          style={{
+            width: 50,
+            height: 50,
+          }}
+        />
+        <Text style={[styles.title, { marginLeft: 10 }]}>ProxiLink</Text>
+      </View>
       <View style={styles.cardsContainer}>
         {cards.map((card, index) => (
           <TouchableOpacity
@@ -158,9 +169,8 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "spaceGroteskBold",
     fontSize: 32,
-    fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 25,
+    lineHeight: 50, // This should match the height of the image
   },
   cardsContainer: {
     width: "100%",
@@ -183,6 +193,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
     maxWidth: 300,
+  },
+  titleContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
   },
 });
 
