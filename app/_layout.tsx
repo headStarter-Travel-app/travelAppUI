@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
 import {
-  DarkTheme,
-  DefaultTheme,
+  DarkTheme as NavigationDarkTheme,
+  DefaultTheme as NavigationDefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-
 import { Redirect, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import "react-native-reanimated";
 import { View, Text } from "react-native"; // Add this import
-
 import { useColorScheme } from "@/hooks/useColorScheme";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -23,6 +21,23 @@ const Splash = () => (
   </View>
 );
 
+// Define your custom themes
+const CustomDefaultTheme = {
+  ...NavigationDefaultTheme,
+  colors: {
+    ...NavigationDefaultTheme.colors,
+    background: "#DFF2F9", // Custom background color for light theme
+  },
+};
+
+const CustomDarkTheme = {
+  ...NavigationDarkTheme,
+  colors: {
+    ...NavigationDarkTheme.colors,
+    background: "#DFF2F9", // Custom background color for dark theme
+  },
+};
+
 export default function RootLayout() {
   const [fontsLoaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
@@ -33,6 +48,7 @@ export default function RootLayout() {
     spaceGroteskRegular: require("../assets/fonts/SpaceGrotesk-Regular.ttf"),
     spaceGroteskMedium: require("../assets/fonts/SpaceGrotesk-Regular.ttf"),
   });
+
   const colorScheme = useColorScheme();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -55,13 +71,18 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider
+      value={colorScheme === "dark" ? CustomDarkTheme : CustomDefaultTheme}
+    >
       <Stack
-        screenOptions={{
-          headerShown: false,
-          gestureEnabled: true,
-          gestureDirection: "horizontal",
-        }}
+        screenOptions={
+          {
+            headerShown: false,
+            gestureEnabled: true,
+            gestureDirection: "horizontal",
+            cardStyle: { backgroundColor: "#DFF2F9" }, // Apply background color to all screens
+          } as any
+        }
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="introPage" options={{ headerShown: false }} />
