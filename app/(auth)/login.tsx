@@ -48,8 +48,9 @@ const LoginPage = () => {
       return;
     }
     try {
-      const session = await LoginUser(email, password);
-      if (session && session.$id) {
+      let loginSession: any = await LoginUser(email, password);
+      const session = loginSession;
+      if (session && session?.$id) {
         await AsyncStorage.setItem("userSession", session.$id);
         Alert.alert("Login successful");
         setLoading(false);
@@ -69,23 +70,6 @@ const LoginPage = () => {
         Alert.alert("Login failed", error.message);
         setLoading(false);
       }
-    }
-  };
-
-  const handleResetPassword = async () => {
-    if (!email) {
-      Alert.alert("Error", "Email is required.");
-      return;
-    }
-    if (!validateEmail(email)) {
-      Alert.alert("Error", "Invalid email format.");
-      return;
-    }
-    try {
-      await initiatePasswordRecovery(email);
-      Alert.alert("Reset password email sent successfully");
-    } catch (error: any) {
-      Alert.alert("Reset password failed. Please try again.");
     }
   };
 
