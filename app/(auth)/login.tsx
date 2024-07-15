@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Link, useRouter } from "expo-router";
 
 
+
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,6 +54,18 @@ const LoginPage = () => {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!email) {
+      Alert.alert("Error", "Email is required.");
+      return;
+    }
+    if (!validateEmail(email)) {
+      Alert.alert("Error", "Invalid email format.");
+      return;
+    }
+    router.push("/(auth)/resetPassword");
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
@@ -73,6 +86,8 @@ const LoginPage = () => {
       />
 
       <AppButton title="Login" onPress={handleLogin} />
+      <View style={{ height: 10 }} />
+      <AppButton title="Forgot Password" onPress={handleResetPassword} />
       <Text style={styles.registerText}>
         Don't have an account?{" "}
         <Link href="/register" asChild>
