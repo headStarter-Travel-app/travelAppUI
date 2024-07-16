@@ -16,9 +16,7 @@ export default function TabTwoScreen() {
       }
     >
       <ThemedView>
-        <ThemedText type="title" className="text-red-400">
-          Explore Me
-        </ThemedText>
+        <ThemedText type="title">Explore Me</ThemedText>
       </ThemedView>
       <ThemedText>
         This app includes example code to help you get startedlasdjfkla.
