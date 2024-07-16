@@ -1,5 +1,6 @@
 import { Account, Client, Databases, ID } from "react-native-appwrite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { get } from "http";
 
 export const appwriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -7,6 +8,7 @@ export const appwriteConfig = {
   projectId: "66930c61001b090ab206",
   databaseId: "66930e1000087eb0d4bd",
   userCollectionId: "66930e5900107bc194dc",
+  preferencesCollectionId: "6696016b00117bbf6352",
   storageId: "66930ebf003d9d175225",
 };
 
@@ -131,3 +133,34 @@ export const completePasswordRecovery = async (
     throw error;
   }
 };
+
+
+export const SavePreferences = async (location: string, budget: number, cuisine: string) => {
+  const userId = getUserId();
+  const preferences = {
+    user_id: userId,
+    cuisine: cuisine,
+    budget: budget,
+    location: location,
+  };
+
+  try {
+    await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.preferencesCollectionId,
+      ID.unique(),
+      preferences
+    );
+    console.log("Preferences saved successfully");
+  } catch (error) {
+    console.error("Error saving preferences:", error);
+    throw error;
+  }
+};
+
+export const getUserId = async () => {
+  const result = await account.get();
+  return result.$id;
+};
+
+
