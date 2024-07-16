@@ -149,7 +149,7 @@ const IntroPage = () => {
         ))}
       </View>
       <Text style={styles.subtitle}>
-        Unite, Explore, Enjoy: ProxiLink's AI Platform Will Help You Curate Your
+        Unite, Explore, Enjoy: ProxiLink's AI Platform Will Help You Find Your
         Next Adventure, Date, or Vacation!
       </Text>
       <AppButton title="Sign Up With Email" onPress={handleSignUp} />

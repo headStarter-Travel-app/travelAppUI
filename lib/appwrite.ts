@@ -50,7 +50,7 @@ export const CreateUser = async (
     return session; // Ensure this returns the session object
   } catch (error) {
     console.log(error);
-    throw error;
+    alert("Error");
   }
 };
 
@@ -81,7 +81,7 @@ export const LoginUser = async (email: string, password: string) => {
       throw new Error("User does not exist, please register");
     } else {
       console.error("Login failed", error);
-      throw error;
+      alert("Password reset failed");
     }
   }
 };
@@ -101,7 +101,7 @@ export const LogoutUser = async () => {
     console.log("Logout successful");
   } catch (error) {
     console.error("Logout failed", error);
-    throw error;
+    alert("Password reset failed");
   }
 };
 
@@ -114,7 +114,7 @@ export const initiatePasswordRecovery = async (email: string) => {
     console.log(response);
   } catch (error) {
     console.error(error);
-    throw error;
+    alert("Password reset failed");
   }
 };
 
@@ -128,6 +128,6 @@ export const completePasswordRecovery = async (
     alert("Password reset successfully");
   } catch (error) {
     console.error(error);
-    throw error;
+    alert("Password reset failed");
   }
 };
