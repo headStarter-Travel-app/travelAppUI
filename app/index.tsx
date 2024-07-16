@@ -2,7 +2,6 @@ import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Spinner from "react-native-loading-spinner-overlay";
-import "leaflet/dist/leaflet.css";
 
 export default function Index() {
   const [isLogged, setIsLogged] = useState(false);
