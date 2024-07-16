@@ -120,7 +120,7 @@ const IntroPage = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.titleContainer}>
         <Image
-          source={require("@/public/splashImage.png")}
+          source={require("@/public/splash.png")}
           alt="ProxiLink Logo"
           style={{
             width: 50,

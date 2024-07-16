@@ -13,7 +13,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-const splashImage = require("../public/splashImage.png");
+const splashImage = require("../public/splash.png");
 
 // Create a simple Splash component
 const Splash = () => (
