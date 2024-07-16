@@ -45,7 +45,7 @@ export const CreateUser = async (
       }
     );
     console.log("Successfully created user document");
-    const session = await account.createSession(email, password);
+    const session = await account.createEmailPasswordSession(email, password);
     await AsyncStorage.setItem("userSession", JSON.stringify(session));
     return session; // Ensure this returns the session object
   } catch (error) {

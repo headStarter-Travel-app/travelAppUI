@@ -18,5 +18,5 @@
     ".expo/types/**/*.ts",
     "exp  o-env.d.ts",
     "expo-env.d.ts"
-  ]
+, "api/index.js"  ]
 }
