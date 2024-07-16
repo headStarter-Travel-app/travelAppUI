@@ -1,20 +1,21 @@
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Spinner from 'react-native-loading-spinner-overlay';
+import Spinner from "react-native-loading-spinner-overlay";
+import "leaflet/dist/leaflet.css";
 
 export default function Index() {
   const [isLogged, setIsLogged] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
- 
+
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
         const session = await AsyncStorage.getItem("userSession");
         if (session !== null) {
           setIsLogged(true);
-          setSuccessMessage('You have successfully logged in!');
+          setSuccessMessage("You have successfully logged in!");
         } else {
           setIsLogged(false);
         }
@@ -30,7 +31,13 @@ export default function Index() {
   }, []);
 
   if (isLoading) {
-    return <Spinner visible={true} textContent={'Loading...'} textStyle={{color: "#000000"}} />;
+    return (
+      <Spinner
+        visible={true}
+        textContent={"Loading..."}
+        textStyle={{ color: "#000000" }}
+      />
+    );
   }
 
   if (isLogged) {
