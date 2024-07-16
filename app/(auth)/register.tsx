@@ -59,6 +59,7 @@ const RegisterPage = () => {
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor="gray"
         value={email}
         onChangeText={setEmail}
       />
@@ -66,6 +67,7 @@ const RegisterPage = () => {
       <TextInput
         style={styles.input}
         placeholder="First Name"
+        placeholderTextColor="gray"
         value={firstName}
         onChangeText={setFirstName}
       />
@@ -73,6 +75,7 @@ const RegisterPage = () => {
       <TextInput
         style={styles.input}
         placeholder="Last Name"
+        placeholderTextColor="gray"
         value={lastName}
         onChangeText={setLastName}
       />
@@ -80,6 +83,7 @@ const RegisterPage = () => {
       <TextInput
         style={styles.input}
         placeholder="Password"
+        placeholderTextColor="gray"
         secureTextEntry={true} // Always hide password
         value={password}
         onChangeText={setPassword}
@@ -88,6 +92,7 @@ const RegisterPage = () => {
       <TextInput
         style={styles.input}
         placeholder="Confirm Password"
+        placeholderTextColor="gray"
         secureTextEntry={true} // Always hide confirm password
         value={confirmPassword}
         onChangeText={setConfirmPassword}
@@ -121,7 +126,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   input: {
-    width: "50%", // Adjusted to fill the container
+    width: "80%", // Adjusted to fill the container
     borderWidth: 2,
     borderColor: "gray",
     padding: 10,
