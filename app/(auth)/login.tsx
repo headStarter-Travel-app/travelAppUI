@@ -96,6 +96,7 @@ const LoginPage = () => {
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor="gray"
         value={email}
         onChangeText={setEmail}
       />
@@ -105,6 +106,7 @@ const LoginPage = () => {
         placeholder="Password"
         secureTextEntry={true}
         value={password}
+        placeholderTextColor="gray"
         onChangeText={setPassword}
       />
       {loading ? (

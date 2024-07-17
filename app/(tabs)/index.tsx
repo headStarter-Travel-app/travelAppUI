@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Alert,
@@ -8,16 +8,60 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import MapView from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { LogoutUser } from "@/lib/appwrite";
 import { useRouter } from "expo-router";
+import * as Location from "expo-location";
 
 const quizIcon = require("@/assets/images/questionn.svg");
 
+// Default location (San Francisco)
+const DEFAULT_LOCATION = {
+  latitude: 37.78825,
+  longitude: -122.4324,
+  latitudeDelta: 0.0922,
+  longitudeDelta: 0.0421,
+};
+
+// Dark mode map style
+
 export default function App() {
   const router = useRouter();
+  const [region, setRegion] = useState(DEFAULT_LOCATION);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        let location = await Location.getCurrentPositionAsync({});
+        console.log("location", location.coords.latitude);
+        if (location) {
+          setRegion({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          });
+        } else {
+          console.log("Location is undefined, using default location");
+        }
+      } catch (error) {
+        console.error("Error getting location:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, []);
+
   const handleLogout = async () => {
     try {
       await LogoutUser();
@@ -42,15 +86,26 @@ export default function App() {
           placeholderTextColor="#000"
         />
       </View>
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-      />
+      {!isLoading && (
+        <MapView
+          style={styles.map}
+          region={region}
+          onRegionChangeComplete={setRegion}
+          customMapStyle={mapStyle}
+          mapType="mutedStandard"
+          rotateEnabled={true}
+          pitchEnabled={true}
+        >
+          <Marker
+            coordinate={{
+              latitude: region.latitude,
+              longitude: region.longitude,
+            }}
+            title="You are here"
+            description="Your current location"
+          />
+        </MapView>
+      )}
       <View style={styles.buttonsContainer}>
         <TouchableOpacity onPress={handleQuizPress}>
           <ThemedView style={styles.card}>
@@ -72,7 +127,6 @@ export default function App() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -132,9 +186,201 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
+    color: "#000000",
   },
   subtitle: {
     fontSize: 14,
     color: "#555",
   },
+  markerContainer: {
+    alignItems: "center",
+  },
+  markerOuter: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "rgba(0, 122, 255, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  markerInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#007AFF",
+  },
+  markerArrow: {
+    width: 0,
+    height: 0,
+    backgroundColor: "transparent",
+    borderStyle: "solid",
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 10,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderTopColor: "rgba(0, 122, 255, 0.3)",
+    transform: [{ translateY: -2 }],
+  },
 });
+const mapStyle = [
+  {
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#242f3e",
+      },
+    ],
+  },
+  {
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#746855",
+      },
+    ],
+  },
+  {
+    elementType: "labels.text.stroke",
+    stylers: [
+      {
+        color: "#242f3e",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.locality",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#d59563",
+      },
+    ],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#d59563",
+      },
+    ],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#263c3f",
+      },
+    ],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#6b9a76",
+      },
+    ],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#38414e",
+      },
+    ],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry.stroke",
+    stylers: [
+      {
+        color: "#212a37",
+      },
+    ],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#9ca5b3",
+      },
+    ],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#746855",
+      },
+    ],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry.stroke",
+    stylers: [
+      {
+        color: "#1f2835",
+      },
+    ],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#f3d19c",
+      },
+    ],
+  },
+  {
+    featureType: "transit",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#2f3948",
+      },
+    ],
+  },
+  {
+    featureType: "transit.station",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#d59563",
+      },
+    ],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [
+      {
+        color: "#17263c",
+      },
+    ],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#515c6d",
+      },
+    ],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.stroke",
+    stylers: [
+      {
+        color: "#17263c",
+      },
+    ],
+  },
+];

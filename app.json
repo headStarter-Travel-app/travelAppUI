@@ -14,7 +14,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.nnagelia.headstarterProject"
+      "bundleIdentifier": "com.nnagelia.headstarterProject",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app needs access to location to show your position on the map.",
+        "NSLocationAlwaysUsageDescription": "This app needs access to location to show your position on the map."
+      }
     },
     "android": {
       "adaptiveIcon": {
