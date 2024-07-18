@@ -7,6 +7,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { SavePreferences } from "@/lib/appwrite";
 
 import AppButton from "@/components/usableOnes/button";
 import { useRouter } from "expo-router";

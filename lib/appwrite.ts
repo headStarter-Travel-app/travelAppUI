@@ -38,7 +38,7 @@ export const CreateUser = async (
     await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
-      ID.unique(),
+      userID,
       {
         uid: userID,
         email: email,
