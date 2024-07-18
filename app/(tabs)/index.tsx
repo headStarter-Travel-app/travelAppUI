@@ -16,7 +16,7 @@ import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 
 const quizIcon = require("@/assets/images/questionn.svg");
-
+//TODO add map loadin
 // Default location (San Francisco)
 const DEFAULT_LOCATION = {
   latitude: 37.78825,
@@ -31,6 +31,7 @@ export default function App() {
   const router = useRouter();
   const [region, setRegion] = useState(DEFAULT_LOCATION);
   const [isLoading, setIsLoading] = useState(true);
+  const [location, setLocation] = useState(DEFAULT_LOCATION);
 
   useEffect(() => {
     (async () => {
@@ -43,9 +44,15 @@ export default function App() {
 
       try {
         let location = await Location.getCurrentPositionAsync({});
-        console.log("location", location.coords.latitude);
         if (location) {
           setRegion({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          });
+
+          setLocation({
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
             latitudeDelta: 0.0922,
@@ -85,6 +92,10 @@ export default function App() {
           placeholder="Create a new party..."
           placeholderTextColor="#000"
         />
+        <Image
+          source={require("@/public/utilities/search.png")}
+          style={styles.Magnicon}
+        />
       </View>
       {!isLoading && (
         <MapView
@@ -98,8 +109,8 @@ export default function App() {
         >
           <Marker
             coordinate={{
-              latitude: region.latitude,
-              longitude: region.longitude,
+              latitude: location.latitude,
+              longitude: location.longitude,
             }}
             title="You are here"
             description="Your current location"
@@ -145,6 +156,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   searchInput: {
     height: 40,
@@ -178,6 +192,11 @@ const styles = StyleSheet.create({
   icon: {
     width: 50,
     height: 50,
+    marginRight: 20,
+  },
+  Magnicon: {
+    width: 25,
+    height: 25,
     marginRight: 20,
   },
   textContainer: {
