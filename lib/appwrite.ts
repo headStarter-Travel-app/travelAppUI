@@ -1,4 +1,4 @@
-import { Account, Client, Databases, ID } from "react-native-appwrite";
+import { Account, Client, Databases, ID, Storage } from "react-native-appwrite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { get } from "http";
 
@@ -10,6 +10,7 @@ export const appwriteConfig = {
   userCollectionId: "66930e5900107bc194dc",
   preferencesCollectionId: "6696016b00117bbf6352",
   storageId: "66930ebf003d9d175225",
+  profileImageBucketID: "profilePictures",
 };
 
 // Init your React Native SDK
@@ -22,6 +23,7 @@ client
 
 const account = new Account(client);
 const databases = new Databases(client);
+const storage = new Storage(client);
 
 // Register User
 export const CreateUser = async (
@@ -166,4 +168,89 @@ export const SavePreferences = async (preferences: {
 export const getUserId = async () => {
   const result = await account.get();
   return result.$id;
+};
+
+//Accounts
+
+export const uploadProfileImage = async (file: {
+  uri: string;
+  name: string;
+  type: string;
+  size: number;
+}) => {
+  try {
+    const response = await storage.createFile(
+      appwriteConfig.profileImageBucketID,
+      ID.unique(),
+      file
+    );
+    return response.$id;
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    throw error;
+  }
+};
+
+export const updateProfileImage = async (fileId: string) => {
+  try {
+    const imageUrl = storage.getFileView(
+      appwriteConfig.profileImageBucketID,
+      fileId
+    );
+    await account.updatePrefs({
+      profileImageId: fileId,
+      profileImageUrl: imageUrl.href,
+    });
+  } catch (error) {
+    console.error("Error updating profile image preference:", error);
+    throw error;
+  }
+};
+export const getUserInfo = async () => {
+  try {
+    const userId = await getUserId();
+
+    // Fetch user account information
+    const userAccount = await account.get();
+
+    // Fetch additional user information from your database
+    // Assuming you have a 'users' collection in your database
+    const userData = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId
+    );
+
+    return {
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userAccount.email,
+      address: userData.address,
+      profileImageUrl: userAccount.prefs.profileImageUrl,
+      // Add any other fields you want to return
+    };
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    throw error;
+  }
+};
+
+export const RemoveImage = async () => {
+  try {
+    const userId = await getUserId();
+    const userAccount = await account.get();
+    if (userAccount.prefs.profileImageId) {
+      await storage.deleteFile(
+        appwriteConfig.profileImageBucketID,
+        userAccount.prefs.profileImageId
+      );
+    }
+    await account.updatePrefs({
+      profileImageId: null,
+      profileImageUrl: null,
+    });
+  } catch (error) {
+    console.error("Error removing image:", error);
+    throw error;
+  }
 };
