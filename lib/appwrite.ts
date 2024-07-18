@@ -135,13 +135,19 @@ export const completePasswordRecovery = async (
 };
 
 
-export const SavePreferences = async (location: string, budget: number, cuisine: string) => {
+export const SavePreferences = async (preferences: {
+  cuisine: string[];
+  entertainment: string[];
+  atmosphere: string;
+  social_interaction: string;
+  activity_level: string;
+  time_of_day: string;
+  spontaneity: string;
+}) => {
   const userId = getUserId();
-  const preferences = {
+  const preferencesWithUserId = {
     user_id: userId,
-    cuisine: cuisine,
-    budget: budget,
-    location: location,
+    ...preferences,
   };
 
   try {
@@ -149,7 +155,7 @@ export const SavePreferences = async (location: string, budget: number, cuisine:
       appwriteConfig.databaseId,
       appwriteConfig.preferencesCollectionId,
       ID.unique(),
-      preferences
+      preferencesWithUserId
     );
     console.log("Preferences saved successfully");
   } catch (error) {
