@@ -47,6 +47,7 @@ export default function TabTwoScreen() {
 
   useEffect(() => {
     fetchUserData();
+    console.log("feched");
   }, []);
 
   if (isLoading) {
@@ -62,6 +63,9 @@ export default function TabTwoScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.headerText}>Account Information</Text>
       <ProfileSelector userData={userData} refreshUserData={fetchUserData} />
+      <View
+        style={{ height: 1, backgroundColor: "lightgrey", marginVertical: 20 }}
+      />
     </ScrollView>
   );
 }

@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Alert,
   View,
-  Image,
   Text,
   TouchableOpacity,
   ActivityIndicator,
+  Animated,
 } from "react-native";
+import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import {
@@ -32,7 +33,8 @@ export const ProfileSelector = ({
   refreshUserData: () => Promise<void>;
 }) => {
   const [isUploading, setIsUploading] = useState(false);
-
+  const [imageOpacity] = useState(new Animated.Value(0));
+  const [imageKey, setImageKey] = useState(0);
   const pickImage = async () => {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
@@ -59,8 +61,8 @@ export const ProfileSelector = ({
         await updateProfileImage(fileId);
         Alert.alert("Success", "Profile image updated successfully");
 
-        // Refresh user data after successful upload
         await refreshUserData();
+        setImageKey((prevKey) => prevKey + 1);
       }
     } catch (error) {
       console.error("Error updating profile image:", error);
@@ -76,6 +78,7 @@ export const ProfileSelector = ({
       await RemoveImage();
       Alert.alert("Success", "Profile image removed successfully");
       await refreshUserData();
+      setImageKey((prevKey) => prevKey + 1);
     } catch (error) {
       console.error("Error removing profile image:", error);
       Alert.alert("Error", "Failed to remove profile image");
@@ -83,6 +86,10 @@ export const ProfileSelector = ({
       setIsUploading(false);
     }
   };
+
+  const imageSource = userData?.profileImageUrl
+    ? { uri: `${userData.profileImageUrl}?key=${imageKey}` }
+    : require("@/public/utilities/profileImage.png");
 
   return (
     <View>
@@ -95,12 +102,10 @@ export const ProfileSelector = ({
             </View>
           ) : (
             <Image
-              source={
-                userData?.profileImageUrl
-                  ? { uri: userData.profileImageUrl }
-                  : require("@/public/utilities/profileImage.png")
-              }
+              source={imageSource}
               style={styles.circularImage}
+              contentFit="cover"
+              transition={300}
             />
           )}
           <View style={styles.buttonContainer}>
@@ -124,7 +129,6 @@ export const ProfileSelector = ({
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   headerText: {
     fontSize: 28,
