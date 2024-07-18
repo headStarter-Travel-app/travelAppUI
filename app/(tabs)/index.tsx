@@ -6,6 +6,7 @@ import {
   Button,
   TextInput,
   Image,
+  ScrollView,
   TouchableOpacity,
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
@@ -86,60 +87,66 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Create a new party..."
-          placeholderTextColor="#000"
-        />
-        <Image
-          source={require("@/public/utilities/search.png")}
-          style={styles.Magnicon}
-        />
-      </View>
-      {!isLoading && (
-        <MapView
-          style={styles.map}
-          region={region}
-          onRegionChangeComplete={setRegion}
-          customMapStyle={mapStyle}
-          mapType="mutedStandard"
-          rotateEnabled={true}
-          pitchEnabled={true}
-        >
-          <Marker
-            coordinate={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-            }}
-            title="You are here"
-            description="Your current location"
+    <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <View style={styles.container}>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Create a new party..."
+            placeholderTextColor="#000"
           />
-        </MapView>
-      )}
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity onPress={handleQuizPress}>
-          <ThemedView style={styles.card}>
-            <Image source={quizIcon} style={styles.icon} />
-            <View style={styles.textContainer}>
-              <ThemedText type="subtitle" style={styles.title}>
-                Preference Quiz
-              </ThemedText>
-              <ThemedText style={styles.subtitle}>
-                Help us learn more about you
-              </ThemedText>
-            </View>
-          </ThemedView>
-        </TouchableOpacity>
+          <Image
+            source={require("@/public/utilities/search.png")}
+            style={styles.Magnicon}
+          />
+        </View>
+        {!isLoading && (
+          <MapView
+            style={styles.map}
+            region={region}
+            onRegionChangeComplete={setRegion}
+            mapType="mutedStandard"
+            rotateEnabled={true}
+            pitchEnabled={true}
+          >
+            <Marker
+              coordinate={{
+                latitude: location.latitude,
+                longitude: location.longitude,
+              }}
+              title="You are here"
+              description="Your current location"
+            />
+          </MapView>
+        )}
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity onPress={handleQuizPress}>
+            <ThemedView style={styles.card}>
+              <Image source={quizIcon} style={styles.icon} />
+              <View style={styles.textContainer}>
+                <ThemedText type="subtitle" style={styles.title}>
+                  Preference Quiz
+                </ThemedText>
+                <ThemedText style={styles.subtitle}>
+                  Help us learn more about you
+                </ThemedText>
+              </View>
+            </ThemedView>
+          </TouchableOpacity>
+        </View>
+        <View>
+          <Button title="Logout" onPress={handleLogout} />
+        </View>
       </View>
-      <View>
-        <Button title="Logout" onPress={handleLogout} />
-      </View>
-    </View>
+    </ScrollView>
   );
 }
 const styles = StyleSheet.create({
+  scrollViewContent: {
+    flexGrow: 4,
+    paddingBottom: 100,
+  },
+
   container: {
     flex: 1,
     backgroundColor: "#E6F7FF", // Very light blue background
@@ -170,7 +177,7 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
     marginTop: 0, // No margin at the top
-    height: "60%", // Reduce the height to leave space for the card
+    height: "40%", // Reduce the height to leave space for the card
   },
   buttonsContainer: {
     padding: 10,
@@ -243,164 +250,3 @@ const styles = StyleSheet.create({
     transform: [{ translateY: -2 }],
   },
 });
-const mapStyle = [
-  {
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#242f3e",
-      },
-    ],
-  },
-  {
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#746855",
-      },
-    ],
-  },
-  {
-    elementType: "labels.text.stroke",
-    stylers: [
-      {
-        color: "#242f3e",
-      },
-    ],
-  },
-  {
-    featureType: "administrative.locality",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#d59563",
-      },
-    ],
-  },
-  {
-    featureType: "poi",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#d59563",
-      },
-    ],
-  },
-  {
-    featureType: "poi.park",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#263c3f",
-      },
-    ],
-  },
-  {
-    featureType: "poi.park",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#6b9a76",
-      },
-    ],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#38414e",
-      },
-    ],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry.stroke",
-    stylers: [
-      {
-        color: "#212a37",
-      },
-    ],
-  },
-  {
-    featureType: "road",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#9ca5b3",
-      },
-    ],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#746855",
-      },
-    ],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry.stroke",
-    stylers: [
-      {
-        color: "#1f2835",
-      },
-    ],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#f3d19c",
-      },
-    ],
-  },
-  {
-    featureType: "transit",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#2f3948",
-      },
-    ],
-  },
-  {
-    featureType: "transit.station",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#d59563",
-      },
-    ],
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#17263c",
-      },
-    ],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#515c6d",
-      },
-    ],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.stroke",
-    stylers: [
-      {
-        color: "#17263c",
-      },
-    ],
-  },
-];
