@@ -6,20 +6,32 @@ import { useRouter } from "expo-router";
 import { SavePreferences } from "@/lib/appwrite"; // Assume this function is implemented
 
 const PreferenceQuiz = () => {
-  const [location, setLocation] = useState("");
-  const [budget, setBudget] = useState(0);
-  const [cuisine, setCuisine] = useState("");
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+    const [cuisine, setCuisine] = useState<string[]>([]);
+    const [entertainment, setEntertainment] = useState<string[]>([]);
+    const [atmosphere, setAtmosphere] = useState<string>("");
+    const [socialInteraction, setSocialInteraction] = useState<string>("");
+    const [activityLevel, setActivityLevel] = useState<string>("");
+    const [timeOfDay, setTimeOfDay] = useState<string>("");
+    const [spontaneity, setSpontaneity] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
+    const router = useRouter();
 
   const handleSavePreferences = async () => {
     setLoading(true);
     try {
-      await SavePreferences(location, budget, cuisine);
+      await SavePreferences({
+        cuisine,
+        entertainment,
+        atmosphere,
+        social_interaction: socialInteraction,
+        activity_level: activityLevel,
+        time_of_day: timeOfDay,
+        spontaneity
+      });
       Alert.alert("Preferences saved successfully");
       setLoading(false);
       router.replace("/(tabs)");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Saving preferences failed:", error);
       Alert.alert("Saving preferences failed. Please try again.");
       setLoading(false);
@@ -30,24 +42,61 @@ const PreferenceQuiz = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Preference Quiz</Text>
 
-      <Text style={styles.label}>Preferred Location</Text>
+      <Text style={styles.label}>Cuisine Preferences</Text>
       <TextInput
         style={styles.input}
-        placeholder="e.g., New York, Tokyo"
-        value={location}
-        onChangeText={setLocation}
+        placeholder="e.g., Italian, Japanese"
+        value={cuisine.join(", ")}
+        onChangeText={(text) => setCuisine(text.split(", "))}
       />
 
-      <Text style={styles.label}>Budget</Text>
+      <Text style={styles.label}>Entertainment Preferences</Text>
       <TextInput
         style={styles.input}
-        placeholder="e.g., 1000"
-        value={budget.toString()}
-        onChangeText={(text) => setBudget(Number(text))}
-        keyboardType="numeric"
+        placeholder="e.g., Movies, Live music"
+        value={entertainment.join(", ")}
+        onChangeText={(text) => setEntertainment(text.split(", "))}
       />
 
-      
+      <Text style={styles.label}>Atmosphere Preferences</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="e.g., I prefer quieter, more relaxed spots."
+        value={atmosphere}
+        onChangeText={setAtmosphere}
+      />
+
+      <Text style={styles.label}>Social Interaction</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="e.g., I prefer intimate gatherings with close friends."
+        value={socialInteraction}
+        onChangeText={setSocialInteraction}
+      />
+
+      <Text style={styles.label}>Activity Level</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="e.g., I enjoy both energetic and relaxed activities equally."
+        value={activityLevel}
+        onChangeText={setActivityLevel}
+      />
+
+      <Text style={styles.label}>Time of Day</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="e.g., Evening"
+        value={timeOfDay}
+        onChangeText={setTimeOfDay}
+      />
+
+      <Text style={styles.label}>Spontaneity</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="e.g., I enjoy a mix of both spontaneity and planned activities."
+        value={spontaneity}
+        onChangeText={setSpontaneity}
+      />
 
       {loading ? (
         <ActivityIndicator size="large" color="blue" />
