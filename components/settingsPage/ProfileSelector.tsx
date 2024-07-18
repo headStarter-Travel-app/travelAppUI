@@ -4,11 +4,11 @@ import {
   Alert,
   View,
   Text,
+  Image,
   TouchableOpacity,
   ActivityIndicator,
   Animated,
 } from "react-native";
-import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import {
@@ -101,12 +101,7 @@ export const ProfileSelector = ({
               <ActivityIndicator size="large" color="#8A94FF" />
             </View>
           ) : (
-            <Image
-              source={imageSource}
-              style={styles.circularImage}
-              contentFit="cover"
-              transition={300}
-            />
+            <Image source={imageSource} style={styles.circularImage} />
           )}
           <View style={styles.buttonContainer}>
             <TouchableOpacity
