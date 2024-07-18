@@ -25,8 +25,6 @@ const DEFAULT_LOCATION = {
   longitudeDelta: 0.0421,
 };
 
-// Dark mode map style
-
 export default function App() {
   const router = useRouter();
   const [region, setRegion] = useState(DEFAULT_LOCATION);
@@ -39,6 +37,9 @@ export default function App() {
       if (status !== "granted") {
         console.log("Permission to access location was denied");
         setIsLoading(false);
+        alert(
+          "Permission to access location was denied. Please enable location services to get the best experience."
+        );
         return;
       }
 

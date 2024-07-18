@@ -1,9 +1,15 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, Alert, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 
 import AppButton from "@/components/usableOnes/button";
 import { useRouter } from "expo-router";
-import { SavePreferences } from "@/lib/appwrite"; // Assume this function is implemented
 
 const PreferenceQuiz = () => {
   const [location, setLocation] = useState("");
@@ -11,20 +17,6 @@ const PreferenceQuiz = () => {
   const [cuisine, setCuisine] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  const handleSavePreferences = async () => {
-    setLoading(true);
-    try {
-      await SavePreferences(location, budget, cuisine);
-      Alert.alert("Preferences saved successfully");
-      setLoading(false);
-      router.replace("/(tabs)");
-    } catch (error: any) {
-      console.error("Saving preferences failed:", error);
-      Alert.alert("Saving preferences failed. Please try again.");
-      setLoading(false);
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -47,12 +39,10 @@ const PreferenceQuiz = () => {
         keyboardType="numeric"
       />
 
-      
-
       {loading ? (
         <ActivityIndicator size="large" color="blue" />
       ) : (
-        <AppButton title="Save Preferences" onPress={handleSavePreferences} />
+        <AppButton title="Save Preferences" />
       )}
     </View>
   );

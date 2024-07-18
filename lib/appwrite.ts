@@ -134,33 +134,7 @@ export const completePasswordRecovery = async (
   }
 };
 
-
-export const SavePreferences = async (location: string, budget: number, cuisine: string) => {
-  const userId = getUserId();
-  const preferences = {
-    user_id: userId,
-    cuisine: cuisine,
-    budget: budget,
-    location: location,
-  };
-
-  try {
-    await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.preferencesCollectionId,
-      ID.unique(),
-      preferences
-    );
-    console.log("Preferences saved successfully");
-  } catch (error) {
-    console.error("Error saving preferences:", error);
-    throw error;
-  }
-};
-
 export const getUserId = async () => {
   const result = await account.get();
   return result.$id;
 };
-
-
