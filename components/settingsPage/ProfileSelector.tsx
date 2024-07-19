@@ -72,10 +72,6 @@ export const ProfileSelector = ({
     }
   };
 
-  useEffect(() => {
-    console.log(userData);
-  }, [userData]);
-
   const handleRemoveImage = async () => {
     try {
       setIsUploading(true);

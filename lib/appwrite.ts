@@ -77,12 +77,9 @@ export const LoginUser = async (email: string, password: string) => {
         const existingSession = await AsyncStorage.getItem("userSession");
         return existingSession;
       } else {
-        console.error("Invalid password");
-        throw new Error("Invalid password");
       }
     } else if (error.code === 404) {
       console.error("User does not exist, please register");
-      throw new Error("User does not exist, please register");
     } else {
       console.error("Login failed", error);
       alert("Password reset failed");
@@ -105,7 +102,7 @@ export const LogoutUser = async () => {
     console.log("Logout successful");
   } catch (error) {
     console.error("Logout failed", error);
-    alert("Password reset failed");
+    alert("Logout Failed");
   }
 };
 
@@ -274,9 +271,12 @@ export const updateUserName = async (firstName: string, lastName: string) => {
   }
 };
 
-export const updateUserPassword = async (newPassword: any) => {
+export const updateUserPassword = async (
+  newPassword: any,
+  oldPassword: any
+) => {
   try {
-    await account.updatePassword(newPassword);
+    await account.updatePassword(newPassword, oldPassword);
   } catch (error) {
     console.error("Error updating password:", error);
     throw error;

@@ -20,6 +20,8 @@ import {
 } from "@/lib/appwrite";
 import { ProfileSelector } from "@/components/settingsPage/ProfileSelector";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+
 interface ProfileData {
   firstName: string;
   lastName: string;
@@ -27,12 +29,14 @@ interface ProfileData {
   address: string;
   profileImageUrl: string;
 }
-
 export default function TabTwoScreen() {
+  const router = useRouter();
+
   const [userData, setUserData] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -71,13 +75,25 @@ export default function TabTwoScreen() {
       return;
     }
     try {
-      await updateUserPassword(password);
+      await updateUserPassword(password, oldPassword);
       Alert.alert("Success", "Password updated successfully");
       setPassword("");
       setConfirmPassword("");
+      setOldPassword("");
     } catch (error) {
       console.error("Error updating password:", error);
       Alert.alert("Error", "Failed to update password");
+    }
+  };
+  const handleLogout = async () => {
+    try {
+      await LogoutUser();
+      Alert.alert("Logout successful");
+      router.replace("/(auth)/introPage");
+    } catch (error: any) {
+      console.error("Logout failed:", error);
+      Alert.alert("Logout failed. Please try again.");
+      router.replace("/(auth)/introPage");
     }
   };
 
@@ -93,7 +109,7 @@ export default function TabTwoScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.headerText}>Account Information</Text>
-      <ProfileSelector userData={userData} refreshUserData={fetchUserData} />
+      {/* <ProfileSelector userData={userData} refreshUserData={fetchUserData} /> */}
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>First Name</Text>
@@ -118,15 +134,23 @@ export default function TabTwoScreen() {
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>New Password</Text>
+        <Text style={styles.label}>Old Password</Text>
         <TextInput
           style={styles.input}
-          value={password}
-          onChangeText={setPassword}
+          value={oldPassword}
+          onChangeText={setOldPassword}
           placeholder="Enter new password"
           secureTextEntry
         />
 
+        <Text style={styles.label}> New Password</Text>
+        <TextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Confirm new password"
+          secureTextEntry
+        />
         <Text style={styles.label}>Confirm New Password</Text>
         <TextInput
           style={styles.input}
@@ -139,7 +163,7 @@ export default function TabTwoScreen() {
         <TouchableOpacity style={styles.button} onPress={handleUpdatePassword}>
           <Text style={styles.buttonText}>Update Password</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.logoutButton} onPress={LogoutUser}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <View style={{ flexDirection: "row" }}>
             <Ionicons
               name="log-out-outline"

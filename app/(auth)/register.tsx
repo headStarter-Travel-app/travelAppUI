@@ -32,7 +32,6 @@ const RegisterPage = () => {
           setLoading(false);
           router.replace("/(tabs)");
         } else {
-          throw new Error("Invalid session object");
           setLoading(false);
         }
       } catch (error: any) {

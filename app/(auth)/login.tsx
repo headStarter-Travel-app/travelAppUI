@@ -56,7 +56,7 @@ const LoginPage = () => {
         setLoading(false);
         router.replace("/(tabs)");
       } else {
-        throw new Error("Invalid session object");
+        setLoading(false);
       }
     } catch (error: any) {
       if (error.message.includes("Session already exists")) {
