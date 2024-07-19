@@ -9,15 +9,17 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import MapView, { Marker} from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { LogoutUser } from "@/lib/appwrite";
 import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import axios from "axios";
-
+import { Ionicons } from "@expo/vector-icons";
 const quizIcon = require("@/assets/images/questionn.svg");
+import { MaterialCommunityIcons } from "@expo/vector-icons"; // Change this import at the top
+
 //TODO add map loadin
 // Default location (San Francisco)
 const DEFAULT_LOCATION = {
@@ -82,23 +84,25 @@ export default function App() {
     })();
   }, []);
 
-  useEffect(()=> {
-    const fetchRecommendations = async () => {
-      try {
-        const response = await axios.post("http://localhost:8000/get-recommendations", {
-          // Currently doesnt do anything bc we are getting dummy response
-          location : {
-            lat: DEFAULT_LOCATION.latitude,
-            lon: DEFAULT_LOCATION.longitude
-          }
-        });
-        setRecommendations(response.data.recommendations);
-      } catch (error) {
-        console.error("Error fetching recommendations:", error);
-      }
-    }
-  fetchRecommendations();
-  }, []);
+  //TODO: Add backend support for recommendations
+
+  // useEffect(()=> {
+  //   const fetchRecommendations = async () => {
+  //     try {
+  //       const response = await axios.post("http://localhost:8000/get-recommendations", {
+  //         // Currently doesnt do anything bc we are getting dummy response
+  //         location : {
+  //           lat: DEFAULT_LOCATION.latitude,
+  //           lon: DEFAULT_LOCATION.longitude
+  //         }
+  //       });
+  //       setRecommendations(response.data.recommendations);
+  //     } catch (error) {
+  //       console.error("Error fetching recommendations:", error);
+  //     }
+  //   }
+  // fetchRecommendations();
+  // }, []);
 
   const handleLogout = async () => {
     try {
@@ -131,40 +135,45 @@ export default function App() {
         </View>
         {!isLoading && (
           <MapView
-          style={styles.map}
-          region={region}
-          onRegionChangeComplete={setRegion}
-          mapType="mutedStandard"
-          rotateEnabled={true}
-          pitchEnabled={true}
-        >
-          <Marker
-            coordinate={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-            }}
-            title="You are here"
-            description="Your current location"
-            pinColor="blue" // Blue color for current location
-          />
-          {recommendations.map((place, index) => (
+            style={styles.map}
+            region={region}
+            onRegionChangeComplete={setRegion}
+            mapType="mutedStandard"
+            rotateEnabled={true}
+            pitchEnabled={true}
+          >
             <Marker
-              key={index}
               coordinate={{
-                latitude: place.location.lat,
-                longitude: place.location.lon,
+                latitude: location.latitude,
+                longitude: location.longitude,
               }}
-              title={place.name}
-              description={place.description}
-              pinColor="green" // Green color for recommendations
+              title="You are here"
+              description="Your current location"
+              pinColor="blue" // Blue color for current location
             />
-          ))}
-        </MapView>
+            {recommendations.map((place, index) => (
+              <Marker
+                key={index}
+                coordinate={{
+                  latitude: place.location.lat,
+                  longitude: place.location.lon,
+                }}
+                title={place.name}
+                description={place.description}
+                pinColor="green" // Green color for recommendations
+              />
+            ))}
+          </MapView>
         )}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity onPress={handleQuizPress}>
             <ThemedView style={styles.card}>
-              <Image source={quizIcon} style={styles.icon} />
+              <MaterialCommunityIcons
+                name="clipboard-list"
+                size={50}
+                color="black"
+                style={styles.icon}
+              />
               <View style={styles.textContainer}>
                 <ThemedText type="subtitle" style={styles.title}>
                   Preference Quiz
@@ -173,11 +182,9 @@ export default function App() {
                   Help us learn more about you
                 </ThemedText>
               </View>
+              <Ionicons name="chevron-forward" size={24} color="black" />
             </ThemedView>
           </TouchableOpacity>
-        </View>
-        <View>
-          <Button title="Logout" onPress={handleLogout} />
         </View>
       </View>
     </ScrollView>
@@ -215,6 +222,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold", // Bold text
     color: "#000",
+    fontFamily: "spaceGroteskBold",
   },
   map: {
     flex: 1,
@@ -256,10 +264,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#000000",
+    fontFamily: "spaceGroteskBold",
   },
   subtitle: {
     fontSize: 14,
     color: "#555",
+    fontFamily: "spaceGroteskRegular",
   },
   markerContainer: {
     alignItems: "center",
