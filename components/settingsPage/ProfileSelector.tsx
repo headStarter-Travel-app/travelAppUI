@@ -87,9 +87,7 @@ export const ProfileSelector = ({
     }
   };
 
-  const imageSource = userData?.profileImageUrl
-    ? { uri: `${userData.profileImageUrl}?key=${imageKey}` }
-    : require("@/public/utilities/profileImage.png");
+  const imageSource = require("@/public/utilities/profileImage.png");
 
   return (
     <View>
@@ -101,7 +99,12 @@ export const ProfileSelector = ({
               <ActivityIndicator size="large" color="#8A94FF" />
             </View>
           ) : (
-            <Image source={imageSource} style={styles.circularImage} />
+            <Image
+              source={{
+                uri: "https://cloud.appwrite.io/v1/storage/buckets/profilePictures/files/6699a9db000758560b72/view?project=66930c61001b090ab206",
+              }}
+              style={styles.circularImage}
+            />
           )}
           <View style={styles.buttonContainer}>
             <TouchableOpacity
