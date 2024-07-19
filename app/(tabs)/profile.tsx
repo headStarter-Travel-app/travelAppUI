@@ -89,11 +89,11 @@ export default function TabTwoScreen() {
     try {
       await LogoutUser();
       Alert.alert("Logout successful");
-      router.replace("/(auth)/introPage");
+      router.replace("/introPage");
     } catch (error: any) {
       console.error("Logout failed:", error);
       Alert.alert("Logout failed. Please try again.");
-      router.replace("/(auth)/introPage");
+      router.replace("/introPage");
     }
   };
 
@@ -109,7 +109,7 @@ export default function TabTwoScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.headerText}>Account Information</Text>
-      {/* <ProfileSelector userData={userData} refreshUserData={fetchUserData} /> */}
+      <ProfileSelector userData={userData} refreshUserData={fetchUserData} />
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>First Name</Text>
