@@ -254,3 +254,31 @@ export const RemoveImage = async () => {
     throw error;
   }
 };
+
+export const updateUserName = async (firstName: string, lastName: string) => {
+  try {
+    await account.updateName(`${firstName} ${lastName}`);
+    const userId = await getUserId();
+    await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId,
+      {
+        firstName: firstName,
+        lastName: lastName,
+      }
+    );
+  } catch (error) {
+    console.error("Error updating name:", error);
+    throw error;
+  }
+};
+
+export const updateUserPassword = async (newPassword: any) => {
+  try {
+    await account.updatePassword(newPassword);
+  } catch (error) {
+    console.error("Error updating password:", error);
+    throw error;
+  }
+};

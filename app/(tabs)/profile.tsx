@@ -1,26 +1,25 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Alert,
   View,
-  Button,
   TextInput,
-  Image,
   ScrollView,
-  Platform,
   Text,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useState, useEffect } from "react";
 import {
   uploadProfileImage,
   updateProfileImage,
   getUserInfo,
   RemoveImage,
+  updateUserName,
+  updateUserPassword,
+  LogoutUser,
 } from "@/lib/appwrite";
 import { ProfileSelector } from "@/components/settingsPage/ProfileSelector";
-
+import { Ionicons } from "@expo/vector-icons";
 interface ProfileData {
   firstName: string;
   lastName: string;
@@ -32,12 +31,18 @@ interface ProfileData {
 export default function TabTwoScreen() {
   const [userData, setUserData] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const fetchUserData = async () => {
     setIsLoading(true);
     try {
       const data = await getUserInfo();
       setUserData(data);
+      setFirstName(data.firstName);
+      setLastName(data.lastName);
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {
@@ -47,8 +52,34 @@ export default function TabTwoScreen() {
 
   useEffect(() => {
     fetchUserData();
-    console.log("feched");
   }, []);
+
+  const handleUpdateName = async () => {
+    try {
+      await updateUserName(firstName, lastName);
+      Alert.alert("Success", "Name updated successfully");
+      await fetchUserData();
+    } catch (error) {
+      console.error("Error updating name:", error);
+      Alert.alert("Error", "Failed to update name");
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
+    try {
+      await updateUserPassword(password);
+      Alert.alert("Success", "Password updated successfully");
+      setPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      console.error("Error updating password:", error);
+      Alert.alert("Error", "Failed to update password");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -63,9 +94,63 @@ export default function TabTwoScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.headerText}>Account Information</Text>
       <ProfileSelector userData={userData} refreshUserData={fetchUserData} />
-      <View
-        style={{ height: 1, backgroundColor: "lightgrey", marginVertical: 20 }}
-      />
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>First Name</Text>
+        <TextInput
+          style={styles.input}
+          value={firstName}
+          onChangeText={setFirstName}
+          placeholder="Enter first name"
+        />
+
+        <Text style={styles.label}>Last Name</Text>
+        <TextInput
+          style={styles.input}
+          value={lastName}
+          onChangeText={setLastName}
+          placeholder="Enter last name"
+        />
+
+        <TouchableOpacity style={styles.button} onPress={handleUpdateName}>
+          <Text style={styles.buttonText}>Update Name</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>New Password</Text>
+        <TextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Enter new password"
+          secureTextEntry
+        />
+
+        <Text style={styles.label}>Confirm New Password</Text>
+        <TextInput
+          style={styles.input}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          placeholder="Confirm new password"
+          secureTextEntry
+        />
+
+        <TouchableOpacity style={styles.button} onPress={handleUpdatePassword}>
+          <Text style={styles.buttonText}>Update Password</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.logoutButton} onPress={LogoutUser}>
+          <View style={{ flexDirection: "row" }}>
+            <Ionicons
+              name="log-out-outline"
+              size={24}
+              color="black"
+              style={{ marginRight: 4 }}
+            />
+            <Text style={styles.label}>Logout</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
@@ -73,7 +158,7 @@ export default function TabTwoScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    paddingBottom: 20,
+    paddingBottom: 90,
   },
   loadingContainer: {
     flex: 1,
@@ -156,5 +241,61 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 40,
+  },
+
+  inputContainer: {
+    width: "100%",
+    padding: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+    fontFamily: "DM Sans",
+  },
+  input: {
+    width: "100%",
+    borderWidth: 2,
+    borderColor: "gray",
+    padding: 10,
+    marginBottom: 15,
+    borderRadius: 5,
+    fontWeight: "bold",
+    fontSize: 16,
+    fontFamily: "DM Sans",
+  },
+  button: {
+    backgroundColor: "#8A94FF",
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 10,
+    borderColor: "black",
+    borderWidth: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  buttonText: {
+    color: "black",
+    fontWeight: "bold",
+    fontSize: 16,
+    fontFamily: "DM Sans",
+  },
+  logoutButton: {
+    backgroundColor: "#FF6B6B", // A different color to distinguish it
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 20,
+    borderColor: "black",
+    borderWidth: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
