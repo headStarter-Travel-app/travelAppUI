@@ -9,12 +9,13 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker} from "react-native-maps";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { LogoutUser } from "@/lib/appwrite";
 import { useRouter } from "expo-router";
 import * as Location from "expo-location";
+import axios from "axios";
 
 const quizIcon = require("@/assets/images/questionn.svg");
 //TODO add map loadin
@@ -26,11 +27,21 @@ const DEFAULT_LOCATION = {
   longitudeDelta: 0.0421,
 };
 
+interface Place {
+  location: {
+    lat: number;
+    lon: number;
+  };
+  name: string;
+  description: string;
+}
+
 export default function App() {
   const router = useRouter();
   const [region, setRegion] = useState(DEFAULT_LOCATION);
   const [isLoading, setIsLoading] = useState(true);
   const [location, setLocation] = useState(DEFAULT_LOCATION);
+  const [recommendations, setRecommendations] = useState<Place[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -71,6 +82,24 @@ export default function App() {
     })();
   }, []);
 
+  useEffect(()=> {
+    const fetchRecommendations = async () => {
+      try {
+        const response = await axios.post("http://localhost:8000/get-recommendations", {
+          // Currently doesnt do anything bc we are getting dummy response
+          location : {
+            lat: DEFAULT_LOCATION.latitude,
+            lon: DEFAULT_LOCATION.longitude
+          }
+        });
+        setRecommendations(response.data.recommendations);
+      } catch (error) {
+        console.error("Error fetching recommendations:", error);
+      }
+    }
+  fetchRecommendations();
+  }, []);
+
   const handleLogout = async () => {
     try {
       await LogoutUser();
@@ -102,22 +131,35 @@ export default function App() {
         </View>
         {!isLoading && (
           <MapView
-            style={styles.map}
-            region={region}
-            onRegionChangeComplete={setRegion}
-            mapType="mutedStandard"
-            rotateEnabled={true}
-            pitchEnabled={true}
-          >
+          style={styles.map}
+          region={region}
+          onRegionChangeComplete={setRegion}
+          mapType="mutedStandard"
+          rotateEnabled={true}
+          pitchEnabled={true}
+        >
+          <Marker
+            coordinate={{
+              latitude: location.latitude,
+              longitude: location.longitude,
+            }}
+            title="You are here"
+            description="Your current location"
+            pinColor="blue" // Blue color for current location
+          />
+          {recommendations.map((place, index) => (
             <Marker
+              key={index}
               coordinate={{
-                latitude: location.latitude,
-                longitude: location.longitude,
+                latitude: place.location.lat,
+                longitude: place.location.lon,
               }}
-              title="You are here"
-              description="Your current location"
+              title={place.name}
+              description={place.description}
+              pinColor="green" // Green color for recommendations
             />
-          </MapView>
+          ))}
+        </MapView>
         )}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity onPress={handleQuizPress}>
