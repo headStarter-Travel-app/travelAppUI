@@ -176,7 +176,9 @@ export default function App() {
             </ThemedView>
           </TouchableOpacity>
         </View>
-        <View></View>
+        <View>
+          <Button title="Logout" onPress={handleLogout} />
+        </View>
       </View>
     </ScrollView>
   );
