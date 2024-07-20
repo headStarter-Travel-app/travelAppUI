@@ -153,21 +153,24 @@ export default function App() {
             mapType="mutedStandard"
             rotateEnabled={true}
             showsUserLocation
-            showsMyLocationButton
             pitchEnabled={true}
           >
-            {recommendations.map((place, index) => (
-              <Marker
-                key={index}
-                coordinate={{
-                  latitude: place.location.lat,
-                  longitude: place.location.lon,
-                }}
-                title={place.name}
-                description={place.description}
-                pinColor="green" // Green color for recommendations
-              />
-            ))}
+            {recommendations.map((place, index) => {
+              const colors = ["red", "green", "black"];
+              const pinColor = colors[index % colors.length];
+              return (
+                <Marker
+                  key={index}
+                  coordinate={{
+                    latitude: place.location.lat,
+                    longitude: place.location.lon,
+                  }}
+                  title={place.name}
+                  description={place.description}
+                  pinColor={pinColor} // Alternate colors for recommendations
+                />
+              );
+            })}
           </MapView>
         )}
         <View style={styles.buttonsContainer}>
