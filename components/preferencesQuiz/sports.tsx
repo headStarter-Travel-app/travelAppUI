@@ -8,43 +8,38 @@ import {
   FlatList,
 } from "react-native";
 
-interface EntertainmentProps {
-  setEntertainmentOptions: (option: string[]) => void;
-  existingEntertainment: string[];
+interface SportsProps {
+  setSports: (option: string[]) => void;
+  existingSports: string[];
 }
 
+//Mini golf, go kart, basketball courts, fields, hiking, aquatic,
 const entertainmentMap = {
-  Aquarium: require("@/public/entertainment/Aquarium.jpg"),
-  Arcade: require("@/public/entertainment/Arcade.jpg"),
-  Bars: require("@/public/entertainment/Bars.jpg"),
-  Beach: require("@/public/entertainment/Beaches.png"),
-  Cinemas: require("@/public/entertainment/Cinemas.jpg"),
-  Music: require("@/public/entertainment/Concerts.jpg"),
-  Nightlife: require("@/public/entertainment/Nightlife.jpg"),
-  Parks: require("@/public/entertainment/Park.jpg"),
-  "Theme Parks": require("@/public/entertainment/Theme_Parks.jpg"),
-  Zoo: require("@/public/entertainment/Zoos.jpg"),
-  Spas: require("@/public/entertainment/Spas.jpg"),
-  Club: require("@/public/entertainment/Clubs.jpg"),
+  Golf: require("@/public/sports/golf.png"),
+  Fields: require("@/public/sports/fields.png"),
+  "Live Sports": require("@/public/sports/liveSport.jpg"),
+  // Basketball: require("@/public/sports/basketball.png"),
+  Soccer: require("@/public/sports/soccer.jpg"),
+  Hiking: require("@/public/sports/hiking.jpg"),
+  "Aquatic Sports": require("@/public/sports/aquatic.jpg"),
+  "Go Kart": require("@/public/sports/goKart.jpg"),
 };
 
-export const Entertainment: React.FC<EntertainmentProps> = ({
-  setEntertainmentOptions,
-  existingEntertainment,
+export const Sports: React.FC<SportsProps> = ({
+  setSports,
+  existingSports,
 }) => {
-  const toggleEntertainment = (option: string) => {
-    setEntertainmentOptions(
-      existingEntertainment.includes(option)
-        ? existingEntertainment.filter((c) => c !== option)
-        : [...existingEntertainment, option]
+  const toggleSport = (option: string) => {
+    setSports(
+      existingSports.includes(option)
+        ? existingSports.filter((c) => c !== option)
+        : [...existingSports, option]
     );
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        Select what you like to do in your free time?
-      </Text>
+      <Text style={styles.title}>Select outdoor/athletic abilities!</Text>
       <Text style={styles.subTitle}>
         Select all that apply. You can always change this later.
       </Text>
@@ -55,8 +50,8 @@ export const Entertainment: React.FC<EntertainmentProps> = ({
             key={name}
             name={name}
             imageURL={imageURL}
-            selected={existingEntertainment.includes(name)}
-            onPress={() => toggleEntertainment(name)}
+            selected={existingSports.includes(name)}
+            onPress={() => toggleSport(name)}
           />
         )}
         numColumns={3}

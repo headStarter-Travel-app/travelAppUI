@@ -16,9 +16,11 @@ import { useRouter } from "expo-router";
 import { Cuisines } from "@/components/preferencesQuiz/cuisines";
 import { Ionicons } from "@expo/vector-icons";
 import { Entertainment } from "@/components/preferencesQuiz/entertainment";
+import { Sports } from "@/components/preferencesQuiz/sports";
 const PreferenceQuiz = () => {
   const [cuisines, setCuisines] = useState<Array<string>>([]);
   const [entertainment, setEntertainment] = useState<Array<string>>([]);
+  const [sports, setSports] = useState<Array<string>>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
   const [page, setPage] = useState(1);
@@ -69,9 +71,14 @@ const PreferenceQuiz = () => {
             setEntertainmentOptions={setEntertainment}
             existingEntertainment={entertainment}
           />
-        ) : (
-          <Text>Page 3</Text>
-        )}
+        ) : page == 3 ? (
+          <Sports setSports={setSports} existingSports={sports} />
+        ) : page == 4 ? (
+          <Entertainment
+            setEntertainmentOptions={setEntertainment}
+            existingEntertainment={entertainment}
+          />
+        ) : null}
         {page != 9 ? (
           <>
             {/* <View style={{ flex: 1, flexDirection: "row" }}> */}
