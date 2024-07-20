@@ -8,6 +8,7 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  Linking,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { ThemedText } from "@/components/ThemedText";
@@ -48,15 +49,20 @@ export default function App() {
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.log("Permission to access location was denied");
+      if (status !== 'granted') {
+        console.log('Permission to access location was denied');
         setIsLoading(false);
-        alert(
-          "Permission to access location was denied. Please enable location services to get the best experience."
+        Alert.alert(
+          'Location Permission Denied',
+          'Permission to access location was denied. Please enable location services in your settings to get the best experience.',
+          [
+            { text: 'Open Settings', onPress: () => Linking.openSettings() },
+            { text: 'Cancel', style: 'cancel' }
+          ]
         );
         return;
       }
-
+  
       try {
         let location = await Location.getCurrentPositionAsync({});
         if (location) {
@@ -66,15 +72,27 @@ export default function App() {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           });
-
+    
           setLocation({
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           });
+          // Use dummy recommendations
+          setRecommendations([
+            { location: { lat: location.coords.latitude + 0.006, lon: location.coords.longitude + 0.008 }, name: "Place 1", description: "Description 1" },
+            { location: { lat: location.coords.latitude - 0.004, lon: location.coords.longitude - 0.006 }, name: "Place 2", description: "Description 2" },
+            { location: { lat: location.coords.latitude + 0.008, lon: location.coords.longitude - 0.009 }, name: "Place 3", description: "Description 3" }
+          ]);
         } else {
           console.log("Location is undefined, using default location");
+          // Still use dummy data even if location is undefined
+          setRecommendations([
+            { location: { lat: DEFAULT_LOCATION.latitude + 0.003, lon: DEFAULT_LOCATION.longitude + 0.006 }, name: "Place 1", description: "Description 1" },
+            { location: { lat: DEFAULT_LOCATION.latitude - 0.006, lon: DEFAULT_LOCATION.longitude - 0.004 }, name: "Place 2", description: "Description 2" },
+            { location: { lat: DEFAULT_LOCATION.latitude + 0.008, lon: DEFAULT_LOCATION.longitude - 0.006 }, name: "Place 3", description: "Description 3" }
+          ]);
         }
       } catch (error) {
         console.error("Error getting location:", error);
@@ -83,26 +101,20 @@ export default function App() {
       }
     })();
   }, []);
-
-  //TODO: Add backend support for recommendations
-
-  // useEffect(()=> {
-  //   const fetchRecommendations = async () => {
-  //     try {
-  //       const response = await axios.post("http://localhost:8000/get-recommendations", {
-  //         // Currently doesnt do anything bc we are getting dummy response
-  //         location : {
-  //           lat: DEFAULT_LOCATION.latitude,
-  //           lon: DEFAULT_LOCATION.longitude
-  //         }
-  //       });
+  
+  // Comment out the fetchRecommendations function if you do not need it for now
+  // const fetchRecommendations = async (lat: number, lon: number) => {
+  //   try {
+  //     const response = await axios.post("http://localhost:8000/get-recommendations", {
+  //       location: { lat, lon }
+  //     });
+  //     if (response.data && response.data.recommendations) {
   //       setRecommendations(response.data.recommendations);
-  //     } catch (error) {
-  //       console.error("Error fetching recommendations:", error);
   //     }
+  //   } catch (error) {
+  //     console.error("Error fetching recommendations:", error);
   //   }
-  // fetchRecommendations();
-  // }, []);
+  // };
 
   const handleLogout = async () => {
     try {
