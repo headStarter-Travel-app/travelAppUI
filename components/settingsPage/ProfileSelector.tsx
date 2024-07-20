@@ -4,13 +4,13 @@ import {
   Alert,
   View,
   Text,
-  Image,
   TouchableOpacity,
   ActivityIndicator,
   Animated,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+import { Image } from "expo-image";
 import {
   uploadProfileImage,
   updateProfileImage,
@@ -87,7 +87,8 @@ export const ProfileSelector = ({
     }
   };
 
-  const imageSource = require("@/public/utilities/profileImage.png");
+  const defaultImage = require("@/public/utilities/profileImage.png");
+  console.log(userData?.profileImageUrl);
 
   return (
     <View>
@@ -99,11 +100,20 @@ export const ProfileSelector = ({
               <ActivityIndicator size="large" color="#8A94FF" />
             </View>
           ) : (
+            // <Image
+            //   source={{
+            //     uri: "https://cloud.appwrite.io/v1/storage/buckets/profilePictures/files/6699a9db000758560b72/view?project=66930c61001b090ab206&mode=admin",
+            //   }}
+            //   style={styles.circularImage}
+            // />
             <Image
-              source={{
-                uri: "https://cloud.appwrite.io/v1/storage/buckets/profilePictures/files/6699a9db000758560b72/view?project=66930c61001b090ab206",
-              }}
               style={styles.circularImage}
+              source={
+                userData?.profileImageUrl
+                  ? userData.profileImageUrl
+                  : defaultImage
+              }
+              transition={1000}
             />
           )}
           <View style={styles.buttonContainer}>
