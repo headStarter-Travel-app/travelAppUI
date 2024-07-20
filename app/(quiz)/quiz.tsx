@@ -56,6 +56,34 @@ const PreferenceQuiz = () => {
   const [shopping, setShopping] = useState<Shopping>(Shopping.YES);
 
   const router = useRouter();
+  const fetchPreferences = async () => {
+    try {
+      const userId = await getUserId();
+      const response = await axios.get(
+        `https://travelappbackend-c7bj.onrender.com/get-preferences?user_id=${userId}`
+      );
+
+      if (response.status === 200 && response.data) {
+        const preferences = response.data;
+        setCuisines(preferences.cuisine || []);
+        setEntertainment(preferences.entertainment || []);
+        setSports(preferences.sports || []);
+        setLearning(preferences.learning || []);
+        setAtmosphere(preferences.atmosphere || []);
+        setSocializing(preferences.socializing || SocializingOption.BOTH);
+        setTime(preferences.Time || []);
+        setFamilyFriendly(preferences.family_friendly || false);
+        setShopping(preferences.shopping || Shopping.YES);
+      }
+    } catch (error) {
+      console.error("Error fetching preferences:", error);
+      Alert.alert("Failed to fetch preferences. Using default values.");
+    }
+  };
+
+  useEffect(() => {
+    fetchPreferences();
+  }, []);
 
   useEffect(() => {
     const checkProceed = () => {
@@ -123,6 +151,7 @@ const PreferenceQuiz = () => {
       if (res.status === 200) {
         // Assuming success is indicated by status 200
         Alert.alert("Preferences saved successfully");
+        await fetchPreferences();
         router.replace("/(tabs)");
       } else {
         console.error("Unexpected response status:", res.status);
