@@ -87,7 +87,7 @@ export const Cuisines: React.FC<CuisineProps> = ({
         )}
         numColumns={3}
         keyExtractor={(item) => item[0]}
-        contentContainerStyle={styles.gridContainer}
+        contentContainerStyle={[styles.gridContainer, styles.flatListContainer]}
       />
     </View>
   );
@@ -124,6 +124,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: "center",
   },
+  flatListContainer: {
+    width: "100%",
+    paddingHorizontal: 10,
+  },
+
   title: {
     fontSize: 24,
     fontFamily: "dmSansBold",
@@ -146,7 +151,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 10,
     padding: 10,
-    width: 117
+    width: "30%", // Changed from fixed width to percentage
   },
   selectedCard: {
     backgroundColor: "#d0d0ff",

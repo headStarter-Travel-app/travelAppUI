@@ -1,0 +1,13 @@
+{
+  "Time": ["MORNING"],
+  "atmosphere": ["Cozy"],
+  "cuisines": ["Japanese", "Italian", "Chinese"],
+  "entertainment": ["Parks", "Cinemas"],
+  "family_friendly": false,
+  "learning": ["Museums"],
+  "shopping": "YES",
+  "socializing": "BOTH",
+  "sports": ["Hiking", "Aquatic Sports"],
+  "user_id": "66996b7b0025b402922b",
+  "users": "66996b7b0025b402922b"
+}

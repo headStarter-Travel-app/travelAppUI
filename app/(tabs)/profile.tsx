@@ -56,7 +56,6 @@ export default function TabTwoScreen() {
 
   useEffect(() => {
     fetchUserData();
-    console.log("userData", userData);
   }, []);
 
   const handleUpdateName = async () => {

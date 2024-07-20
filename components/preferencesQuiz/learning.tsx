@@ -8,35 +8,29 @@ import {
   FlatList,
 } from "react-native";
 
-interface EntertainmentProps {
-  setEntertainmentOptions: (option: string[]) => void;
-  existingEntertainment: string[];
+interface LearningProps {
+  setLearning: (option: string[]) => void;
+  existingLearning: string[];
 }
 
-const entertainmentMap = {
-  Aquarium: require("@/public/entertainment/Aquarium.jpg"),
-  Arcade: require("@/public/entertainment/Arcade.jpg"),
-  Bars: require("@/public/entertainment/Bars.jpg"),
-  Beach: require("@/public/entertainment/Beaches.png"),
-  Cinemas: require("@/public/entertainment/Cinemas.jpg"),
-  Music: require("@/public/entertainment/Concerts.jpg"),
-  Nightlife: require("@/public/entertainment/Nightlife.jpg"),
-  Parks: require("@/public/entertainment/Park.jpg"),
-  "Theme Parks": require("@/public/entertainment/Theme_Parks.jpg"),
-  Zoo: require("@/public/entertainment/Zoos.jpg"),
-  Spas: require("@/public/entertainment/Spas.jpg"),
-  Club: require("@/public/entertainment/Clubs.jpg"),
+const LearningMap = {
+  "Religious Spots": require("@/public/learning/Religious_Spots.png"),
+  Museums: require("@/public/learning/Museums.png"),
+  "Historical Sites": require("@/public/learning/Historical_Sites.png"),
+  Universities: require("@/public/learning/Universities.png"),
+  Culture: require("@/public/learning/Cultural_Sites.png"),
+  Libraries: require("@/public/learning/library.png"),
 };
 
-export const Entertainment: React.FC<EntertainmentProps> = ({
-  setEntertainmentOptions,
-  existingEntertainment,
+export const Learning: React.FC<LearningProps> = ({
+  setLearning,
+  existingLearning,
 }) => {
-  const toggleEntertainment = (option: string) => {
-    setEntertainmentOptions(
-      existingEntertainment.includes(option)
-        ? existingEntertainment.filter((c) => c !== option)
-        : [...existingEntertainment, option]
+  const toggleLearning = (option: string) => {
+    setLearning(
+      existingLearning.includes(option)
+        ? existingLearning.filter((c) => c !== option)
+        : [...existingLearning, option]
     );
   };
 
@@ -49,19 +43,19 @@ export const Entertainment: React.FC<EntertainmentProps> = ({
         Select all that apply. You can always change this later.
       </Text>
       <FlatList
-        data={Object.entries(entertainmentMap)}
+        data={Object.entries(LearningMap)}
         renderItem={({ item: [name, imageURL] }) => (
           <Card
             key={name}
             name={name}
             imageURL={imageURL}
-            selected={existingEntertainment.includes(name)}
-            onPress={() => toggleEntertainment(name)}
+            selected={existingLearning.includes(name)}
+            onPress={() => toggleLearning(name)}
           />
         )}
         numColumns={3}
         keyExtractor={(item) => item[0]}
-        contentContainerStyle={styles.gridContainer}
+        contentContainerStyle={[styles.gridContainer, styles.flatListContainer]}
       />
     </View>
   );
@@ -86,13 +80,17 @@ export const Card: React.FC<Card> = ({ name, imageURL, selected, onPress }) => {
     </TouchableOpacity>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 10,
     alignItems: "center",
   },
+  flatListContainer: {
+    width: "100%",
+    paddingHorizontal: 10,
+  },
+
   title: {
     fontSize: 24,
     fontFamily: "dmSansBold",
@@ -115,6 +113,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 10,
     padding: 10,
+    width: "30%", // Changed from fixed width to percentage
   },
   selectedCard: {
     backgroundColor: "#d0d0ff",
@@ -132,6 +131,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontFamily: "spaceGroteskMedium",
     textAlign: "center",
-    fontSize: 16,
+    fontSize: 14,
   },
 });
