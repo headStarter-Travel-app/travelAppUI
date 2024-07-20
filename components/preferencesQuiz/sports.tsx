@@ -39,7 +39,7 @@ export const Sports: React.FC<SportsProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Select outdoor/athletic abilities!</Text>
+      <Text style={styles.title}>Select outdoor/athletic activities!</Text>
       <Text style={styles.subTitle}>
         Select all that apply. You can always change this later.
       </Text>
