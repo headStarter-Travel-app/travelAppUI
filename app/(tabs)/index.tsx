@@ -152,17 +152,10 @@ export default function App() {
             onRegionChangeComplete={setRegion}
             mapType="mutedStandard"
             rotateEnabled={true}
+            showsUserLocation
+            showsMyLocationButton
             pitchEnabled={true}
           >
-            <Marker
-              coordinate={{
-                latitude: location.latitude,
-                longitude: location.longitude,
-              }}
-              title="You are here"
-              description="Your current location"
-              pinColor="blue" // Blue color for current location
-            />
             {recommendations.map((place, index) => (
               <Marker
                 key={index}
