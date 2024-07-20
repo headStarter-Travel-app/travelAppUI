@@ -10,6 +10,7 @@ import * as SplashScreen from "expo-splash-screen";
 import "react-native-reanimated";
 import { View, Text, Image } from "react-native"; // Add this import
 import { useColorScheme } from "@/hooks/useColorScheme";
+import * as Updates from "expo-updates";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -77,6 +78,24 @@ export default function RootLayout() {
   if (isLoading) {
     return <Splash />;
   }
+
+  async function onFetchUpdateAsync() {
+    try {
+      const update = await Updates.checkForUpdateAsync();
+
+      if (update.isAvailable) {
+        await Updates.fetchUpdateAsync();
+        await Updates.reloadAsync();
+      }
+    } catch (error) {
+      // You can also add an alert() to see the error message in case of an error when fetching updates.
+      alert(`Error fetching latest Expo update: ${error}`);
+    }
+  }
+
+  useEffect(() => {
+    onFetchUpdateAsync();
+  }, []);
 
   return (
     <ThemeProvider
