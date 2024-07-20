@@ -3,57 +3,99 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
+  Image,
+  TouchableOpacity,
+  FlatList,
   Alert,
   ActivityIndicator,
   SafeAreaView,
-  TouchableOpacity,
-  ScrollView,
 } from "react-native";
 import { SavePreferences } from "@/lib/appwrite";
 import AppButton from "@/components/usableOnes/button";
 import { useRouter } from "expo-router";
 import { Cuisines } from "@/components/preferencesQuiz/cuisines";
-import { Ionicons } from "@expo/vector-icons";
 import { Entertainment } from "@/components/preferencesQuiz/entertainment";
 import { Sports } from "@/components/preferencesQuiz/sports";
+import { Ionicons } from "@expo/vector-icons";
+
 const PreferenceQuiz = () => {
-  const [cuisines, setCuisines] = useState<Array<string>>([]);
-  const [entertainment, setEntertainment] = useState<Array<string>>([]);
-  const [sports, setSports] = useState<Array<string>>([]);
+  const [cuisines, setCuisines] = useState<string[]>([]);
+  const [entertainment, setEntertainment] = useState<string[]>([]);
+  const [sports, setSports] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [canProceed, setCanProceed] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
   const router = useRouter();
-  const [page, setPage] = useState(1);
-  //Set cuisines to a get request to get the cuisines from the database
+
+  useEffect(() => {
+    const checkProceed = () => {
+      switch (page) {
+        case 1:
+          setCanProceed(cuisines.length > 0);
+          break;
+        case 2:
+          setCanProceed(entertainment.length > 0);
+          break;
+        case 3:
+          setCanProceed(sports.length > 0);
+          break;
+        default:
+          setCanProceed(false);
+      }
+    };
+
+    checkProceed();
+  }, [cuisines, entertainment, sports, page]);
+
   const handleSavePreferences = async () => {
-    console.log("Pressed");
-    // setLoading(true);
-    // try {
-    //   await SavePreferences({
-    //     cuisine,
-    //     entertainment,
-    //     atmosphere,
-    //     social_interaction: socialInteraction,
-    //     activity_level: activityLevel,
-    //     time_of_day: timeOfDay,
-    //     spontaneity,
-    //   });
-    //   Alert.alert("Preferences saved successfully");
-    //   setLoading(false);
-    //   router.replace("/(tabs)");
-    // } catch (error) {
-    //   console.error("Saving preferences failed:", error);
-    //   Alert.alert("Saving preferences failed. Please try again.");
-    //   setLoading(false);
+    setLoading(true);
+    try {
+      //await SavePreferences({
+        //cuisine: cuisines,
+        //entertainment: entertainment,
+        //sports: sports,
+      //});
+      Alert.alert("Preferences saved successfully");
+      setLoading(false);
+      router.replace("/(tabs)");
+    } catch (error) {
+      console.error("Saving preferences failed:", error);
+      Alert.alert("Saving preferences failed. Please try again.");
+      setLoading(false);
+    }
   };
 
   const handleBack = () => {
     router.back();
   };
 
-  useEffect(() => {
-    console.log("Cuisines", cuisines);
-  }, [cuisines]);
+  const renderPageContent = () => {
+    switch (page) {
+      case 1:
+        return (
+          <Cuisines
+            setCuisines={setCuisines}
+            existingCuisines={cuisines}
+          />
+        );
+      case 2:
+        return (
+          <Entertainment
+            setEntertainmentOptions={setEntertainment}
+            existingEntertainment={entertainment}
+          />
+        );
+      case 3:
+        return (
+          <Sports
+            setSports={setSports}
+            existingSports={sports}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -64,37 +106,26 @@ const PreferenceQuiz = () => {
         <Text style={styles.headerTitle}>Preferences Quiz</Text>
       </View>
       <View style={styles.container}>
-        {page == 1 ? (
-          <Cuisines setCuisines={setCuisines} existingCuisines={cuisines} />
-        ) : page == 2 ? (
-          <Entertainment
-            setEntertainmentOptions={setEntertainment}
-            existingEntertainment={entertainment}
-          />
-        ) : page == 3 ? (
-          <Sports setSports={setSports} existingSports={sports} />
-        ) : page == 4 ? (
-          <Entertainment
-            setEntertainmentOptions={setEntertainment}
-            existingEntertainment={entertainment}
-          />
-        ) : null}
-        {page != 9 ? (
+        {renderPageContent()}
+        {page !== 3 ? (
           <>
-            {/* <View style={{ flex: 1, flexDirection: "row" }}> */}
             <AppButton
               title="Next"
               onPress={() => setPage((prev) => prev + 1)}
+              disabled={!canProceed}
             />
             <AppButton
               title="Back"
               onPress={() => setPage((prev) => prev - 1)}
-              disabled={page == 1}
+              disabled={page === 1}
             />
-            {/* </View> */}
           </>
         ) : (
-          <AppButton title="Save Preferences" onPress={handleSavePreferences} />
+          <AppButton
+            title="Submit"
+            onPress={handleSavePreferences}
+            disabled={!canProceed}
+          />
         )}
         {loading && <ActivityIndicator size="large" color="#007AFF" />}
       </View>
@@ -123,33 +154,9 @@ const styles = StyleSheet.create({
     color: "#333333",
     fontFamily: "DM Sans",
   },
-  scrollContent: {
-    flexGrow: 1,
-  },
   container: {
     flex: 1,
     alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-    fontFamily: "DM Sans",
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  input: {
-    width: "100%",
-    borderWidth: 2,
-    borderColor: "gray",
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    fontSize: 16,
   },
 });
 
