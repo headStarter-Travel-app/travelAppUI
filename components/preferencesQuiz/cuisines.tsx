@@ -146,6 +146,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 10,
     padding: 10,
+    width: 117
   },
   selectedCard: {
     backgroundColor: "#d0d0ff",
@@ -163,6 +164,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontFamily: "spaceGroteskMedium",
     textAlign: "center",
-    fontSize: 16,
+    fontSize: 14,
   },
 });
