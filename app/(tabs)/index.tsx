@@ -47,6 +47,8 @@ export default function App() {
   const [location, setLocation] = useState(DEFAULT_LOCATION);
   const [recommendations, setRecommendations] = useState<Place[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [selectedPlaceDetails, setSelectedPlaceDetails] = useState<any | null>(null);
+  const [showGetRecommendationsButton, setShowGetRecommendationsButton] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
@@ -58,112 +60,69 @@ export default function App() {
         Alert.alert(
           "Location Permission Denied",
           "Permission to access location was denied. Please enable location services in your settings to get the best experience.",
-          [
-            { text: "Open Settings", onPress: () => Linking.openSettings() },
-            { text: "Cancel", style: "cancel" },
-          ]
+          [{ text: "Open Settings", onPress: () => Linking.openSettings() }, { text: "Cancel", style: "cancel" }]
         );
         return;
       }
 
       try {
-        let location = await Location.getCurrentPositionAsync({});
-        if (location) {
-          setRegion({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          });
+        let currentLocation = await Location.getCurrentPositionAsync({});
+        setLocation({
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        });
+        setRegion({
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        });
 
-          setLocation({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          });
-          // Use dummy recommendations
-          setRecommendations([
-            {
-              location: {
-                lat: location.coords.latitude + 0.006,
-                lon: location.coords.longitude + 0.008,
-              },
-              name: "Place 1",
-              description: "Description 1",
-              imageUrl: "https://example.com/image1.jpg",
-              address: "123 Main St, City, Country",
-              openingHours: "9:00 AM - 5:00 PM",
-            },
-            {
-              location: {
-                lat: location.coords.latitude - 0.004,
-                lon: location.coords.longitude - 0.006,
-              },
-              name: "Place 2",
-              description: "Description 2",
-              imageUrl: "https://example.com/image2.jpg",
-              address: "456 Elm St, City, Country",
-              openingHours: "10:00 AM - 6:00 PM",
-            },
-            {
-              location: {
-                lat: location.coords.latitude + 0.008,
-                lon: location.coords.longitude - 0.009,
-              },
-              name: "Place 3",
-              description: "Description 3",
-              imageUrl: "https://example.com/image3.jpg",
-              address: "789 Oak St, City, Country",
-              openingHours: "11:00 AM - 7:00 PM",
-            },
-          ]);
+        const response = await axios.get(`http://127.0.0.1:8000/check-recommendations?lat=${currentLocation.coords.latitude}&lon=${currentLocation.coords.longitude}&user_id=${'your-user-id'}`);
+        if (response.data.recommendations && response.data.recommendations.length > 0) {
+          setRecommendations(response.data.recommendations);
         } else {
-          console.log("Location is undefined, using default location");
-          // Still use dummy data even if location is undefined
-          setRecommendations([
-            {
-              location: {
-                lat: DEFAULT_LOCATION.latitude + 0.003,
-                lon: DEFAULT_LOCATION.longitude + 0.006,
-              },
-              name: "Place 1",
-              description: "Description 1",
-              imageUrl: "https://example.com/image1.jpg",
-              address: "123 Main St, City, Country",
-              openingHours: "9:00 AM - 5:00 PM",
-            },
-            {
-              location: {
-                lat: DEFAULT_LOCATION.latitude - 0.006,
-                lon: DEFAULT_LOCATION.longitude - 0.004,
-              },
-              name: "Place 2",
-              description: "Description 2",
-              imageUrl: "https://example.com/image2.jpg",
-              address: "456 Elm St, City, Country",
-              openingHours: "10:00 AM - 6:00 PM",
-            },
-            {
-              location: {
-                lat: DEFAULT_LOCATION.latitude + 0.008,
-                lon: DEFAULT_LOCATION.longitude - 0.006,
-              },
-              name: "Place 3",
-              description: "Description 3",
-              imageUrl: "https://example.com/image3.jpg",
-              address: "789 Oak St, City, Country",
-              openingHours: "11:00 AM - 7:00 PM",
-            },
-          ]);
+          setShowGetRecommendationsButton(true);
         }
       } catch (error) {
-        console.error("Error getting location:", error);
-      } finally {
+        console.error("Error getting location or checking recommendations:", error);
         setIsLoading(false);
       }
     })();
   }, []);
+
+  const fetchRecommendations = async () => {
+    setShowGetRecommendationsButton(false);
+    setIsLoading(true);
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/initial-recommendations?lat=${location.latitude}&lon=${location.longitude}&user_id=${'your-user-id'}`);
+      setRecommendations(response.data.recommendations);
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMarkerPress = async (place: Place) => {
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/get_place_details', {
+        address: place.address,
+        name: place.name
+      });
+      setSelectedPlaceDetails(response.data);
+      setModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching place details:", error);
+    }
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedPlace(null);
+  };
 
   const getMarkerColor = (index: number) => {
     const colors = ["#FF5252", "#4CAF50", "#2196F3", "#FFC107", "#9C27B0"];
@@ -174,15 +133,6 @@ export default function App() {
     router.push("/quiz");
   };
 
-  const handleMarkerPress = (place: Place) => {
-    setSelectedPlace(place);
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-    setSelectedPlace(null);
-  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -250,6 +200,27 @@ export default function App() {
               />
               <View style={styles.textContainer}>
                 <ThemedText type="subtitle" style={styles.title}>
+                  Get Recommendations
+                </ThemedText>
+                <ThemedText style={styles.subtitle}>
+                  Get recommendations near you
+                </ThemedText>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="black" />
+            </ThemedView>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity onPress={handleQuizPress}>
+            <ThemedView style={styles.card}>
+              <MaterialCommunityIcons
+                name="clipboard-list"
+                size={50}
+                color="black"
+                style={styles.icon}
+              />
+              <View style={styles.textContainer}>
+                <ThemedText type="subtitle" style={styles.title}>
                   Preference Quiz
                 </ThemedText>
                 <ThemedText style={styles.subtitle}>
@@ -260,6 +231,7 @@ export default function App() {
             </ThemedView>
           </TouchableOpacity>
         </View>
+        
       </View>
       <Modal
         animationType="slide"
@@ -430,6 +402,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
+    width: '90%',
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
