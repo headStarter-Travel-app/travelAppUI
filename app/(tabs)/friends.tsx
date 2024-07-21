@@ -38,8 +38,12 @@ const FriendsScreen = () => {
           value={searchQuery}
           onChangeText={handleSearch}
         />
+        <Image
+            source={require("@/public/utilities/search.png")}
+            style={styles.Magnicon}
+          />
         <TouchableOpacity style={styles.iconContainer}>
-            
+
         </TouchableOpacity>
       </View>
       <FlatList
@@ -149,6 +153,11 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     backgroundColor: '#007AFF',
+  },
+  Magnicon: {
+    width: 25,
+    height: 25,
+    marginRight: 10,
   },
   addButtonText: {
     color: '#fff',
