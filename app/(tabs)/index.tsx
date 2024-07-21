@@ -26,8 +26,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons"; // Change this impo
 const DEFAULT_LOCATION = {
   latitude: 37.78825,
   longitude: -122.4324,
-  latitudeDelta: 0.0922,
-  longitudeDelta: 0.0421,
+  latitudeDelta: 0.05,
+  longitudeDelta: 0.05,
 };
 
 interface Place {
@@ -49,49 +49,91 @@ export default function App() {
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to access location was denied');
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
         setIsLoading(false);
         Alert.alert(
-          'Location Permission Denied',
-          'Permission to access location was denied. Please enable location services in your settings to get the best experience.',
+          "Location Permission Denied",
+          "Permission to access location was denied. Please enable location services in your settings to get the best experience.",
           [
-            { text: 'Open Settings', onPress: () => Linking.openSettings() },
-            { text: 'Cancel', style: 'cancel' }
+            { text: "Open Settings", onPress: () => Linking.openSettings() },
+            { text: "Cancel", style: "cancel" },
           ]
         );
         return;
       }
-  
+
       try {
         let location = await Location.getCurrentPositionAsync({});
         if (location) {
           setRegion({
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
           });
-    
+
           setLocation({
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
           });
           // Use dummy recommendations
           setRecommendations([
-            { location: { lat: location.coords.latitude + 0.006, lon: location.coords.longitude + 0.008 }, name: "Place 1", description: "Description 1" },
-            { location: { lat: location.coords.latitude - 0.004, lon: location.coords.longitude - 0.006 }, name: "Place 2", description: "Description 2" },
-            { location: { lat: location.coords.latitude + 0.008, lon: location.coords.longitude - 0.009 }, name: "Place 3", description: "Description 3" }
+            {
+              location: {
+                lat: location.coords.latitude + 0.006,
+                lon: location.coords.longitude + 0.008,
+              },
+              name: "Place 1",
+              description: "Description 1",
+            },
+            {
+              location: {
+                lat: location.coords.latitude - 0.004,
+                lon: location.coords.longitude - 0.006,
+              },
+              name: "Place 2",
+              description: "Description 2",
+            },
+            {
+              location: {
+                lat: location.coords.latitude + 0.008,
+                lon: location.coords.longitude - 0.009,
+              },
+              name: "Place 3",
+              description: "Description 3",
+            },
           ]);
         } else {
           console.log("Location is undefined, using default location");
           // Still use dummy data even if location is undefined
           setRecommendations([
-            { location: { lat: DEFAULT_LOCATION.latitude + 0.003, lon: DEFAULT_LOCATION.longitude + 0.006 }, name: "Place 1", description: "Description 1" },
-            { location: { lat: DEFAULT_LOCATION.latitude - 0.006, lon: DEFAULT_LOCATION.longitude - 0.004 }, name: "Place 2", description: "Description 2" },
-            { location: { lat: DEFAULT_LOCATION.latitude + 0.008, lon: DEFAULT_LOCATION.longitude - 0.006 }, name: "Place 3", description: "Description 3" }
+            {
+              location: {
+                lat: DEFAULT_LOCATION.latitude + 0.003,
+                lon: DEFAULT_LOCATION.longitude + 0.006,
+              },
+              name: "Place 1",
+              description: "Description 1",
+            },
+            {
+              location: {
+                lat: DEFAULT_LOCATION.latitude - 0.006,
+                lon: DEFAULT_LOCATION.longitude - 0.004,
+              },
+              name: "Place 2",
+              description: "Description 2",
+            },
+            {
+              location: {
+                lat: DEFAULT_LOCATION.latitude + 0.008,
+                lon: DEFAULT_LOCATION.longitude - 0.006,
+              },
+              name: "Place 3",
+              description: "Description 3",
+            },
           ]);
         }
       } catch (error) {
@@ -101,7 +143,7 @@ export default function App() {
       }
     })();
   }, []);
-  
+
   // Comment out the fetchRecommendations function if you do not need it for now
   // const fetchRecommendations = async (lat: number, lon: number) => {
   //   try {
@@ -115,16 +157,9 @@ export default function App() {
   //     console.error("Error fetching recommendations:", error);
   //   }
   // };
-
-  const handleLogout = async () => {
-    try {
-      await LogoutUser();
-      Alert.alert("Logout successful");
-      router.replace("/(auth)/login");
-    } catch (error: any) {
-      console.error("Logout failed:", error);
-      Alert.alert("Logout failed. Please try again.");
-    }
+  const getMarkerColor = (index: any) => {
+    const colors = ["#FF5252", "#4CAF50", "#2196F3", "#FFC107", "#9C27B0"];
+    return colors[index % colors.length];
   };
 
   const handleQuizPress = () => {
@@ -155,22 +190,34 @@ export default function App() {
             showsUserLocation
             pitchEnabled={true}
           >
-            {recommendations.map((place, index) => {
-              const colors = ["red", "green", "black"];
-              const pinColor = colors[index % colors.length];
-              return (
-                <Marker
-                  key={index}
-                  coordinate={{
-                    latitude: place.location.lat,
-                    longitude: place.location.lon,
-                  }}
-                  title={place.name}
-                  description={place.description}
-                  pinColor={pinColor} // Alternate colors for recommendations
-                />
-              );
-            })}
+            {recommendations.map((place, index) => (
+              <Marker
+                key={index}
+                coordinate={{
+                  latitude: place.location.lat,
+                  longitude: place.location.lon,
+                }}
+                title={place.name}
+                description={place.description}
+              >
+                <View style={styles.markerContainer}>
+                  <View
+                    style={[
+                      styles.markerOuter,
+                      { backgroundColor: getMarkerColor(index) },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.markerInner,
+                        { backgroundColor: getMarkerColor(index) },
+                      ]}
+                    />
+                  </View>
+                  <View style={styles.markerArrow} />
+                </View>
+              </Marker>
+            ))}
           </MapView>
         )}
         <View style={styles.buttonsContainer}>
@@ -232,11 +279,6 @@ const styles = StyleSheet.create({
     color: "#000",
     fontFamily: "spaceGroteskBold",
   },
-  map: {
-    flex: 1,
-    marginTop: 0, // No margin at the top
-    height: "40%", // Reduce the height to leave space for the card
-  },
   buttonsContainer: {
     padding: 10,
   },
@@ -279,6 +321,11 @@ const styles = StyleSheet.create({
     color: "#555",
     fontFamily: "spaceGroteskRegular",
   },
+  map: {
+    flex: 1,
+    marginTop: 0,
+    height: "50%", // Increase map height
+  },
   markerContainer: {
     alignItems: "center",
   },
@@ -286,15 +333,18 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "rgba(0, 122, 255, 0.3)",
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   markerInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#007AFF",
   },
   markerArrow: {
     width: 0,
@@ -306,7 +356,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 10,
     borderLeftColor: "transparent",
     borderRightColor: "transparent",
-    borderTopColor: "rgba(0, 122, 255, 0.3)",
     transform: [{ translateY: -2 }],
   },
 });

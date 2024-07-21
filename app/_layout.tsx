@@ -46,6 +46,19 @@ const CustomDarkTheme = {
     background: "#DFF2F9", // Custom background color for dark theme
   },
 };
+async function onFetchUpdateAsync() {
+  try {
+    const update = await Updates.checkForUpdateAsync();
+
+    if (update.isAvailable) {
+      await Updates.fetchUpdateAsync();
+      await Updates.reloadAsync();
+    }
+  } catch (error) {
+    // You can also add an alert() to see the error message in case of an error when fetching updates.
+    alert(`Error fetching latest Expo update: ${error}`);
+  }
+}
 
 export default function RootLayout() {
   const [fontsLoaded, error] = useFonts({
@@ -70,6 +83,9 @@ export default function RootLayout() {
       }, 2000); // Adjust the delay as needed
     }
   }, [fontsLoaded]);
+  useEffect(() => {
+    onFetchUpdateAsync();
+  }, []);
 
   if (!fontsLoaded) {
     return null;
@@ -78,24 +94,6 @@ export default function RootLayout() {
   if (isLoading) {
     return <Splash />;
   }
-
-  async function onFetchUpdateAsync() {
-    try {
-      const update = await Updates.checkForUpdateAsync();
-
-      if (update.isAvailable) {
-        await Updates.fetchUpdateAsync();
-        await Updates.reloadAsync();
-      }
-    } catch (error) {
-      // You can also add an alert() to see the error message in case of an error when fetching updates.
-      alert(`Error fetching latest Expo update: ${error}`);
-    }
-  }
-
-  useEffect(() => {
-    onFetchUpdateAsync();
-  }, []);
 
   return (
     <ThemeProvider
