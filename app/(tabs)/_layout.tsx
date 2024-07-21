@@ -71,7 +71,7 @@ export default function TabLayout() {
           options={{
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon
-                name={focused ? "person" : "person-outline"}
+                name={focused ? "settings" : "settings-outline"}
                 color="black"
               />
             ),
