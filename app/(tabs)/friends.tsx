@@ -17,10 +17,14 @@ const FriendsScreen = () => {
     { id: '1', name: 'Friend 1', note: 'Note' },
     { id: '2', name: 'Friend 2', note: 'Note' },
     { id: '3', name: 'Friend 3', note: 'Note' },
-    // Add more friends as needed
+    { id: '4', name: 'Friend 4', note: 'Note' },
+    { id: '5', name: 'Friend 5', note: 'Note' },
+    { id: '6', name: 'Friend 6', note: 'Note' },
+    { id: '7', name: 'Friend 7', note: 'Note' },
+    { id: '8', name: 'Friend 8', note: 'Note' },
   ];
 
-  const handleSearch = (text) => {
+  const handleSearch = (text: React.SetStateAction<string>) => {
     setSearchQuery(text);
   };
 
@@ -30,12 +34,12 @@ const FriendsScreen = () => {
         <TextInput
           style={styles.searchInput}
           placeholder="Search friends..."
-          placeholderTextColor="#C7C7CD"
+          placeholderTextColor="#000"
           value={searchQuery}
           onChangeText={handleSearch}
         />
         <TouchableOpacity style={styles.iconContainer}>
-          <Ionicons name="ios-search" size={24} color="#007AFF" />
+            
         </TouchableOpacity>
       </View>
       <FlatList
@@ -45,8 +49,10 @@ const FriendsScreen = () => {
           <View style={styles.friendContainer}>
             <View style={styles.friendInfo}>
               <View style={styles.avatar} />
-              <Text style={styles.friendName}>{item.name}</Text>
-              <Text style={styles.friendNote}>{item.note}</Text>
+              <View style={styles.nameNoteContainer}>
+                <Text style={styles.friendName}>{item.name}</Text>
+                <Text style={styles.friendNote}>{item.note}</Text>
+              </View>
             </View>
             <TouchableOpacity style={styles.addButton}>
               <Text style={styles.addButtonText}>+</Text>
@@ -60,90 +66,97 @@ const FriendsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: "#E6F7FF",
-      marginTop: 50,
-    },
-    searchContainer: {
-      margin: 10,
-      backgroundColor: "#fff",
-      borderRadius: 5,
-      padding: 10,
-      borderColor: "#000",
-      borderWidth: 1,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.8,
-      shadowRadius: 2,
-      elevation: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    searchInput: {
-      flex: 1,
-      height: 40,
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: '#000',
-      fontFamily: 'spaceGroteskBold',
-    },
-    iconContainer: {
-      marginLeft: 10,
-    },
-    list: {
-      marginTop: 20,
-    },
-    friendContainer: {
-      margin: 10, // Added margin to match search container
-      backgroundColor: "#fff",
-      borderRadius: 5,
-      padding: 10,
-      borderColor: "#000",
-      borderWidth: 1,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.8,
-      shadowRadius: 2,
-      elevation: 1,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: 10,
-    },
-    friendInfo: {
-      flexDirection: 'row',
-      alignItems: 'center'
-    },
-    avatar: {
-      width: 40,
-      height: 40,
-      backgroundColor: '#D9D9D9',
-      borderRadius: 20,
-      marginRight: 10
-    },
-    friendName: {
-      fontWeight: 'bold',
-      fontSize: 18
-    },
-    friendNote: {
-      fontSize: 16,
-      color: '#888888'
-    },
-    addButton: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      width: 30,
-      height: 30,
-      borderRadius: 15,
-      backgroundColor: '#007AFF',
-      color: '#fff'
-    },
-    addButtonText: {
-      color: '#fff',
-      fontSize: 24,
-      fontWeight: 'bold'
-    }
-  });
+  container: {
+    flex: 1,
+    backgroundColor: "#E6F7FF",
+    marginTop: 50,
+  },
+  searchContainer: {
+    margin: 10,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    padding: 10,
+    borderColor: "#000",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+    fontFamily: 'spaceGroteskBold',
+  },
+  iconContainer: {
+    marginLeft: 10,
+  },
+  list: {
+    marginTop: 20,
+  },
+  friendContainer: {
+    margin: 10, // Added margin to match search container
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    padding: 10,
+    borderColor: "#000",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  friendInfo: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    backgroundColor: '#D9D9D9',
+    borderRadius: 20,
+    marginRight: 10
+  },
+  nameNoteContainer: {
+    flexDirection: 'column',
+    alignItems: 'flex-start'
+  },
+  friendName: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 2
+  },
+
+  friendNote: {
+    fontSize: 14,
+    color: '#888888'
+  },
+  addButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#007AFF',
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 25, // Ensures the text is vertically centered
+  }
+});
 
 export default FriendsScreen;
