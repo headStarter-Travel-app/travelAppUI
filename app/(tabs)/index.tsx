@@ -3,12 +3,13 @@ import {
   StyleSheet,
   Alert,
   View,
-  Button,
   TextInput,
   Image,
   ScrollView,
   TouchableOpacity,
   Linking,
+  Text,
+  Modal,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { ThemedText } from "@/components/ThemedText";
@@ -17,11 +18,8 @@ import { LogoutUser } from "@/lib/appwrite";
 import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import axios from "axios";
-import { Ionicons } from "@expo/vector-icons";
-const quizIcon = require("@/assets/images/questionn.svg");
-import { MaterialCommunityIcons } from "@expo/vector-icons"; // Change this import at the top
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
-//TODO add map loadin
 // Default location (San Francisco)
 const DEFAULT_LOCATION = {
   latitude: 37.78825,
@@ -37,6 +35,9 @@ interface Place {
   };
   name: string;
   description: string;
+  imageUrl: string;
+  address: string;
+  openingHours: string;
 }
 
 export default function App() {
@@ -45,6 +46,8 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [location, setLocation] = useState(DEFAULT_LOCATION);
   const [recommendations, setRecommendations] = useState<Place[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -88,6 +91,9 @@ export default function App() {
               },
               name: "Place 1",
               description: "Description 1",
+              imageUrl: "https://example.com/image1.jpg",
+              address: "123 Main St, City, Country",
+              openingHours: "9:00 AM - 5:00 PM",
             },
             {
               location: {
@@ -96,6 +102,9 @@ export default function App() {
               },
               name: "Place 2",
               description: "Description 2",
+              imageUrl: "https://example.com/image2.jpg",
+              address: "456 Elm St, City, Country",
+              openingHours: "10:00 AM - 6:00 PM",
             },
             {
               location: {
@@ -104,6 +113,9 @@ export default function App() {
               },
               name: "Place 3",
               description: "Description 3",
+              imageUrl: "https://example.com/image3.jpg",
+              address: "789 Oak St, City, Country",
+              openingHours: "11:00 AM - 7:00 PM",
             },
           ]);
         } else {
@@ -117,6 +129,9 @@ export default function App() {
               },
               name: "Place 1",
               description: "Description 1",
+              imageUrl: "https://example.com/image1.jpg",
+              address: "123 Main St, City, Country",
+              openingHours: "9:00 AM - 5:00 PM",
             },
             {
               location: {
@@ -125,6 +140,9 @@ export default function App() {
               },
               name: "Place 2",
               description: "Description 2",
+              imageUrl: "https://example.com/image2.jpg",
+              address: "456 Elm St, City, Country",
+              openingHours: "10:00 AM - 6:00 PM",
             },
             {
               location: {
@@ -133,6 +151,9 @@ export default function App() {
               },
               name: "Place 3",
               description: "Description 3",
+              imageUrl: "https://example.com/image3.jpg",
+              address: "789 Oak St, City, Country",
+              openingHours: "11:00 AM - 7:00 PM",
             },
           ]);
         }
@@ -144,26 +165,23 @@ export default function App() {
     })();
   }, []);
 
-  // Comment out the fetchRecommendations function if you do not need it for now
-  // const fetchRecommendations = async (lat: number, lon: number) => {
-  //   try {
-  //     const response = await axios.post("http://localhost:8000/get-recommendations", {
-  //       location: { lat, lon }
-  //     });
-  //     if (response.data && response.data.recommendations) {
-  //       setRecommendations(response.data.recommendations);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching recommendations:", error);
-  //   }
-  // };
-  const getMarkerColor = (index: any) => {
+  const getMarkerColor = (index: number) => {
     const colors = ["#FF5252", "#4CAF50", "#2196F3", "#FFC107", "#9C27B0"];
     return colors[index % colors.length];
   };
 
   const handleQuizPress = () => {
     router.push("/quiz");
+  };
+
+  const handleMarkerPress = (place: Place) => {
+    setSelectedPlace(place);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedPlace(null);
   };
 
   return (
@@ -199,6 +217,7 @@ export default function App() {
                 }}
                 title={place.name}
                 description={place.description}
+                onPress={() => handleMarkerPress(place)}
               >
                 <View style={styles.markerContainer}>
                   <View
@@ -207,14 +226,14 @@ export default function App() {
                       { backgroundColor: getMarkerColor(index) },
                     ]}
                   >
-                    <View
-                      style={[
-                        styles.markerInner,
-                        { backgroundColor: getMarkerColor(index) },
-                      ]}
-                    />
+                    <Text style={styles.markerText}>{index + 1}</Text>
                   </View>
-                  <View style={styles.markerArrow} />
+                  <View
+                    style={[
+                      styles.markerArrow,
+                      { borderTopColor: getMarkerColor(index) },
+                    ]}
+                  />
                 </View>
               </Marker>
             ))}
@@ -242,15 +261,56 @@ export default function App() {
           </TouchableOpacity>
         </View>
       </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {selectedPlace && (
+              <>
+                <Image
+                  source={{ uri: selectedPlace.imageUrl }}
+                  style={styles.placeImage}
+                />
+                <Text style={styles.placeName}>{selectedPlace.name}</Text>
+                <Text style={styles.placeDescription}>
+                  {selectedPlace.description}
+                </Text>
+                <View style={styles.placeDetails}>
+                  <Ionicons name="location" size={20} color="#000" />
+                  <Text style={styles.placeDetailText}>
+                    {selectedPlace.address}
+                  </Text>
+                </View>
+                <View style={styles.placeDetails}>
+                  <Ionicons name="time" size={20} color="#000" />
+                  <Text style={styles.placeDetailText}>
+                    {selectedPlace.openingHours}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={closeModal}
+                >
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 4,
     paddingBottom: 100,
   },
-
   container: {
     flex: 1,
     backgroundColor: "#E6F7FF", // Very light blue background
@@ -346,6 +406,12 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
   },
+  markerText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+    fontFamily: "spaceGroteskBold",
+  },
   markerArrow: {
     width: 0,
     height: 0,
@@ -357,5 +423,61 @@ const styles = StyleSheet.create({
     borderLeftColor: "transparent",
     borderRightColor: "transparent",
     transform: [{ translateY: -2 }],
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    alignItems: "center",
+  },
+  placeImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  placeName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#000000",
+    marginBottom: 10,
+    fontFamily: "spaceGroteskBold",
+  },
+  placeDescription: {
+    fontSize: 16,
+    color: "#555555",
+    marginBottom: 15,
+    textAlign: "center",
+    fontFamily: "spaceGroteskRegular",
+  },
+  placeDetails: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  placeDetailText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: "#000000",
+    fontFamily: "spaceGroteskRegular",
+  },
+  closeButton: {
+    backgroundColor: "#3498db",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  closeButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+    fontFamily: "spaceGroteskBold",
   },
 });

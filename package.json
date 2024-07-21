@@ -18,6 +18,7 @@
     "@expo/metro-runtime": "~3.2.1",
     "@expo/server": "^0.4.4",
     "@expo/vector-icons": "^14.0.2",
+    "@gorhom/bottom-sheet": "^4.6.3",
     "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-native-picker/picker": "^2.7.7",
     "@react-navigation/native": "^6.1.17",
@@ -30,6 +31,7 @@
     "expo-dev-client": "~4.0.20",
     "expo-file-system": "~17.0.1",
     "expo-font": "~12.0.9",
+    "expo-image": "~1.12.13",
     "expo-image-picker": "~15.0.7",
     "expo-linear-gradient": "~13.0.2",
     "expo-linking": "~6.3.1",
@@ -57,8 +59,7 @@
     "react-native-svg": "^15.4.0",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.19.10",
-    "tailwind-rn": "^4.2.0",
-    "expo-image": "~1.12.13"
+    "tailwind-rn": "^4.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
