@@ -80,14 +80,10 @@ export default function App() {
           longitudeDelta: 0.05,
         });
 
-        const response = await axios.get(`http://127.0.0.1:8000/check-recommendations?lat=${currentLocation.coords.latitude}&lon=${currentLocation.coords.longitude}&user_id=${'your-user-id'}`);
-        if (response.data.recommendations && response.data.recommendations.length > 0) {
-          setRecommendations(response.data.recommendations);
-        } else {
-          setShowGetRecommendationsButton(true);
-        }
+        const response = await axios.get(`http://127.0.0.1:8000/initial-recommendations?lat=${currentLocation.coords.latitude}&lon=${currentLocation.coords.longitude}&user_id=${'your-user-id'}`);
+        setRecommendations(response.data.recommendations);
       } catch (error) {
-        console.error("Error getting location or checking recommendations:", error);
+        console.error("Error getting location or fetching recommendations:", error);
         setIsLoading(false);
       }
     })();
@@ -113,6 +109,7 @@ export default function App() {
         name: place.name
       });
       setSelectedPlaceDetails(response.data);
+      setSelectedPlace(place);
       setModalVisible(true);
     } catch (error) {
       console.error("Error fetching place details:", error);
@@ -183,57 +180,64 @@ export default function App() {
                       styles.markerArrow,
                       { borderTopColor: getMarkerColor(index) },
                     ]}
+                  >
+                    <Text style={styles.markerText}>{index + 1}</Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.markerArrow,
+                      { borderTopColor: getMarkerColor(index) },
+                    ]}
+                    />
+                    </View>
+                  </Marker>
+                ))}
+              </MapView>
+            )}
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity onPress={fetchRecommendations}>
+                <ThemedView style={styles.card}>
+                  <MaterialCommunityIcons
+                    name="clipboard-list"
+                    size={50}
+                    color="black"
+                    style={styles.icon}
                   />
-                </View>
-              </Marker>
-            ))}
-          </MapView>
-        )}
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity onPress={handleQuizPress}>
-            <ThemedView style={styles.card}>
-              <MaterialCommunityIcons
-                name="clipboard-list"
-                size={50}
-                color="black"
-                style={styles.icon}
-              />
-              <View style={styles.textContainer}>
-                <ThemedText type="subtitle" style={styles.title}>
-                  Get Recommendations
-                </ThemedText>
-                <ThemedText style={styles.subtitle}>
-                  Get recommendations near you
-                </ThemedText>
-              </View>
-              <Ionicons name="chevron-forward" size={24} color="black" />
-            </ThemedView>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity onPress={handleQuizPress}>
-            <ThemedView style={styles.card}>
-              <MaterialCommunityIcons
-                name="clipboard-list"
-                size={50}
-                color="black"
-                style={styles.icon}
-              />
-              <View style={styles.textContainer}>
-                <ThemedText type="subtitle" style={styles.title}>
-                  Preference Quiz
-                </ThemedText>
-                <ThemedText style={styles.subtitle}>
-                  Help us learn more about you
-                </ThemedText>
-              </View>
-              <Ionicons name="chevron-forward" size={24} color="black" />
-            </ThemedView>
-          </TouchableOpacity>
-        </View>
-        
-      </View>
-      <Modal
+                  <View style={styles.textContainer}>
+                    <ThemedText type="subtitle" style={styles.title}>
+                      Get Recommendations
+                    </ThemedText>
+                    <ThemedText style={styles.subtitle}>
+                      Get recommendations near you
+                    </ThemedText>
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color="black" />
+                </ThemedView>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity onPress={handleQuizPress}>
+                <ThemedView style={styles.card}>
+                  <MaterialCommunityIcons
+                    name="clipboard-list"
+                    size={50}
+                    color="black"
+                    style={styles.icon}
+                  />
+                  <View style={styles.textContainer}>
+                    <ThemedText type="subtitle" style={styles.title}>
+                      Preference Quiz
+                    </ThemedText>
+                    <ThemedText style={styles.subtitle}>
+                      Help us learn more about you
+                    </ThemedText>
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color="black" />
+                </ThemedView>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
