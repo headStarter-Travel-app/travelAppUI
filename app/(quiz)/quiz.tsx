@@ -3,10 +3,8 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
-  TouchableOpacity,
-  FlatList,
   Alert,
+  TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
 } from "react-native";
@@ -21,6 +19,7 @@ import { FinalQuiz } from "@/components/preferencesQuiz/finalQuiz";
 import { Learning } from "@/components/preferencesQuiz/learning";
 import { getUserId } from "@/lib/appwrite";
 import axios from "axios";
+
 enum SocializingOption {
   ENERGETIC = "ENERGETIC",
   RELAXED = "RELAXED",
@@ -35,14 +34,13 @@ enum Time {
 enum Shopping {
   YES = "YES",
   SOMETIME = "SOMETIME",
-
   NO = "NO",
 }
 
 const PreferenceQuiz = () => {
   const [cuisines, setCuisines] = useState<string[]>([]);
   const [entertainment, setEntertainment] = useState<string[]>([]);
-  const [sports, setSports] = useState<string[]>([]); //read, write
+  const [sports, setSports] = useState<string[]>([]);
   const [learning, setLearning] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [canProceed, setCanProceed] = useState<boolean>(false);
@@ -56,6 +54,7 @@ const PreferenceQuiz = () => {
   const [shopping, setShopping] = useState<Shopping>(Shopping.YES);
 
   const router = useRouter();
+
   const fetchPreferences = async () => {
     try {
       const userId = await getUserId();
@@ -77,7 +76,7 @@ const PreferenceQuiz = () => {
       }
     } catch (error) {
       console.error("Error fetching preferences:", error);
-      Alert.alert("Failed to fetch preferences. Using default values.");
+      alert("Failed to fetch preferences. Using default values.");
     }
   };
 
@@ -100,35 +99,17 @@ const PreferenceQuiz = () => {
         case 4:
           setCanProceed(learning.length > 0);
           break;
-        case 5:
-          setCanProceed(atmosphere.length > 0 && time.length > 0);
-          break;
         default:
           setCanProceed(false);
       }
     };
 
     checkProceed();
-  }, [
-    cuisines,
-    entertainment,
-    sports,
-    learning,
-    atmosphere,
-    socializing,
-    time,
-    familyFriendly,
-    shopping,
-  ]);
+  }, [cuisines, entertainment, sports, learning, page]);
 
   const handleSavePreferences = async () => {
     setLoading(true);
     try {
-      //await SavePreferences({
-      //cuisine: cuisines,
-      //entertainment: entertainment,
-      //sports: sports,
-      //});
       const userId = await getUserId();
       const payload = {
         user_id: userId,
@@ -149,23 +130,31 @@ const PreferenceQuiz = () => {
       );
 
       if (res.status === 200) {
-        // Assuming success is indicated by status 200
-        Alert.alert("Preferences saved successfully");
+        alert("Preferences saved successfully");
         await fetchPreferences();
         router.replace("/(tabs)");
       } else {
         console.error("Unexpected response status:", res.status);
-        Alert.alert("Failed to save preferences. Please try again.");
+        alert("Failed to save preferences. Please try again.");
       }
     } catch (error) {
       console.error("Saving preferences failed:", error);
-      Alert.alert("Saving preferences failed. Please try again.");
+      alert("Saving preferences failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
   const handleBack = () => {
     router.back();
+  };
+
+  const handleNext = () => {
+    if (!canProceed) {
+      alert("Please make at least 1 selection");
+    } else {
+      setPage((prev) => prev + 1);
+    }
   };
 
   const renderPageContent = () => {
@@ -221,7 +210,7 @@ const PreferenceQuiz = () => {
           <>
             <AppButton
               title="Next"
-              onPress={() => setPage((prev) => prev + 1)}
+              onPress={handleNext}
               disabled={!canProceed}
             />
             <AppButton
