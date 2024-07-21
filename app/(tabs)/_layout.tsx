@@ -45,7 +45,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="explore"
+          name="find"
           options={{
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon
@@ -56,11 +56,11 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="messages"
+          name="friends"
           options={{
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon
-                name={focused ? "chatbubble" : "chatbubble-outline"}
+                name={focused ? "people" : "people-outline"}
                 color="black"
               />
             ),
