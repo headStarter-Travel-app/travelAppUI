@@ -23,7 +23,6 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
   place,
   onClose,
 }) => {
-  console.log(place);
   if (!place) {
     return (
       <Modal

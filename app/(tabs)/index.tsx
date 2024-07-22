@@ -126,8 +126,6 @@ export default function App() {
   const handleMarkerPress = async (place: Place) => {
     try {
       const formattedAddressString = place.formattedAddressLines.join(", ");
-      console.log("Fetching place details for:", formattedAddressString);
-      console.log(place.name);
 
       const response = await axios.post(
         "https://travelappbackend-c7bj.onrender.com/get_place_details",
