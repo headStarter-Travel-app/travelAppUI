@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
   View,
   TextInput,
@@ -8,6 +8,9 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+
+import axios from "axios";
+
 import { Ionicons } from "@expo/vector-icons";
 
 // @ts-ignore
