@@ -10,18 +10,30 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+// @ts-ignore
 const FriendsScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const friends = [
-    { id: "1", name: "Friend 1", status: "status" },
-    { id: "2", name: "Friend 2", status: "status" },
-    { id: "3", name: "Friend 3", status: "status" },
+    { id: "1", name: "Friend 1", status: "accepted" },
+    { id: "2", name: "Friend 2", status: "denied" },
+    { id: "3", name: "Friend 3", status: "pending" },
     { id: "4", name: "Friend 4", status: "status" },
-    { id: "5", name: "Friend 5", status: "status" },
-    { id: "6", name: "Friend 6", status: "status" },
-    { id: "7", name: "Friend 7", status: "status" },
-    { id: "8", name: "Friend 8", status: "status" },
+    // { id: "5", name: "Friend 5", status: "status" },
+    // { id: "6", name: "Friend 6", status: "status" },
+    // { id: "7", name: "Friend 7", status: "status" },
+    // { id: "8", name: "Friend 8", status: "status" },
+  ];
+
+  const requests = [
+    { id: "1", name: "Friend 1", status: "accepted" },
+    { id: "2", name: "Friend 2", status: "denied" },
+    { id: "3", name: "Friend 3", status: "pending" },
+    { id: "4", name: "Friend 4", status: "status" },
+    // { id: "5", name: "Friend 5", status: "status" },
+    // { id: "6", name: "Friend 6", status: "status" },
+    // { id: "7", name: "Friend 7", status: "status" },
+    // { id: "8", name: "Friend 8", status: "status" },
   ];
 
   const handleSearch = (text: React.SetStateAction<string>) => {
@@ -39,6 +51,7 @@ const FriendsScreen = () => {
           value={searchQuery}
           onChangeText={handleSearch}
         />
+
         <TouchableOpacity style={styles.iconContainer}>
           <Image
             source={require("@/public/utilities/search.png")}
@@ -47,6 +60,8 @@ const FriendsScreen = () => {
         </TouchableOpacity>
       </View>
 
+      <Text style={styles.friendsText}>Friends</Text>
+
       {/* List of all the friends */}
       <FlatList
         data={friends.filter((friend) =>
@@ -54,8 +69,19 @@ const FriendsScreen = () => {
         )}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <FriendsContainer item={item} />}
-        style={styles.list}
+        style={styles.friendsList}
       />
+      <Text style={styles.requestsText}>Requests</Text>
+      {/* List of all the friend requests */}
+      <FlatList
+          data={friends.filter((friend) =>
+              friend.name.toLowerCase().includes(searchQuery.toLowerCase())
+          )}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <FriendsContainer item={item} />}
+          style={styles.requestsList}
+      />
+
     </View>
   );
 };
@@ -81,7 +107,7 @@ const FriendsContainer: React.FC<FriendsContainerProps> = ({ item }) => {
         </View>
       </View>
       <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>+</Text>
+        <Text style={styles.addButtonText}>x</Text>
       </TouchableOpacity>
     </View>
   );
@@ -119,8 +145,29 @@ const styles = StyleSheet.create({
   iconContainer: {
     marginLeft: 10,
   },
-  list: {
-    marginTop: 20,
+  friendsText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 11,
+    marginTop: 10,
+    marginBottom: 2,
+    color: '#000',
+  },
+  requestsText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 11,
+    marginTop: 10,
+    marginBottom: 5,
+    color: '#000',
+  },
+  friendsList: {
+    marginTop: 10,
+    flexGrow: 1,
+  },
+  requestsList: {
+    marginTop: 10,
+    flexGrow: 3,
   },
   friendContainer: {
     margin: 10, // Added margin to match search container
@@ -169,7 +216,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#000000",
   },
   Magnicon: {
     width: 25,
@@ -181,7 +228,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    lineHeight: 25, // Ensures the text is vertically centered
+    lineHeight: 25,
   },
 });
 
