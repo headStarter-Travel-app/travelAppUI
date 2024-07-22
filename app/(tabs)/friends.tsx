@@ -19,24 +19,13 @@ const FriendsScreen = () => {
 
   const friends = [
     { id: "1", name: "Friend 1", status: "accepted" },
-    { id: "2", name: "Friend 2", status: "denied" },
+    { id: "2", name: "Friend 2", status: "pending" },
     { id: "3", name: "Friend 3", status: "pending" },
-    { id: "4", name: "Friend 4", status: "status" },
-    // { id: "5", name: "Friend 5", status: "status" },
-    // { id: "6", name: "Friend 6", status: "status" },
-    // { id: "7", name: "Friend 7", status: "status" },
-    // { id: "8", name: "Friend 8", status: "status" },
-  ];
-
-  const requests = [
-    { id: "1", name: "Friend 1", status: "accepted" },
-    { id: "2", name: "Friend 2", status: "denied" },
-    { id: "3", name: "Friend 3", status: "pending" },
-    { id: "4", name: "Friend 4", status: "status" },
-    // { id: "5", name: "Friend 5", status: "status" },
-    // { id: "6", name: "Friend 6", status: "status" },
-    // { id: "7", name: "Friend 7", status: "status" },
-    // { id: "8", name: "Friend 8", status: "status" },
+    { id: "4", name: "Friend 4", status: "accepted" },
+    { id: "5", name: "Friend 5", status: "accepted" },
+    { id: "6", name: "Friend 6", status: "pending" },
+    { id: "7", name: "Friend 7", status: "accepted" },
+    { id: "8", name: "Friend 8", status: "pending" },
   ];
 
   const handleSearch = (text: React.SetStateAction<string>) => {
@@ -68,7 +57,8 @@ const FriendsScreen = () => {
       {/* List of all the friends */}
       <FlatList
         data={friends.filter((friend) =>
-          friend.name.toLowerCase().includes(searchQuery.toLowerCase())
+          friend.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+            friend.status === "accepted"
         )}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <FriendsContainer item={item} />}
@@ -78,7 +68,8 @@ const FriendsScreen = () => {
       {/* List of all the friend requests */}
       <FlatList
           data={friends.filter((friend) =>
-              friend.name.toLowerCase().includes(searchQuery.toLowerCase())
+              friend.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+              friend.status === "pending"
           )}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <FriendsContainer item={item} />}
