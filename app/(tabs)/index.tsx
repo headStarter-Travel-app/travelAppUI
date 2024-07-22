@@ -19,7 +19,7 @@ import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import axios from "axios";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import PlaceModal from "./modal";
+import PlaceModal from "../../components/modal";
 // Default location (San Francisco)
 const DEFAULT_LOCATION = {
   latitude: 37.78825,
