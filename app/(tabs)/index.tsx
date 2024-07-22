@@ -19,7 +19,7 @@ import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import axios from "axios";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-
+import PlaceModal from "./modal";
 // Default location (San Francisco)
 const DEFAULT_LOCATION = {
   latitude: 37.78825,
@@ -29,15 +29,16 @@ const DEFAULT_LOCATION = {
 };
 
 interface Place {
-  location: {
-    lat: number;
-    lon: number;
+  coordinate: {
+    latitude: number;
+    longitude: number;
   };
   name: string;
   description: string;
   imageUrl: string;
   address: string;
   openingHours: string;
+  formattedAddressLines: string[];
 }
 
 export default function App() {
@@ -47,20 +48,29 @@ export default function App() {
   const [location, setLocation] = useState(DEFAULT_LOCATION);
   const [recommendations, setRecommendations] = useState<Place[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
-  const [selectedPlaceDetails, setSelectedPlaceDetails] = useState<any | null>(null);
-  const [showGetRecommendationsButton, setShowGetRecommendationsButton] = useState(false);
+  const [selectedPlaceDetails, setSelectedPlaceDetails] = useState<any | null>(
+    null
+  );
+  const [showGetRecommendationsButton, setShowGetRecommendationsButton] =
+    useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    console.log("isloading", isLoading);
+  }, [isLoading]);
 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         console.log("Permission to access location was denied");
-        setIsLoading(false);
         Alert.alert(
           "Location Permission Denied",
           "Permission to access location was denied. Please enable location services in your settings to get the best experience.",
-          [{ text: "Open Settings", onPress: () => Linking.openSettings() }, { text: "Cancel", style: "cancel" }]
+          [
+            { text: "Open Settings", onPress: () => Linking.openSettings() },
+            { text: "Cancel", style: "cancel" },
+          ]
         );
         return;
       }
@@ -80,10 +90,16 @@ export default function App() {
           longitudeDelta: 0.05,
         });
 
-        const response = await axios.get(`http://127.0.0.1:8000/initial-recommendations?lat=${currentLocation.coords.latitude}&lon=${currentLocation.coords.longitude}&user_id=${'your-user-id'}`);
+        const response = await axios.get(
+          `https://travelappbackend-c7bj.onrender.com/initial-recommendations?lat=${currentLocation.coords.latitude}&lon=${currentLocation.coords.longitude}`
+        );
         setRecommendations(response.data.recommendations);
+        setIsLoading(false);
       } catch (error) {
-        console.error("Error getting location or fetching recommendations:", error);
+        console.error(
+          "Error getting location or fetching recommendations:",
+          error
+        );
         setIsLoading(false);
       }
     })();
@@ -93,7 +109,12 @@ export default function App() {
     setShowGetRecommendationsButton(false);
     setIsLoading(true);
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/initial-recommendations?lat=${location.latitude}&lon=${location.longitude}&user_id=${'your-user-id'}`);
+      console.log(
+        `https://travelappbackend-c7bj.onrender.com/initial-recommendations?lat=${location.latitude}&lon=${location.longitude}`
+      );
+      const response = await axios.get(
+        `https://travelappbackend-c7bj.onrender.com/initial-recommendations?lat=${location.latitude}&lon=${location.longitude}`
+      );
       setRecommendations(response.data.recommendations);
     } catch (error) {
       console.error("Error fetching recommendations:", error);
@@ -104,10 +125,17 @@ export default function App() {
 
   const handleMarkerPress = async (place: Place) => {
     try {
-      const response = await axios.post('http://127.0.0.1:8000/get_place_details', {
-        address: place.address,
-        name: place.name
-      });
+      const formattedAddressString = place.formattedAddressLines.join(", ");
+      console.log("Fetching place details for:", formattedAddressString);
+      console.log(place.name);
+
+      const response = await axios.post(
+        "https://travelappbackend-c7bj.onrender.com/get_place_details",
+        {
+          address: formattedAddressString,
+          name: place.name,
+        }
+      );
       setSelectedPlaceDetails(response.data);
       setSelectedPlace(place);
       setModalVisible(true);
@@ -129,7 +157,6 @@ export default function App() {
   const handleQuizPress = () => {
     router.push("/quiz");
   };
-
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -159,8 +186,8 @@ export default function App() {
               <Marker
                 key={index}
                 coordinate={{
-                  latitude: place.location.lat,
-                  longitude: place.location.lon,
+                  latitude: place.coordinate.latitude,
+                  longitude: place.coordinate.longitude,
                 }}
                 title={place.name}
                 description={place.description}
@@ -188,96 +215,40 @@ export default function App() {
                       styles.markerArrow,
                       { borderTopColor: getMarkerColor(index) },
                     ]}
-                    />
-                    </View>
-                  </Marker>
-                ))}
-              </MapView>
-            )}
-            <View style={styles.buttonsContainer}>
-              <TouchableOpacity onPress={fetchRecommendations}>
-                <ThemedView style={styles.card}>
-                  <MaterialCommunityIcons
-                    name="clipboard-list"
-                    size={50}
-                    color="black"
-                    style={styles.icon}
                   />
-                  <View style={styles.textContainer}>
-                    <ThemedText type="subtitle" style={styles.title}>
-                      Get Recommendations
-                    </ThemedText>
-                    <ThemedText style={styles.subtitle}>
-                      Get recommendations near you
-                    </ThemedText>
-                  </View>
-                  <Ionicons name="chevron-forward" size={24} color="black" />
-                </ThemedView>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.buttonsContainer}>
-              <TouchableOpacity onPress={handleQuizPress}>
-                <ThemedView style={styles.card}>
-                  <MaterialCommunityIcons
-                    name="clipboard-list"
-                    size={50}
-                    color="black"
-                    style={styles.icon}
-                  />
-                  <View style={styles.textContainer}>
-                    <ThemedText type="subtitle" style={styles.title}>
-                      Preference Quiz
-                    </ThemedText>
-                    <ThemedText style={styles.subtitle}>
-                      Help us learn more about you
-                    </ThemedText>
-                  </View>
-                  <Ionicons name="chevron-forward" size={24} color="black" />
-                </ThemedView>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            {selectedPlace && (
-              <>
-                <Image
-                  source={{ uri: selectedPlace.imageUrl }}
-                  style={styles.placeImage}
-                />
-                <Text style={styles.placeName}>{selectedPlace.name}</Text>
-                <Text style={styles.placeDescription}>
-                  {selectedPlace.description}
-                </Text>
-                <View style={styles.placeDetails}>
-                  <Ionicons name="location" size={20} color="#000" />
-                  <Text style={styles.placeDetailText}>
-                    {selectedPlace.address}
-                  </Text>
                 </View>
-                <View style={styles.placeDetails}>
-                  <Ionicons name="time" size={20} color="#000" />
-                  <Text style={styles.placeDetailText}>
-                    {selectedPlace.openingHours}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={closeModal}
-                >
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
+              </Marker>
+            ))}
+          </MapView>
+        )}
+        <View style={styles.buttonsContainer}></View>
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity onPress={handleQuizPress}>
+            <ThemedView style={styles.card}>
+              <MaterialCommunityIcons
+                name="clipboard-list"
+                size={50}
+                color="black"
+                style={styles.icon}
+              />
+              <View style={styles.textContainer}>
+                <ThemedText type="subtitle" style={styles.title}>
+                  Preference Quiz
+                </ThemedText>
+                <ThemedText style={styles.subtitle}>
+                  Help us learn more about you
+                </ThemedText>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="black" />
+            </ThemedView>
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </View>
+      <PlaceModal
+        isVisible={modalVisible}
+        place={selectedPlaceDetails}
+        onClose={() => setModalVisible(false)}
+      />
     </ScrollView>
   );
 }
@@ -406,8 +377,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: '90%',
-    backgroundColor: "#FFFFFF",
+    width: "100%", // Changed from 90% to 100%
+    backgroundColor: "darkgrey", // Changed to a light blue color
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -422,13 +393,13 @@ const styles = StyleSheet.create({
   placeName: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#000000",
+    color: "#1E3A8A", // Changed to a darker blue
     marginBottom: 10,
-    fontFamily: "spaceGroteskBold",
+    fontFamily: "DM Sans",
   },
   placeDescription: {
     fontSize: 16,
-    color: "#555555",
+    color: "#4B5563", // Changed to a darker gray
     marginBottom: 15,
     textAlign: "center",
     fontFamily: "spaceGroteskRegular",
@@ -441,11 +412,11 @@ const styles = StyleSheet.create({
   placeDetailText: {
     marginLeft: 10,
     fontSize: 14,
-    color: "#000000",
+    color: "#1F2937", // Changed to a dark gray
     fontFamily: "spaceGroteskRegular",
   },
   closeButton: {
-    backgroundColor: "#3498db",
+    backgroundColor: "#2563EB", // Changed to a vibrant blue
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
