@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eaeb7f3a-cbe3-4176-b3d6-cd7d6beb1ddc" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/friends.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/friends.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="eaeb7f3a-cbe3-4176-b3d6-cd7d6beb1ddc" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -62,6 +58,21 @@
       </map>
     </option>
   </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="travelAppUI" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="travelAppUI" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -88,6 +99,7 @@
       <workItem from="1721667324889" duration="1238000" />
       <workItem from="1721668576248" duration="8224000" />
       <workItem from="1721678554580" duration="2977000" />
+      <workItem from="1721696087188" duration="3399000" />
     </task>
     <servers />
   </component>
