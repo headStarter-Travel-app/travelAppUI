@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
@@ -8,38 +8,120 @@ import {
   SectionList,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
+import axios from "axios";
+import { getUserId } from "@/lib/appwrite";
+const API_URL = "https://travelappbackend-c7bj.onrender.com";
+
+interface User {
+  id: string;
+  name: string;
+  // Add other user properties as needed
+}
+
+interface SectionData {
+  title: string;
+  data: User[];
+}
 
 const FriendsScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [friends, setFriends] = useState<User[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<User[]>([]);
+  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  const friends = [
-    { id: "1", name: "Friend 1", status: "accepted" },
-    { id: "2", name: "Friend 2", status: "pending" },
-    { id: "3", name: "Friend 3", status: "pending" },
-    { id: "4", name: "Friend 4", status: "accepted" },
-    { id: "5", name: "Friend 5", status: "accepted" },
-    { id: "6", name: "Friend 6", status: "pending" },
-    { id: "7", name: "Friend 7", status: "accepted" },
-    { id: "8", name: "Friend 8", status: "pending" },
-  ];
+  useEffect(() => {
+    const fetchCurrentUserId = async () => {
+      const userId = await getUserId();
+      setCurrentUserId(userId);
+    };
+    fetchCurrentUserId();
+  }, []);
 
-  const handleSearch = (text: string) => {
-    setSearchQuery(text);
+  useEffect(() => {
+    if (currentUserId) {
+      fetchFriendsAndRequests();
+    }
+  }, [currentUserId]);
+
+  const fetchFriendsAndRequests = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/user-friends/${currentUserId}`
+      );
+      setFriends(response.data.friends);
+      setPendingRequests(response.data.pending_requests);
+    } catch (error) {
+      console.error("Error fetching friends and requests:", error);
+    }
   };
 
-  const filteredFriends = friends.filter((friend) =>
-    friend.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleSearch = async (text: string) => {
+    setSearchQuery(text);
+    if (text.length > 0) {
+      try {
+        const response = await axios.get(
+          `${API_URL}/search-users?query=${text}`
+        );
+        setSearchResults(response.data.users);
+      } catch (error) {
+        console.error("Error searching users:", error);
+      }
+    } else {
+      setSearchResults([]);
+    }
+  };
 
-  const sections = [
+  const handleSendFriendRequest = async (receiverId: string) => {
+    try {
+      await axios.post(`${API_URL}/send-friend-request`, {
+        sender_id: currentUserId,
+        receiver_id: receiverId,
+      });
+      Alert.alert("Friend request sent successfully");
+    } catch (error) {
+      console.error("Error sending friend request:", error);
+    }
+  };
+
+  const handleAcceptFriendRequest = async (senderId: string) => {
+    try {
+      await axios.post(`${API_URL}/accept-friend-request`, {
+        sender_id: senderId,
+        receiver_id: currentUserId,
+      });
+      fetchFriendsAndRequests();
+    } catch (error) {
+      console.error("Error accepting friend request:", error);
+    }
+  };
+
+  const handleRemoveFriend = async (friendId: string) => {
+    try {
+      await axios.post(`${API_URL}/remove-friend`, {
+        sender_id: currentUserId,
+        receiver_id: friendId,
+      });
+      fetchFriendsAndRequests();
+    } catch (error) {
+      console.error("Error removing friend:", error);
+    }
+  };
+
+  const sections: SectionData[] = [
     {
-      title: "Requests",
-      data: filteredFriends.filter((friend) => friend.status === "pending"),
+      title: "Search Results",
+      data: searchResults,
+    },
+    {
+      title: "Friend Requests",
+      data: pendingRequests,
     },
     {
       title: "Friends",
-      data: filteredFriends.filter((friend) => friend.status === "accepted"),
+      data: friends,
     },
   ];
 
@@ -47,13 +129,31 @@ const FriendsScreen = () => {
     item,
     section,
   }: {
-    item: Friend;
-    section: { title: string };
+    item: User;
+    section: SectionData;
   }) => {
-    if (section.title === "Friends") {
-      return <CurrentFriendsContainer item={item} />;
+    if (section.title === "Search Results") {
+      return (
+        <SearchResultContainer
+          item={item}
+          onSendRequest={() => handleSendFriendRequest(item.id)}
+        />
+      );
+    } else if (section.title === "Friend Requests") {
+      return (
+        <PendingFriendContainer
+          item={item}
+          onAccept={() => handleAcceptFriendRequest(item.id)}
+          onReject={() => handleRemoveFriend(item.id)}
+        />
+      );
     } else {
-      return <PendingFriendContainer item={item} />;
+      return (
+        <CurrentFriendsContainer
+          item={item}
+          onRemove={() => handleRemoveFriend(item.id)}
+        />
+      );
     }
   };
 
@@ -62,7 +162,7 @@ const FriendsScreen = () => {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search friends..."
+          placeholder="Search users..."
           placeholderTextColor="#000"
           value={searchQuery}
           onChangeText={handleSearch}
@@ -90,74 +190,76 @@ const FriendsScreen = () => {
   );
 };
 
-interface Friend {
-  id: string;
-  name: string;
-  status: string;
+interface ContainerProps {
+  item: User;
+  onSendRequest?: () => void;
+  onAccept?: () => void;
+  onReject?: () => void;
+  onRemove?: () => void;
 }
 
-interface FriendsContainerProps {
-  item: Friend;
-}
-const CurrentFriendsContainer: React.FC<FriendsContainerProps> = ({ item }) => {
-  const handleRemoveFriend = () => {
-    console.log(`Removing friend: ${item.name}`);
-  };
+const SearchResultContainer: React.FC<ContainerProps> = ({
+  item,
+  onSendRequest,
+}) => (
+  <View style={styles.friendContainer}>
+    <View style={styles.friendInfo}>
+      <View style={styles.avatar} />
+      <Text style={styles.friendName}>{item.name}</Text>
+    </View>
+    <TouchableOpacity
+      style={[styles.circularButton, styles.addButton]}
+      onPress={onSendRequest}
+    >
+      <Ionicons name="add" size={24} color="#fff" />
+    </TouchableOpacity>
+  </View>
+);
 
-  return (
-    <View style={styles.friendContainer}>
-      <View style={styles.friendInfo}>
-        <View style={styles.avatar} />
-        <View style={styles.nameNoteContainer}>
-          <Text style={styles.friendName}>{item.name}</Text>
-          <Text style={styles.friendNote}>{item.status}</Text>
-        </View>
-      </View>
+const PendingFriendContainer: React.FC<ContainerProps> = ({
+  item,
+  onAccept,
+  onReject,
+}) => (
+  <View style={styles.friendContainer}>
+    <View style={styles.friendInfo}>
+      <View style={styles.avatar} />
+      <Text style={styles.friendName}>{item.name}</Text>
+    </View>
+    <View style={styles.actionButtonsContainer}>
       <TouchableOpacity
-        style={styles.circularButton}
-        onPress={handleRemoveFriend}
+        style={[styles.circularButton, styles.acceptButton]}
+        onPress={onAccept}
+      >
+        <Ionicons name="checkmark" size={24} color="#fff" />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.circularButton, styles.rejectButton]}
+        onPress={onReject}
       >
         <Ionicons name="close" size={24} color="#fff" />
       </TouchableOpacity>
     </View>
-  );
-};
+  </View>
+);
 
-const PendingFriendContainer: React.FC<{ item: Friend }> = ({ item }) => {
-  const handleAcceptFriend = () => {
-    console.log(`Accepting friend request: ${item.name}`);
-  };
-
-  const handleRejectFriend = () => {
-    console.log(`Rejecting friend request: ${item.name}`);
-  };
-
-  return (
-    <View style={styles.friendContainer}>
-      <View style={styles.friendInfo}>
-        <View style={styles.avatar} />
-        <View style={styles.nameNoteContainer}>
-          <Text style={styles.friendName}>{item.name}</Text>
-          <Text style={styles.friendNote}>{item.status}</Text>
-        </View>
-      </View>
-      <View style={styles.actionButtonsContainer}>
-        <TouchableOpacity
-          style={[styles.circularButton, styles.acceptButton]}
-          onPress={handleAcceptFriend}
-        >
-          <Ionicons name="checkmark" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.circularButton, styles.rejectButton]}
-          onPress={handleRejectFriend}
-        >
-          <Ionicons name="close" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
+const CurrentFriendsContainer: React.FC<ContainerProps> = ({
+  item,
+  onRemove,
+}) => (
+  <View style={styles.friendContainer}>
+    <View style={styles.friendInfo}>
+      <View style={styles.avatar} />
+      <Text style={styles.friendName}>{item.name}</Text>
     </View>
-  );
-};
+    <TouchableOpacity
+      style={[styles.circularButton, styles.removeButton]}
+      onPress={onRemove}
+    >
+      <Ionicons name="close" size={24} color="#fff" />
+    </TouchableOpacity>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
