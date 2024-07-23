@@ -1,19 +1,14 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
   View,
   TextInput,
   Text,
   StyleSheet,
-  FlatList,
+  SectionList,
   TouchableOpacity,
   Image,
 } from "react-native";
 
-import axios from "axios";
-
-import { Ionicons } from "@expo/vector-icons";
-
-// @ts-ignore
 const FriendsScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -28,13 +23,27 @@ const FriendsScreen = () => {
     { id: "8", name: "Friend 8", status: "pending" },
   ];
 
-  const handleSearch = (text: React.SetStateAction<string>) => {
+  const handleSearch = (text: string) => {
     setSearchQuery(text);
   };
 
+  const filteredFriends = friends.filter((friend) =>
+    friend.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sections = [
+    {
+      title: "Friends",
+      data: filteredFriends.filter((friend) => friend.status === "accepted"),
+    },
+    {
+      title: "Requests",
+      data: filteredFriends.filter((friend) => friend.status === "pending"),
+    },
+  ];
+
   return (
     <View style={styles.container}>
-      {/* Search bar */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -43,7 +52,6 @@ const FriendsScreen = () => {
           value={searchQuery}
           onChangeText={handleSearch}
         />
-
         <TouchableOpacity style={styles.iconContainer}>
           <Image
             source={require("@/public/utilities/search.png")}
@@ -52,30 +60,17 @@ const FriendsScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.friendsText}>Friends</Text>
-
-      {/* List of all the friends */}
-      <FlatList
-        data={friends.filter((friend) =>
-          friend.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-            friend.status === "accepted"
-        )}
+      <SectionList
+        sections={sections}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <FriendsContainer item={item} />}
-        style={styles.friendsList}
+        renderSectionHeader={({ section: { title } }) => (
+          <Text style={styles.sectionHeader}>{title}</Text>
+        )}
+        style={styles.list}
+        stickySectionHeadersEnabled={false}
+        contentContainerStyle={styles.listContent}
       />
-      <Text style={styles.requestsText}>Requests</Text>
-      {/* List of all the friend requests */}
-      <FlatList
-          data={friends.filter((friend) =>
-              friend.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-              friend.status === "pending"
-          )}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <FriendsContainer item={item} />}
-          style={styles.requestsList}
-      />
-
     </View>
   );
 };
@@ -112,6 +107,38 @@ const styles = StyleSheet.create({
     backgroundColor: "#E6F7FF",
     marginTop: 50,
   },
+  list: {
+    flex: 1,
+  },
+  listContent: {
+    paddingBottom: 100, // Add padding to the bottom of the list
+  },
+  friendContainer: {
+    margin: 10,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    padding: 10,
+    borderColor: "#000",
+    borderWidth: 2,
+    borderBottomWidth: 4, // Increase bottom border thickness
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.8,
+    // shadowRadius: 2,
+    elevation: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 5,
+  },
+  sectionHeader: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 11,
+    marginTop: 20,
+    marginBottom: 10,
+    color: "#000",
+    backgroundColor: "#E6F7FF", // Match the background color
+  },
   searchContainer: {
     margin: 10,
     backgroundColor: "#fff",
@@ -141,19 +168,19 @@ const styles = StyleSheet.create({
   },
   friendsText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 11,
     marginTop: 10,
     marginBottom: 2,
-    color: '#000',
+    color: "#000",
   },
   requestsText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 11,
     marginTop: 10,
     marginBottom: 5,
-    color: '#000',
+    color: "#000",
   },
   friendsList: {
     marginTop: 10,
@@ -162,22 +189,6 @@ const styles = StyleSheet.create({
   requestsList: {
     marginTop: 10,
     flexGrow: 3,
-  },
-  friendContainer: {
-    margin: 10, // Added margin to match search container
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    padding: 10,
-    borderColor: "#000",
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 5,
   },
   friendInfo: {
     flexDirection: "row",
