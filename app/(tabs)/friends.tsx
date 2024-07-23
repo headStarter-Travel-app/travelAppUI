@@ -99,8 +99,11 @@ interface Friend {
 interface FriendsContainerProps {
   item: Friend;
 }
-
 const CurrentFriendsContainer: React.FC<FriendsContainerProps> = ({ item }) => {
+  const handleRemoveFriend = () => {
+    console.log(`Removing friend: ${item.name}`);
+  };
+
   return (
     <View style={styles.friendContainer}>
       <View style={styles.friendInfo}>
@@ -110,30 +113,52 @@ const CurrentFriendsContainer: React.FC<FriendsContainerProps> = ({ item }) => {
           <Text style={styles.friendNote}>{item.status}</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.removeButton}>
-        <Text style={styles.removeButtonText}>x</Text>
+      <TouchableOpacity
+        style={styles.circularButton}
+        onPress={handleRemoveFriend}
+      >
+        <Ionicons name="close" size={24} color="#fff" />
       </TouchableOpacity>
     </View>
   );
 };
 
-const PendingFriendContainer: React.FC<{ item: Friend }> = ({ item }) => (
-  <View style={styles.friendContainer}>
-    <View style={styles.friendInfo}>
-      <View style={styles.avatar} />
-      <View style={styles.nameNoteContainer}>
-        <Text style={styles.friendName}>{item.name}</Text>
-        <Text style={styles.friendNote}>{item.status}</Text>
+const PendingFriendContainer: React.FC<{ item: Friend }> = ({ item }) => {
+  const handleAcceptFriend = () => {
+    console.log(`Accepting friend request: ${item.name}`);
+  };
+
+  const handleRejectFriend = () => {
+    console.log(`Rejecting friend request: ${item.name}`);
+  };
+
+  return (
+    <View style={styles.friendContainer}>
+      <View style={styles.friendInfo}>
+        <View style={styles.avatar} />
+        <View style={styles.nameNoteContainer}>
+          <Text style={styles.friendName}>{item.name}</Text>
+          <Text style={styles.friendNote}>{item.status}</Text>
+        </View>
+      </View>
+      <View style={styles.actionButtonsContainer}>
+        <TouchableOpacity
+          style={[styles.circularButton, styles.acceptButton]}
+          onPress={handleAcceptFriend}
+        >
+          <Ionicons name="checkmark" size={24} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.circularButton, styles.rejectButton]}
+          onPress={handleRejectFriend}
+        >
+          <Ionicons name="close" size={24} color="#fff" />
+        </TouchableOpacity>
       </View>
     </View>
-    <TouchableOpacity style={styles.removeButton}>
-      <Text style={styles.removeButtonText}>X</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.addButton}>
-      <Ionicons name="checkmark" size={24} color="#D22B2B" />
-    </TouchableOpacity>
-  </View>
-);
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -146,23 +171,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 100, // Add padding to the bottom of the list
   },
-  friendContainer: {
-    margin: 10,
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    padding: 10,
-    borderColor: "#000",
-    borderWidth: 2,
-    borderBottomWidth: 4, // Increase bottom border thickness
-    // shadowColor: "#000",
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.8,
-    // shadowRadius: 2,
-    elevation: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 5,
-  },
+
   sectionHeader: {
     fontSize: 20,
     fontWeight: "bold",
@@ -223,31 +232,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexGrow: 3,
   },
-  friendInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    backgroundColor: "#D9D9D9",
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  nameNoteContainer: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-  },
-  friendName: {
-    fontWeight: "bold",
-    fontSize: 18,
-    marginBottom: 2,
-  },
 
-  friendNote: {
-    fontSize: 14,
-    color: "#888888",
-  },
   removeButton: {
     justifyContent: "center",
     alignItems: "center",
@@ -276,6 +261,64 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     marginRight: 10,
+  },
+  friendContainer: {
+    margin: 10,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 15,
+    borderColor: "#000",
+    borderWidth: 2,
+    borderBottomWidth: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  friendInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    backgroundColor: "#D9D9D9",
+    borderRadius: 25,
+    marginRight: 15,
+  },
+  nameNoteContainer: {
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  friendName: {
+    fontWeight: "bold",
+    fontSize: 16,
+    marginBottom: 4,
+    color: "#333",
+  },
+  friendNote: {
+    fontSize: 14,
+    color: "#888",
+  },
+  actionButtonsContainer: {
+    flexDirection: "row",
+  },
+  circularButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#007AFF",
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 10,
+    borderColor: "#000",
+    borderWidth: 2,
+  },
+  acceptButton: {
+    backgroundColor: "#4CD964",
+  },
+  rejectButton: {
+    backgroundColor: "#FF3B30",
   },
 });
 
