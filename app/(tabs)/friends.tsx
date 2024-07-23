@@ -130,7 +130,7 @@ const PendingFriendContainer: React.FC<{ item: Friend }> = ({ item }) => (
       <Text style={styles.removeButtonText}>X</Text>
     </TouchableOpacity>
     <TouchableOpacity style={styles.addButton}>
-      <Ionicons name="checkmark" size={24} color="#fff" />
+      <Ionicons name="checkmark" size={24} color="#D22B2B" />
     </TouchableOpacity>
   </View>
 );
@@ -254,8 +254,15 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    marginLeft: 165,
+    marginLeft: 5,
     backgroundColor: "#000000",
+  },
+  removeButtonText: {
+    color: "#19ff00",
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    lineHeight: 25,
   },
   addButton: {
     justifyContent: "center",
@@ -269,13 +276,6 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     marginRight: 10,
-  },
-  removeButtonText: {
-    color: "#fff",
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    lineHeight: 25,
   },
 });
 
