@@ -34,12 +34,12 @@ const FriendsScreen = () => {
 
   const sections = [
     {
-      title: "Friends",
-      data: filteredFriends.filter((friend) => friend.status === "accepted"),
-    },
-    {
       title: "Requests",
       data: filteredFriends.filter((friend) => friend.status === "pending"),
+    },
+    {
+      title: "Friends",
+      data: filteredFriends.filter((friend) => friend.status === "accepted"),
     },
   ];
 
