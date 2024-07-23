@@ -43,6 +43,20 @@ const FriendsScreen = () => {
     },
   ];
 
+  const renderItem = ({
+    item,
+    section,
+  }: {
+    item: Friend;
+    section: { title: string };
+  }) => {
+    if (section.title === "Friends") {
+      return <CurrentFriendsContainer item={item} />;
+    } else {
+      return <PendingFriendContainer item={item} />;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -64,7 +78,7 @@ const FriendsScreen = () => {
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <FriendsContainer item={item} />}
+        renderItem={renderItem}
         renderSectionHeader={({ section: { title } }) => (
           <Text style={styles.sectionHeader}>{title}</Text>
         )}
@@ -104,21 +118,21 @@ const CurrentFriendsContainer: React.FC<FriendsContainerProps> = ({ item }) => {
 };
 
 const PendingFriendContainer: React.FC<{ item: Friend }> = ({ item }) => (
-    <View style={styles.friendContainer}>
-      <View style={styles.friendInfo}>
-        <View style={styles.avatar} />
-        <View style={styles.nameNoteContainer}>
-          <Text style={styles.friendName}>{item.name}</Text>
-          <Text style={styles.friendNote}>{item.status}</Text>
-        </View>
+  <View style={styles.friendContainer}>
+    <View style={styles.friendInfo}>
+      <View style={styles.avatar} />
+      <View style={styles.nameNoteContainer}>
+        <Text style={styles.friendName}>{item.name}</Text>
+        <Text style={styles.friendNote}>{item.status}</Text>
       </View>
-        <TouchableOpacity style={styles.removeButton}>
-          <Text style={styles.removeButtonText}>X</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.addButton}>
-          <Ionicons name="checkmark" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
+    </View>
+    <TouchableOpacity style={styles.removeButton}>
+      <Text style={styles.removeButtonText}>X</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.addButton}>
+      <Ionicons name="checkmark" size={24} color="#fff" />
+    </TouchableOpacity>
+  </View>
 );
 const styles = StyleSheet.create({
   container: {
