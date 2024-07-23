@@ -16,8 +16,9 @@ const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
 interface User {
   id: string;
-  name: string;
-  // Add other user properties as needed
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
 interface SectionData {
@@ -30,7 +31,9 @@ const FriendsScreen = () => {
   const [friends, setFriends] = useState<User[]>([]);
   const [pendingRequests, setPendingRequests] = useState<User[]>([]);
   const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [eligibleFriends, setEligibleFriends] = useState<User[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCurrentUserId = async () => {
@@ -42,33 +45,55 @@ const FriendsScreen = () => {
 
   useEffect(() => {
     if (currentUserId) {
-      fetchFriendsAndRequests();
+      fetchPendingRequests();
+      fetchEligibleFriends();
+      fetchFriends();
     }
   }, [currentUserId]);
 
-  const fetchFriendsAndRequests = async () => {
+  const fetchPendingRequests = async () => {
     try {
       const response = await axios.get(
-        `${API_URL}/user-friends/${currentUserId}`
+        `${API_URL}/get-pending-friend-requests?user_id=${currentUserId}`
       );
-      setFriends(response.data.friends);
-      setPendingRequests(response.data.pending_requests);
+      setPendingRequests(response.data.friends);
     } catch (error) {
-      console.error("Error fetching friends and requests:", error);
+      console.error("Error fetching pending requests:", error);
     }
   };
 
-  const handleSearch = async (text: string) => {
+  const fetchEligibleFriends = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/get-eligible-friends?user_id=${currentUserId}`
+      );
+      setEligibleFriends(response.data.eligible_users);
+    } catch (error) {
+      console.error("Error fetching eligible friends:", error);
+    }
+  };
+
+  const fetchFriends = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/get-friends?user_id=${currentUserId}`
+      );
+      setFriends(response.data.friends);
+    } catch (error) {
+      console.error("Error fetching friends:", error);
+    }
+  };
+
+  const handleSearch = (text: string) => {
     setSearchQuery(text);
     if (text.length > 0) {
-      try {
-        const response = await axios.get(
-          `${API_URL}/search-users?query=${text}`
-        );
-        setSearchResults(response.data.users);
-      } catch (error) {
-        console.error("Error searching users:", error);
-      }
+      const filteredResults = eligibleFriends.filter(
+        (user) =>
+          user.firstName.toLowerCase().includes(text.toLowerCase()) ||
+          user.lastName.toLowerCase().includes(text.toLowerCase()) ||
+          user.email.toLowerCase().includes(text.toLowerCase())
+      );
+      setSearchResults(filteredResults);
     } else {
       setSearchResults([]);
     }
@@ -81,6 +106,9 @@ const FriendsScreen = () => {
         receiver_id: receiverId,
       });
       Alert.alert("Friend request sent successfully");
+      setSearchQuery("");
+      setSearchResults([]);
+      fetchEligibleFriends();
     } catch (error) {
       console.error("Error sending friend request:", error);
     }
@@ -92,7 +120,9 @@ const FriendsScreen = () => {
         sender_id: senderId,
         receiver_id: currentUserId,
       });
-      fetchFriendsAndRequests();
+      fetchPendingRequests();
+      fetchFriends();
+      fetchEligibleFriends();
     } catch (error) {
       console.error("Error accepting friend request:", error);
     }
@@ -104,26 +134,34 @@ const FriendsScreen = () => {
         sender_id: currentUserId,
         receiver_id: friendId,
       });
-      fetchFriendsAndRequests();
+      fetchFriends();
+      fetchEligibleFriends();
     } catch (error) {
       console.error("Error removing friend:", error);
     }
   };
 
-  const sections: SectionData[] = [
-    {
-      title: "Search Results",
-      data: searchResults,
-    },
-    {
-      title: "Friend Requests",
-      data: pendingRequests,
-    },
-    {
-      title: "Friends",
-      data: friends,
-    },
-  ];
+  const getSections = (): SectionData[] => {
+    const sections: SectionData[] = [];
+
+    if (searchQuery.length > 0) {
+      sections.push({
+        title: "Search Results",
+        data: searchResults,
+      });
+    } else {
+      sections.push({
+        title: "Friend Requests",
+        data: pendingRequests,
+      });
+      sections.push({
+        title: "Friends",
+        data: friends,
+      });
+    }
+
+    return sections;
+  };
 
   const renderItem = ({
     item,
@@ -157,6 +195,25 @@ const FriendsScreen = () => {
     }
   };
 
+  const renderSectionHeader = ({
+    section: { title, data },
+  }: {
+    section: SectionData;
+  }) => (
+    <>
+      <Text style={styles.sectionHeader}>{title}</Text>
+      {data.length === 0 && (
+        <Text style={styles.emptyStateText}>
+          {title === "Friend Requests"
+            ? "No pending friend requests"
+            : title === "Friends"
+            ? "No friends yet. Start adding friends!"
+            : "No results found"}
+        </Text>
+      )}
+    </>
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -174,14 +231,11 @@ const FriendsScreen = () => {
           />
         </TouchableOpacity>
       </View>
-
       <SectionList
-        sections={sections}
-        keyExtractor={(item) => item.id}
+        sections={getSections()}
+        keyExtractor={(item, index) => `${item.id}-${index}`}
         renderItem={renderItem}
-        renderSectionHeader={({ section: { title } }) => (
-          <Text style={styles.sectionHeader}>{title}</Text>
-        )}
+        renderSectionHeader={renderSectionHeader}
         style={styles.list}
         stickySectionHeadersEnabled={false}
         contentContainerStyle={styles.listContent}
@@ -205,7 +259,9 @@ const SearchResultContainer: React.FC<ContainerProps> = ({
   <View style={styles.friendContainer}>
     <View style={styles.friendInfo}>
       <View style={styles.avatar} />
-      <Text style={styles.friendName}>{item.name}</Text>
+      <Text
+        style={styles.friendName}
+      >{`${item.firstName} ${item.lastName}`}</Text>
     </View>
     <TouchableOpacity
       style={[styles.circularButton, styles.addButton]}
@@ -224,7 +280,9 @@ const PendingFriendContainer: React.FC<ContainerProps> = ({
   <View style={styles.friendContainer}>
     <View style={styles.friendInfo}>
       <View style={styles.avatar} />
-      <Text style={styles.friendName}>{item.name}</Text>
+      <Text
+        style={styles.friendName}
+      >{`${item.firstName} ${item.lastName}`}</Text>
     </View>
     <View style={styles.actionButtonsContainer}>
       <TouchableOpacity
@@ -250,7 +308,9 @@ const CurrentFriendsContainer: React.FC<ContainerProps> = ({
   <View style={styles.friendContainer}>
     <View style={styles.friendInfo}>
       <View style={styles.avatar} />
-      <Text style={styles.friendName}>{item.name}</Text>
+      <Text
+        style={styles.friendName}
+      >{`${item.firstName} ${item.lastName}`}</Text>
     </View>
     <TouchableOpacity
       style={[styles.circularButton, styles.removeButton]}
@@ -271,9 +331,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingBottom: 100, // Add padding to the bottom of the list
+    paddingBottom: 100,
   },
-
   sectionHeader: {
     fontSize: 20,
     fontWeight: "bold",
@@ -281,7 +340,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
     color: "#000",
-    backgroundColor: "#E6F7FF", // Match the background color
+    backgroundColor: "#E6F7FF",
   },
   searchContainer: {
     margin: 10,
@@ -334,7 +393,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexGrow: 3,
   },
-
   removeButton: {
     justifyContent: "center",
     alignItems: "center",
@@ -421,6 +479,13 @@ const styles = StyleSheet.create({
   },
   rejectButton: {
     backgroundColor: "#FF3B30",
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: "#888",
+    fontStyle: "italic",
+    textAlign: "center",
+    marginVertical: 10,
   },
 });
 
