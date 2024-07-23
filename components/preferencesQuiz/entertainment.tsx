@@ -1,12 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
+  Animated,
   Text,
   StyleSheet,
   Image,
   TouchableOpacity,
   FlatList,
 } from "react-native";
+import { styles } from "./cardStyles"
 
 interface EntertainmentProps {
   setEntertainmentOptions: (option: string[]) => void;
@@ -32,6 +34,8 @@ export const Entertainment: React.FC<EntertainmentProps> = ({
   setEntertainmentOptions,
   existingEntertainment,
 }) => {
+  const [activeOptions, setActiveOptions] = useState<[string, any][]>([]);
+
   const toggleEntertainment = (option: string) => {
     setEntertainmentOptions(
       existingEntertainment.includes(option)
@@ -39,6 +43,19 @@ export const Entertainment: React.FC<EntertainmentProps> = ({
         : [...existingEntertainment, option]
     );
   };
+
+  /* Used for animation*/
+  useEffect(() => {
+    function addStaggered() {
+      setActiveOptions([])
+      const list = Object.entries(entertainmentMap)
+      list.map((async (item, index) => {
+        await new Promise(resolve => setTimeout(resolve, 60 * index));
+        setActiveOptions(prev => [...prev, item])
+      }))
+    }
+    addStaggered();
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -49,7 +66,7 @@ export const Entertainment: React.FC<EntertainmentProps> = ({
         Select all that apply. You can always change this later.
       </Text>
       <FlatList
-        data={Object.entries(entertainmentMap)}
+        data={activeOptions}
         renderItem={({ item: [name, imageURL] }) => (
           <Card
             key={name}
@@ -75,69 +92,51 @@ interface Card {
 }
 
 export const Card: React.FC<Card> = ({ name, imageURL, selected, onPress }) => {
-  return (
-    <TouchableOpacity
-      style={[styles.card, selected && styles.selectedCard]}
-      onPress={onPress}
-    >
-      <Text style={styles.cardText}>{name}</Text>
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const yBounce = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      delay: 20,
+      toValue: 1,
+      duration: 900,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+  useEffect(() => {
+    (
+      selected ? 
+      Animated.timing(yBounce, {
+        toValue: -5,
+        duration: 100,
+        useNativeDriver: true,
+      }).start() :
+      Animated.timing(yBounce, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }).start()
+    )
+  }, [selected])
 
-      <Image source={imageURL} style={styles.image} />
-    </TouchableOpacity>
+  return (
+    <Animated.View style={[
+      styles.card, 
+      selected && styles.selectedCard,
+      {transform: [
+        {translateY : yBounce}
+      ]},
+      {opacity : fadeAnim},
+
+    ]}> 
+      <TouchableOpacity
+        style={{width:"100%"}}
+        onPress={onPress}
+      >
+        <Text style={styles.cardText}>{name}</Text>
+
+        <Image source={imageURL} style={styles.image} />
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 10,
-    alignItems: "center",
-  },
-  flatListContainer: {
-    width: "100%",
-    paddingHorizontal: 10,
-  },
-
-  title: {
-    fontSize: 24,
-    fontFamily: "dmSansBold",
-    color: "#000",
-    textAlign: "center",
-    marginBottom: 10,
-  },
-  subTitle: {
-    fontSize: 16,
-    fontFamily: "dmSansRegular",
-    color: "#000",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  gridContainer: {
-    paddingHorizontal: 5,
-  },
-  card: {
-    margin: 5,
-    alignItems: "center",
-    borderRadius: 10,
-    padding: 10,
-    width: "30%", // Changed from fixed width to percentage
-  },
-  selectedCard: {
-    backgroundColor: "#d0d0ff",
-    borderWidth: 2,
-    borderColor: "#4040ff",
-  },
-  image: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    borderColor: "black",
-    borderWidth: 2,
-  },
-  cardText: {
-    marginTop: 5,
-    fontFamily: "spaceGroteskMedium",
-    textAlign: "center",
-    fontSize: 14,
-  },
-});
