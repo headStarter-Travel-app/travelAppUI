@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   View,
@@ -85,7 +86,7 @@ interface FriendsContainerProps {
   item: Friend;
 }
 
-const FriendsContainer: React.FC<FriendsContainerProps> = ({ item }) => {
+const CurrentFriendsContainer: React.FC<FriendsContainerProps> = ({ item }) => {
   return (
     <View style={styles.friendContainer}>
       <View style={styles.friendInfo}>
@@ -95,12 +96,30 @@ const FriendsContainer: React.FC<FriendsContainerProps> = ({ item }) => {
           <Text style={styles.friendNote}>{item.status}</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>x</Text>
+      <TouchableOpacity style={styles.removeButton}>
+        <Text style={styles.removeButtonText}>x</Text>
       </TouchableOpacity>
     </View>
   );
 };
+
+const PendingFriendContainer: React.FC<{ item: Friend }> = ({ item }) => (
+    <View style={styles.friendContainer}>
+      <View style={styles.friendInfo}>
+        <View style={styles.avatar} />
+        <View style={styles.nameNoteContainer}>
+          <Text style={styles.friendName}>{item.name}</Text>
+          <Text style={styles.friendNote}>{item.status}</Text>
+        </View>
+      </View>
+        <TouchableOpacity style={styles.removeButton}>
+          <Text style={styles.removeButtonText}>X</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.addButton}>
+          <Ionicons name="checkmark" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
+);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -215,6 +234,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#888888",
   },
+  removeButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginLeft: 165,
+    backgroundColor: "#000000",
+  },
   addButton: {
     justifyContent: "center",
     alignItems: "center",
@@ -228,7 +256,7 @@ const styles = StyleSheet.create({
     height: 25,
     marginRight: 10,
   },
-  addButtonText: {
+  removeButtonText: {
     color: "#fff",
     fontSize: 24,
     fontWeight: "bold",
