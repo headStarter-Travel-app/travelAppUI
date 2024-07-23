@@ -246,7 +246,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    borderBottomWidth: 1,
     borderBottomColor: "black",
     fontFamily: "DM Sans",
   },
