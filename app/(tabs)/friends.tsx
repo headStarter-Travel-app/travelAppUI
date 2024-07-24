@@ -52,7 +52,9 @@ const FriendsScreen = () => {
 
   const fetchFriendsAndRequests = async () => {
     try {
-      const response = await axios.get(`${API_URL}/user-friends/${currentUserId}`);
+      const response = await axios.get(
+        `${API_URL}/user-friends/?user_id=${currentUserId}`
+      );
       setFriends(response.data.friends);
       setPendingRequests(response.data.pending_requests);
     } catch (error) {
@@ -62,7 +64,9 @@ const FriendsScreen = () => {
 
   const fetchEligibleFriends = async () => {
     try {
-      const response = await axios.get(`${API_URL}/get-eligible-friends?user_id=${currentUserId}`);
+      const response = await axios.get(
+        `${API_URL}/get-eligible-friends?user_id=${currentUserId}`
+      );
       setEligibleFriends(response.data.eligible_users);
     } catch (error) {
       console.error("Error fetching eligible friends:", error);
@@ -157,7 +161,13 @@ const FriendsScreen = () => {
     return sections;
   };
 
-  const renderItem = ({ item, section }: { item: User; section: SectionData }) => {
+  const renderItem = ({
+    item,
+    section,
+  }: {
+    item: User;
+    section: SectionData;
+  }) => {
     if (section.title === "Search Results") {
       return (
         <SearchResultContainer
