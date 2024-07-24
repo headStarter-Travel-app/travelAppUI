@@ -15,7 +15,7 @@ import { getUserId } from "@/lib/appwrite";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
 interface User {
-  id: string;
+  $id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -101,6 +101,8 @@ const FriendsScreen = () => {
 
   const handleSendFriendRequest = async (receiverId: string) => {
     try {
+      console.log(currentUserId);
+      console.log(receiverId);
       await axios.post(`${API_URL}/send-friend-request`, {
         sender_id: currentUserId,
         receiver_id: receiverId,
@@ -174,22 +176,22 @@ const FriendsScreen = () => {
       return (
         <SearchResultContainer
           item={item}
-          onSendRequest={() => handleSendFriendRequest(item.id)}
+          onSendRequest={() => handleSendFriendRequest(item["$id"])}
         />
       );
     } else if (section.title === "Friend Requests") {
       return (
         <PendingFriendContainer
           item={item}
-          onAccept={() => handleAcceptFriendRequest(item.id)}
-          onReject={() => handleRemoveFriend(item.id)}
+          onAccept={() => handleAcceptFriendRequest(item["$id"])}
+          onReject={() => handleRemoveFriend(item["$id"])}
         />
       );
     } else {
       return (
         <CurrentFriendsContainer
           item={item}
-          onRemove={() => handleRemoveFriend(item.id)}
+          onRemove={() => handleRemoveFriend(item["$id"])}
         />
       );
     }
@@ -233,7 +235,7 @@ const FriendsScreen = () => {
       </View>
       <SectionList
         sections={getSections()}
-        keyExtractor={(item, index) => `${item.id}-${index}`}
+        keyExtractor={(item, index) => `${item["$id"]}-${index}`}
         renderItem={renderItem}
         renderSectionHeader={renderSectionHeader}
         style={styles.list}
