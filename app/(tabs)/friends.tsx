@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import axios from "axios";
 import { getUserId } from "@/lib/appwrite";
+
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
 interface User {
@@ -33,7 +34,6 @@ const FriendsScreen = () => {
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [eligibleFriends, setEligibleFriends] = useState<User[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCurrentUserId = async () => {
@@ -45,42 +45,27 @@ const FriendsScreen = () => {
 
   useEffect(() => {
     if (currentUserId) {
-      fetchPendingRequests();
+      fetchFriendsAndRequests();
       fetchEligibleFriends();
-      fetchFriends();
     }
   }, [currentUserId]);
 
-  const fetchPendingRequests = async () => {
+  const fetchFriendsAndRequests = async () => {
     try {
-      const response = await axios.get(
-        `${API_URL}/get-pending-friend-requests?user_id=${currentUserId}`
-      );
-      setPendingRequests(response.data.friends);
+      const response = await axios.get(`${API_URL}/user-friends/${currentUserId}`);
+      setFriends(response.data.friends);
+      setPendingRequests(response.data.pending_requests);
     } catch (error) {
-      console.error("Error fetching pending requests:", error);
+      console.error("Error fetching friends and requests:", error);
     }
   };
 
   const fetchEligibleFriends = async () => {
     try {
-      const response = await axios.get(
-        `${API_URL}/get-eligible-friends?user_id=${currentUserId}`
-      );
+      const response = await axios.get(`${API_URL}/get-eligible-friends?user_id=${currentUserId}`);
       setEligibleFriends(response.data.eligible_users);
     } catch (error) {
       console.error("Error fetching eligible friends:", error);
-    }
-  };
-
-  const fetchFriends = async () => {
-    try {
-      const response = await axios.get(
-        `${API_URL}/get-friends?user_id=${currentUserId}`
-      );
-      setFriends(response.data.friends);
-    } catch (error) {
-      console.error("Error fetching friends:", error);
     }
   };
 
@@ -101,8 +86,6 @@ const FriendsScreen = () => {
 
   const handleSendFriendRequest = async (receiverId: string) => {
     try {
-      console.log(currentUserId);
-      console.log(receiverId);
       await axios.post(`${API_URL}/send-friend-request`, {
         sender_id: currentUserId,
         receiver_id: receiverId,
@@ -122,11 +105,21 @@ const FriendsScreen = () => {
         sender_id: senderId,
         receiver_id: currentUserId,
       });
-      fetchPendingRequests();
-      fetchFriends();
-      fetchEligibleFriends();
+      fetchFriendsAndRequests();
     } catch (error) {
       console.error("Error accepting friend request:", error);
+    }
+  };
+
+  const handleRejectFriendRequest = async (senderId: string) => {
+    try {
+      await axios.post(`${API_URL}/reject-friend-request`, {
+        sender_id: senderId,
+        receiver_id: currentUserId,
+      });
+      fetchFriendsAndRequests();
+    } catch (error) {
+      console.error("Error rejecting friend request:", error);
     }
   };
 
@@ -136,8 +129,7 @@ const FriendsScreen = () => {
         sender_id: currentUserId,
         receiver_id: friendId,
       });
-      fetchFriends();
-      fetchEligibleFriends();
+      fetchFriendsAndRequests();
     } catch (error) {
       console.error("Error removing friend:", error);
     }
@@ -165,13 +157,7 @@ const FriendsScreen = () => {
     return sections;
   };
 
-  const renderItem = ({
-    item,
-    section,
-  }: {
-    item: User;
-    section: SectionData;
-  }) => {
+  const renderItem = ({ item, section }: { item: User; section: SectionData }) => {
     if (section.title === "Search Results") {
       return (
         <SearchResultContainer
@@ -184,7 +170,7 @@ const FriendsScreen = () => {
         <PendingFriendContainer
           item={item}
           onAccept={() => handleAcceptFriendRequest(item["$id"])}
-          onReject={() => handleRemoveFriend(item["$id"])}
+          onReject={() => handleRejectFriendRequest(item["$id"])}
         />
       );
     } else {
