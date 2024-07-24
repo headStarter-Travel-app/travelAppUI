@@ -27,6 +27,8 @@ interface SectionData {
   data: User[];
 }
 
+const defaultImage = require("@/public/utilities/profileImage.png");
+
 const FriendsScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [friends, setFriends] = useState<User[]>([]);
@@ -246,7 +248,7 @@ const SearchResultContainer: React.FC<ContainerProps> = ({
 }) => (
   <View style={styles.friendContainer}>
     <View style={styles.friendInfo}>
-      <View style={styles.avatar} />
+      <Image source={defaultImage} style={styles.avatar} />
       <Text
         style={styles.friendName}
       >{`${item.firstName} ${item.lastName}`}</Text>
@@ -267,7 +269,7 @@ const PendingFriendContainer: React.FC<ContainerProps> = ({
 }) => (
   <View style={styles.friendContainer}>
     <View style={styles.friendInfo}>
-      <View style={styles.avatar} />
+      <Image source={defaultImage} style={styles.avatar} />
       <Text
         style={styles.friendName}
       >{`${item.firstName} ${item.lastName}`}</Text>
@@ -295,7 +297,7 @@ const CurrentFriendsContainer: React.FC<ContainerProps> = ({
 }) => (
   <View style={styles.friendContainer}>
     <View style={styles.friendInfo}>
-      <View style={styles.avatar} />
+      <Image source={defaultImage} style={styles.avatar} />
       <Text
         style={styles.friendName}
       >{`${item.firstName} ${item.lastName}`}</Text>
