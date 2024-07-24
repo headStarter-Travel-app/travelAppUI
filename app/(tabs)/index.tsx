@@ -20,6 +20,8 @@ import * as Location from "expo-location";
 import axios from "axios";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import PlaceModal from "../../components/modal";
+import { Animated } from "react-native";
+
 // Default location (San Francisco)
 const DEFAULT_LOCATION = {
   latitude: 37.78825,
@@ -54,6 +56,23 @@ export default function App() {
   const [showGetRecommendationsButton, setShowGetRecommendationsButton] =
     useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [fadeAnim] = useState(new Animated.Value(0.3));
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0.3,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
   useEffect(() => {
     console.log("isloading", isLoading);
@@ -170,7 +189,7 @@ export default function App() {
             style={styles.Magnicon}
           />
         </View>
-        {!isLoading && (
+        {!isLoading ? (
           <MapView
             style={styles.map}
             region={region}
@@ -218,6 +237,16 @@ export default function App() {
               </Marker>
             ))}
           </MapView>
+        ) : (
+          <Animated.View
+            style={[
+              styles.map,
+              {
+                backgroundColor: "#E0E0E0",
+                opacity: fadeAnim,
+              },
+            ]}
+          />
         )}
         <View style={styles.buttonsContainer}></View>
         <View style={styles.buttonsContainer}>
@@ -425,5 +454,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     fontFamily: "spaceGroteskBold",
+  },
+  skeleton: {
+    flex: 1,
+    height: "50%",
+    backgroundColor: "#E0E0E0",
   },
 });
