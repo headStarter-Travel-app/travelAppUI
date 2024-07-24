@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   TextInput,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  RefreshControl,
 } from "react-native";
 import axios from "axios";
 import { getUserId } from "@/lib/appwrite";
@@ -36,6 +37,7 @@ const FriendsScreen = () => {
   const [eligibleFriends, setEligibleFriends] = useState<User[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     const fetchCurrentUserId = async () => {
@@ -103,8 +105,6 @@ const FriendsScreen = () => {
 
   const handleSendFriendRequest = async (receiverId: string) => {
     try {
-      console.log(currentUserId);
-      console.log(receiverId);
       await axios.post(`${API_URL}/send-friend-request`, {
         sender_id: currentUserId,
         receiver_id: receiverId,
@@ -218,6 +218,21 @@ const FriendsScreen = () => {
     </>
   );
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        fetchPendingRequests(),
+        fetchEligibleFriends(),
+        fetchFriends(),
+      ]);
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [currentUserId]);
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -243,6 +258,14 @@ const FriendsScreen = () => {
         style={styles.list}
         stickySectionHeadersEnabled={false}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#007AFF"]}
+            tintColor="#007AFF"
+          />
+        }
       />
     </View>
   );
@@ -324,7 +347,6 @@ const CurrentFriendsContainer: React.FC<ContainerProps> = ({
     </TouchableOpacity>
   </View>
 );
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -490,6 +512,12 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     textAlign: "center",
     marginVertical: 10,
+  },
+  refreshControl: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: 50,
+    marginTop: 10,
   },
 });
 
