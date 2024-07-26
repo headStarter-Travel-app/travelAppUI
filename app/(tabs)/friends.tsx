@@ -10,7 +10,9 @@ import {
   Image,
   Alert,
   RefreshControl,
+  FlatList,
 } from "react-native";
+import LoadingComponent from "@/components/usableOnes/loading";
 import axios from "axios";
 import { getUserId } from "@/lib/appwrite";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
@@ -28,7 +30,53 @@ interface SectionData {
 }
 
 const defaultImage = require("@/public/utilities/profileImage.png");
+const GroupsScreen = () => {
+  const [groups, setGroups] = useState([
+    { id: "1", name: "Family Trip" },
+    { id: "2", name: "Friends Vacation" },
+    { id: "3", name: "Work Retreat" },
+  ]);
 
+  const renderGroupItem = ({ item }: { item: any }) => (
+    <View style={styles.groupContainer}>
+      <Text style={styles.groupName}>{item.name}</Text>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.sectionHeader}>Your Groups</Text>
+      <FlatList
+        data={groups}
+        renderItem={renderGroupItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+      />
+    </View>
+  );
+};
+
+const MainScreen = () => {
+  const [showFriends, setShowFriends] = useState(false);
+
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.friendsIcon}
+        onPress={() => setShowFriends(!showFriends)}
+      >
+        <Ionicons
+          name={showFriends ? "people" : "people-outline"}
+          size={30}
+          color="#000"
+        />
+      </TouchableOpacity>
+      {showFriends ? <FriendsScreen /> : <GroupsScreen />}
+    </View>
+  );
+};
+
+//On this creen, make a state for friends or groups and you can switch between the two
 const FriendsScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [friends, setFriends] = useState<User[]>([]);
@@ -48,11 +96,21 @@ const FriendsScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (currentUserId) {
-      fetchPendingRequests();
-      fetchEligibleFriends();
-      fetchFriends();
-    }
+    const fetchAllData = async () => {
+      if (currentUserId) {
+        try {
+          await fetchPendingRequests();
+          await fetchEligibleFriends();
+          await fetchFriends();
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchAllData();
   }, [currentUserId]);
 
   const fetchPendingRequests = async () => {
@@ -250,23 +308,27 @@ const FriendsScreen = () => {
           />
         </TouchableOpacity>
       </View>
-      <SectionList
-        sections={getSections()}
-        keyExtractor={(item, index) => `${item["$id"]}-${index}`}
-        renderItem={renderItem}
-        renderSectionHeader={renderSectionHeader}
-        style={styles.list}
-        stickySectionHeadersEnabled={false}
-        contentContainerStyle={styles.listContent}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={["#007AFF"]}
-            tintColor="#007AFF"
-          />
-        }
-      />
+      {loading ? (
+        <LoadingComponent />
+      ) : (
+        <SectionList
+          sections={getSections()}
+          keyExtractor={(item, index) => `${item["$id"]}-${index}`}
+          renderItem={renderItem}
+          renderSectionHeader={renderSectionHeader}
+          style={styles.list}
+          stickySectionHeadersEnabled={false}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#007AFF"]}
+              tintColor="#007AFF"
+            />
+          }
+        />
+      )}
     </View>
   );
 };
@@ -519,6 +581,26 @@ const styles = StyleSheet.create({
     height: 50,
     marginTop: 10,
   },
+  friendsIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 1,
+  },
+  groupContainer: {
+    margin: 10,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 15,
+    borderColor: "#000",
+    borderWidth: 2,
+    borderBottomWidth: 4,
+  },
+  groupName: {
+    fontWeight: "bold",
+    fontSize: 18,
+    color: "#333",
+  },
 });
 
-export default FriendsScreen;
+export default MainScreen;
