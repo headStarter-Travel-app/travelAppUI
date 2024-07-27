@@ -38,6 +38,8 @@ const GroupsScreen = ({
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
   const [addMembersModalVisible, setAddMembersModalVisible] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<any>([]);
+  const [groupDetailsModalVisible, setGroupDetailsModalVisible] =
+    useState(false);
 
   useEffect(() => {
     fetchGroups();
@@ -70,16 +72,26 @@ const GroupsScreen = ({
     }
   };
 
+  const getGroupDetails = async (groupId: string) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/get-group-details?group_id=${groupId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error getting group details:", error);
+    }
+  };
+
   const handleAddMembers = async () => {
     try {
-      console.log(selectedMembers);
-      console.log(selectedGroup);
       await axios.post(`${API_URL}/add-members`, {
         group_id: selectedGroup.$id,
         members: selectedMembers,
       });
       Alert.alert("Success", "Members added successfully");
       setAddMembersModalVisible(false);
+      setGroupDetailsModalVisible(false);
       setSelectedMembers([]);
       fetchGroups();
     } catch (error) {
@@ -91,9 +103,10 @@ const GroupsScreen = ({
   const renderGroupItem = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.groupContainer}
-      onPress={() => {
-        setSelectedGroup(item);
-        setAddMembersModalVisible(true);
+      onPress={async () => {
+        const details = await getGroupDetails(item.$id);
+        setSelectedGroup({ ...item, ...details });
+        setGroupDetailsModalVisible(true);
       }}
     >
       <Text style={styles.groupName}>{item.name}</Text>
@@ -112,7 +125,7 @@ const GroupsScreen = ({
       <FlatList
         data={groups}
         renderItem={renderGroupItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.$id}
         contentContainerStyle={styles.listContent}
       />
 
@@ -137,6 +150,42 @@ const GroupsScreen = ({
             onPress={() => setModalVisible(false)}
           >
             <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={groupDetailsModalVisible}
+        onRequestClose={() => setGroupDetailsModalVisible(false)}
+      >
+        <View style={styles.modalView}>
+          <Text style={styles.modalTitle}>{selectedGroup?.name} Details</Text>
+          <Text style={styles.subTitle}>Members:</Text>
+          <FlatList
+            data={selectedGroup?.expanded_members}
+            renderItem={({ item }) => (
+              <Text
+                style={styles.memberItem}
+              >{`${item.name} (${item.email})`}</Text>
+            )}
+            keyExtractor={(item) => item.$id}
+          />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              setGroupDetailsModalVisible(false);
+              setAddMembersModalVisible(true);
+            }}
+          >
+            <Text style={styles.buttonText}>Add Members</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setGroupDetailsModalVisible(false)}
+          >
+            <Text style={styles.buttonText}>Close</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -170,7 +219,7 @@ const GroupsScreen = ({
                   }
                 }}
               >
-                <Text>{`${item.firstName} ${item.lastName}`}</Text>
+                <Text>{`${item.name} `}</Text>
               </TouchableOpacity>
             )}
             keyExtractor={(item) => item.$id}
@@ -189,6 +238,7 @@ const GroupsScreen = ({
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -278,6 +328,12 @@ const styles = StyleSheet.create({
   },
   selectedMemberItem: {
     backgroundColor: "#e6e6e6",
+  },
+  subTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 10,
+    marginBottom: 5,
   },
 });
 
