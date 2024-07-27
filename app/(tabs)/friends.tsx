@@ -86,6 +86,7 @@ const FriendsScreen = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
     const fetchCurrentUserId = async () => {
@@ -96,7 +97,7 @@ const FriendsScreen = () => {
   }, []);
 
   useEffect(() => {
-    const fetchAllData = async () => {
+    const fetchFriendsData = async () => {
       if (currentUserId) {
         try {
           await fetchPendingRequests();
@@ -110,7 +111,13 @@ const FriendsScreen = () => {
       }
     };
 
-    fetchAllData();
+    fetchFriendsData();
+  }, [currentUserId]);
+
+  useEffect(() => {
+    if (currentUserId) {
+      fetchGroups();
+    }
   }, [currentUserId]);
 
   const fetchPendingRequests = async () => {
@@ -143,6 +150,17 @@ const FriendsScreen = () => {
       setFriends(response.data.friends);
     } catch (error) {
       console.error("Error fetching friends:", error);
+    }
+  };
+
+  const fetchGroups = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/get-groups?user_id=${currentUserId}`
+      );
+      setGroups(response.data.groups);
+    } catch (error) {
+      console.error("Error fetching groups:", error);
     }
   };
 
