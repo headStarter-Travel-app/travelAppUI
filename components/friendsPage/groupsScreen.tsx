@@ -1,0 +1,284 @@
+import { Ionicons } from "@expo/vector-icons";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  SectionList,
+  TouchableOpacity,
+  Image,
+  Alert,
+  RefreshControl,
+  FlatList,
+  Modal,
+} from "react-native";
+import LoadingComponent from "@/components/usableOnes/loading";
+import axios from "axios";
+import { getUserId } from "@/lib/appwrite";
+const API_URL = "https://travelappbackend-c7bj.onrender.com";
+
+interface User {
+  $id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+const GroupsScreen = ({
+  currentUserId,
+  friends,
+}: {
+  currentUserId: any;
+  friends: any;
+}) => {
+  const [groups, setGroups] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [selectedGroup, setSelectedGroup] = useState<any>(null);
+  const [addMembersModalVisible, setAddMembersModalVisible] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState<any>([]);
+
+  useEffect(() => {
+    fetchGroups();
+  }, [currentUserId]);
+
+  const fetchGroups = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/get-groups?user_id=${currentUserId}`
+      );
+      setGroups(response.data.groups);
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+    }
+  };
+
+  const handleCreateGroup = async () => {
+    try {
+      const response = await axios.post(`${API_URL}/create-group`, {
+        name: newGroupName,
+        creator_id: currentUserId,
+      });
+      Alert.alert("Success", "Group created successfully");
+      setModalVisible(false);
+      setNewGroupName("");
+      fetchGroups();
+    } catch (error) {
+      console.error("Error creating group:", error);
+      Alert.alert("Error", "Failed to create group");
+    }
+  };
+
+  const handleAddMembers = async () => {
+    try {
+      console.log(selectedMembers);
+      console.log(selectedGroup);
+      await axios.post(`${API_URL}/add-members`, {
+        group_id: selectedGroup.$id,
+        members: selectedMembers,
+      });
+      Alert.alert("Success", "Members added successfully");
+      setAddMembersModalVisible(false);
+      setSelectedMembers([]);
+      fetchGroups();
+    } catch (error) {
+      console.error("Error adding members:", error);
+      Alert.alert("Error", "Failed to add members");
+    }
+  };
+
+  const renderGroupItem = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      style={styles.groupContainer}
+      onPress={() => {
+        setSelectedGroup(item);
+        setAddMembersModalVisible(true);
+      }}
+    >
+      <Text style={styles.groupName}>{item.name}</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.sectionHeader}>Your Groups</Text>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.addButtonText}>Add Group</Text>
+      </TouchableOpacity>
+      <FlatList
+        data={groups}
+        renderItem={renderGroupItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+      />
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalView}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter group name"
+            value={newGroupName}
+            onChangeText={setNewGroupName}
+          />
+          <TouchableOpacity style={styles.button} onPress={handleCreateGroup}>
+            <Text style={styles.buttonText}>Create Group</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setModalVisible(false)}
+          >
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={addMembersModalVisible}
+        onRequestClose={() => setAddMembersModalVisible(false)}
+      >
+        <View style={styles.modalView}>
+          <Text style={styles.modalTitle}>
+            Add Members to {selectedGroup?.name}
+          </Text>
+          <FlatList
+            data={friends}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={[
+                  styles.memberItem,
+                  selectedMembers.includes(item.$id) &&
+                    styles.selectedMemberItem,
+                ]}
+                onPress={() => {
+                  if (selectedMembers.includes(item.$id)) {
+                    setSelectedMembers(
+                      selectedMembers.filter((id: any) => id !== item.$id)
+                    );
+                  } else {
+                    setSelectedMembers([...selectedMembers, item.$id]);
+                  }
+                }}
+              >
+                <Text>{`${item.firstName} ${item.lastName}`}</Text>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item.$id}
+          />
+          <TouchableOpacity style={styles.button} onPress={handleAddMembers}>
+            <Text style={styles.buttonText}>Add Selected Members</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setAddMembersModalVisible(false)}
+          >
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </View>
+  );
+};
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#E6F7FF",
+    marginTop: 50,
+  },
+  listContent: {
+    paddingBottom: 100,
+  },
+  sectionHeader: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 11,
+    marginTop: 20,
+    marginBottom: 10,
+    color: "#000",
+    backgroundColor: "#E6F7FF",
+  },
+  addButton: {
+    backgroundColor: "#007AFF",
+    padding: 10,
+    borderRadius: 5,
+    margin: 10,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  groupContainer: {
+    margin: 10,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 15,
+    borderColor: "#000",
+    borderWidth: 2,
+    borderBottomWidth: 4,
+  },
+  groupName: {
+    fontWeight: "bold",
+    fontSize: 18,
+    color: "#333",
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  input: {
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+    width: "80%",
+  },
+  button: {
+    backgroundColor: "#2196F3",
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  memberItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  selectedMemberItem: {
+    backgroundColor: "#e6e6e6",
+  },
+});
+
+export default GroupsScreen;
