@@ -57,6 +57,7 @@ export default function App() {
     useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0.3));
+  const [loadingRecs, setLoadingRecs] = useState(false);
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -143,6 +144,11 @@ export default function App() {
   };
 
   const handleMarkerPress = async (place: Place) => {
+    setSelectedPlaceDetails(null);
+    setSelectedPlace(null);
+    setModalVisible(true);
+    
+    
     try {
       const formattedAddressString = place.formattedAddressLines.join(", ");
 
@@ -155,7 +161,7 @@ export default function App() {
       );
       setSelectedPlaceDetails(response.data);
       setSelectedPlace(place);
-      setModalVisible(true);
+      
     } catch (error) {
       console.error("Error fetching place details:", error);
     }
@@ -246,7 +252,11 @@ export default function App() {
                 opacity: fadeAnim,
               },
             ]}
-          />
+          > 
+            <Text style={{fontStyle: "italic"}}>
+              Loading Location Data...
+            </Text>
+          </Animated.View>
         )}
         <View style={styles.buttonsContainer}></View>
         <View style={styles.buttonsContainer}>
@@ -359,6 +369,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 0,
     height: "50%", // Increase map height
+    alignItems: "center",
+    justifyContent: "center",
   },
   markerContainer: {
     alignItems: "center",
