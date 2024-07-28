@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useRef } from "react";
 import {
   Modal,
   View,
@@ -9,8 +10,10 @@ import {
   ScrollView,
   Linking,
   ActivityIndicator,
+  Animated
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { opacity } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 
 interface PlaceModalProps {
   isVisible: boolean;
@@ -23,6 +26,8 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
   place,
   onClose,
 }) => {
+  const slideArr = [useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0))]
+  const opacityArr = [useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0))]
   if (!place) {
     return (
       <Modal
@@ -66,6 +71,25 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
     );
   };
 
+  slideArr.map((item) => item.current.setValue(0))
+  slideArr.forEach((item, index) => 
+    Animated.timing(item.current, {
+      delay: 300 * index,
+      toValue: 1,
+      duration: 900,
+      useNativeDriver: true,
+    }).start()
+  )
+  opacityArr.map((item) => item.current.setValue(0))
+  opacityArr.forEach((item, index) => 
+    Animated.timing(item.current, {
+      delay: 300 * index,
+      toValue: 10,
+      duration: 900,
+      useNativeDriver: true,
+    }).start()
+  )
+
   return (
     <Modal
       animationType="slide"
@@ -96,48 +120,95 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
           )}
 
           <View style={styles.infoContainer}>
-            <Text style={styles.placeName}>
-              {place.name || "Unknown Place"}
-            </Text>
-            {place.rating ? (
-              renderStars(place.rating)
-            ) : (
-              <Text>No rating available</Text>
-            )}
+            <Animated.View
+              style={{
+                transform:[{
+                  translateX: slideArr[0].current
+                }],
+                opacity: opacityArr[0].current
+              }}
+            >
+              <Text style={styles.placeName}>
+                {place.name || "Unknown Place"}
+              </Text>
+            </Animated.View>
+            <Animated.View
+              style={{
+                transform:[{
+                  translateX: slideArr[1].current
+                }],
+                opacity: opacityArr[1].current
+              }}
+            >
+              {place.rating ? (
+                renderStars(place.rating)
+              ) : (
+                <Text>No rating available</Text>
+              )}
+            </Animated.View>
+            
 
-            {place.address && (
-              <View style={styles.detailRow}>
-                <Ionicons name="location" size={20} color="#666" />
-                <Text style={styles.detailText}>{place.address}</Text>
-              </View>
-            )}
 
-            {place.hours && place.hours.length > 0 ? (
-              <View style={styles.detailRow}>
-                <Ionicons name="time" size={20} color="#666" />
-                <View style={styles.hoursContainer}>
-                  {place.hours.map((hour: string, index: number) => (
-                    <Text key={index} style={styles.hourText}>
-                      {hour}
-                    </Text>
-                  ))}
+            <Animated.View
+              style={{
+                transform:[{
+                  translateX: slideArr[2].current
+                }],
+                opacity: opacityArr[2].current
+              }}
+            >
+              {place.address && (
+                <View style={styles.detailRow}>
+                  <Ionicons name="location" size={20} color="#666" />
+                  <Text style={styles.detailText}>{place.address}</Text>
                 </View>
-              </View>
-            ) : (
-              <Text>No hours information available</Text>
-            )}
+              )}
+            </Animated.View>
 
-            {place.url ? (
-              <TouchableOpacity
-                style={styles.websiteButton}
-                onPress={() => Linking.openURL(place.url)}
-              >
-                <Ionicons name="globe-outline" size={20} color="#fff" />
-                <Text style={styles.websiteButtonText}>Visit Website</Text>
-              </TouchableOpacity>
-            ) : (
-              <Text>No website available</Text>
-            )}
+            <Animated.View
+              style={{
+                transform:[{
+                  translateX: slideArr[3].current
+                }],
+                opacity: opacityArr[3].current
+              }}
+            >
+              {place.hours && place.hours.length > 0 ? (
+                <View style={styles.detailRow}>
+                  <Ionicons name="time" size={20} color="#666" />
+                  <View style={styles.hoursContainer}>
+                    {place.hours.map((hour: string, index: number) => (
+                      <Text key={index} style={styles.hourText}>
+                        {hour}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              ) : (
+                <Text>No hours information available</Text>
+              )}
+            </Animated.View>
+
+            <Animated.View
+              style={{
+                transform:[{
+                  translateX: slideArr[4].current
+                }],
+                opacity: opacityArr[4].current
+              }}
+            >
+              {place.url ? (
+                <TouchableOpacity
+                  style={styles.websiteButton}
+                  onPress={() => Linking.openURL(place.url)}
+                >
+                  <Ionicons name="globe-outline" size={20} color="#fff" />
+                  <Text style={styles.websiteButtonText}>Visit Website</Text>
+                </TouchableOpacity>
+              ) : (
+                <Text>No website available</Text>
+              )}
+            </Animated.View>
           </View>
         </ScrollView>
       </View>
@@ -216,7 +287,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    padding: 15,
+    alignSelf: "center",
+    padding: 16,
+    paddingHorizontal: 32,
     borderRadius: 8,
     marginTop: 10,
   },
@@ -239,3 +312,8 @@ const styles = StyleSheet.create({
 });
 
 export default PlaceModal;
+
+
+
+
+
