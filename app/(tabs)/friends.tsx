@@ -1,20 +1,22 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import LoadingComponent from "@/components/usableOnes/loading";
+import axios from "axios";
 import { getUserId } from "@/lib/appwrite";
+const API_URL = "https://travelappbackend-c7bj.onrender.com";
 import GroupsScreen from "@/components/friendsPage/groupsScreen";
 import FriendsScreen from "@/components/friendsPage/friendsScreen";
-
-const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
 const MainScreen = () => {
   const [showFriends, setShowFriends] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [friends, setFriends] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -22,6 +24,7 @@ const MainScreen = () => {
       try {
         const userId = await getUserId();
         setCurrentUserId(userId);
+        await fetchFriends(userId);
       } catch (error) {
         console.error("Error fetching user ID:", error);
       } finally {
@@ -30,6 +33,17 @@ const MainScreen = () => {
     };
     fetchCurrentUserId();
   }, []);
+
+  const fetchFriends = async (userId: string) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/get-friends?user_id=${userId}`
+      );
+      setFriends(response.data.friends);
+    } catch (error) {
+      console.error("Error fetching friends:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -54,7 +68,7 @@ const MainScreen = () => {
       {showFriends ? (
         <FriendsScreen />
       ) : (
-        <></>
+        <GroupsScreen currentUserId={currentUserId || ""} friends={friends} />
       )}
     </View>
   );

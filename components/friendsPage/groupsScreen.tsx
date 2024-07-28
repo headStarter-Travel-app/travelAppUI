@@ -40,7 +40,8 @@ const GroupsScreen = ({
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [addMembersModalVisible, setAddMembersModalVisible] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-  const [groupDetailsModalVisible, setGroupDetailsModalVisible] = useState(false);
+  const [groupDetailsModalVisible, setGroupDetailsModalVisible] =
+    useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -117,40 +118,49 @@ const GroupsScreen = ({
     }
   }, [selectedGroup, selectedMembers, refreshGroups]);
 
-  const renderGroupItem = useCallback(({ item }: { item: Group }) => (
-    <TouchableOpacity
-      style={styles.groupContainer}
-      onPress={async () => {
-        const details = await getGroupDetails(item.$id);
-        setSelectedGroup({ ...item, ...details });
-        setGroupDetailsModalVisible(true);
-      }}
-    >
-      <Text style={styles.groupName}>{item.name}</Text>
-    </TouchableOpacity>
-  ), [getGroupDetails]);
+  const renderGroupItem = useCallback(
+    ({ item }: { item: Group }) => (
+      <TouchableOpacity
+        style={styles.groupContainer}
+        onPress={async () => {
+          const details = await getGroupDetails(item.$id);
+          setSelectedGroup({ ...item, ...details });
+          setGroupDetailsModalVisible(true);
+        }}
+      >
+        <Text style={styles.groupName}>{item.name}</Text>
+      </TouchableOpacity>
+    ),
+    [getGroupDetails]
+  );
 
-  const renderMemberItem = useCallback(({ item }: { item: User }) => (
-    <Text style={styles.memberItem}>{`${item.name} (${item.email})`}</Text>
-  ), []);
+  const renderMemberItem = useCallback(
+    ({ item }: { item: User }) => (
+      <Text style={styles.memberItem}>{`${item.name} (${item.email})`}</Text>
+    ),
+    []
+  );
 
-  const renderFriendItem = useCallback(({ item }: { item: User }) => (
-    <TouchableOpacity
-      style={[
-        styles.memberItem,
-        selectedMembers.includes(item.$id) && styles.selectedMemberItem,
-      ]}
-      onPress={() => {
-        setSelectedMembers((prev) =>
-          prev.includes(item.$id)
-            ? prev.filter((id) => id !== item.$id)
-            : [...prev, item.$id]
-        );
-      }}
-    >
-      <Text>{`${item.name} `}</Text>
-    </TouchableOpacity>
-  ), [selectedMembers]);
+  const renderFriendItem = useCallback(
+    ({ item }: { item: User }) => (
+      <TouchableOpacity
+        style={[
+          styles.memberItem,
+          selectedMembers.includes(item.$id) && styles.selectedMemberItem,
+        ]}
+        onPress={() => {
+          setSelectedMembers((prev) =>
+            prev.includes(item.$id)
+              ? prev.filter((id) => id !== item.$id)
+              : [...prev, item.$id]
+          );
+        }}
+      >
+        <Text>{`${item.name} `}</Text>
+      </TouchableOpacity>
+    ),
+    [selectedMembers]
+  );
 
   if (loading) {
     return <LoadingComponent />;
