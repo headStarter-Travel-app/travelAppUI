@@ -54,19 +54,19 @@ const FriendsScreen = () => {
 
         ws.onmessage = (event) => {
           const data = JSON.parse(event.data);
-          if (data.type === 'friend_request') {
+          if (data.type === "friend_request") {
             fetchPendingRequests();
-          } else if (data.type === 'friend_accept') {
+          } else if (data.type === "friend_accept") {
             fetchFriends();
           }
         };
 
         ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
+          console.error("WebSocket error:", error);
         };
 
         ws.onclose = () => {
-          console.log('WebSocket connection closed');
+          console.log("WebSocket connection closed");
         };
       }
     };
@@ -81,9 +81,13 @@ const FriendsScreen = () => {
 
   useEffect(() => {
     if (currentUserId) {
-      fetchPendingRequests();
-      fetchEligibleFriends();
-      fetchFriends();
+      const fetchAllData = async () => {
+        await fetchPendingRequests();
+        await fetchEligibleFriends();
+        await fetchFriends();
+        setLoading(false);
+      };
+      fetchAllData();
     }
   }, [currentUserId]);
 
