@@ -71,11 +71,11 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
     );
   };
 
-  slideArr.map((item) => item.current.setValue(0))
+  slideArr.map((item) => item.current.setValue(-10))
   slideArr.forEach((item, index) => 
     Animated.timing(item.current, {
-      delay: 300 * index,
-      toValue: 1,
+      delay: 250 * index,
+      toValue: 0,
       duration: 900,
       useNativeDriver: true,
     }).start()
@@ -83,8 +83,8 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
   opacityArr.map((item) => item.current.setValue(0))
   opacityArr.forEach((item, index) => 
     Animated.timing(item.current, {
-      delay: 300 * index,
-      toValue: 10,
+      delay: 250 * index,
+      toValue: 1,
       duration: 900,
       useNativeDriver: true,
     }).start()
