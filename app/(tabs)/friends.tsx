@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   TouchableOpacity,
@@ -11,6 +11,7 @@ import { getUserId } from "@/lib/appwrite";
 import { io, Socket } from "socket.io-client";
 import GroupsScreen from "@/components/friendsPage/groupsScreen";
 import FriendsScreen from "@/components/friendsPage/friendsScreen";
+import { debounce } from "lodash";
 
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
@@ -19,25 +20,9 @@ const MainScreen = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [friends, setFriends] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const socketRef = useRef<Socket | null>(null); // Use useRef to hold the socket instance
+  const socketRef = useRef<Socket | null>(null);
 
-  useEffect(() => {
-    const fetchCurrentUserId = async () => {
-      try {
-        const userId = await getUserId();
-        setCurrentUserId(userId);
-        await fetchFriends(userId);
-        initializeWebSocket(userId);
-      } catch (error) {
-        console.error("Error fetching user ID:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchCurrentUserId();
-  }, []);
-
-  const fetchFriends = async (userId: string) => {
+  const fetchFriends = useCallback(async (userId: string) => {
     try {
       const response = await axios.get(
         `${API_URL}/get-friends?user_id=${userId}`
@@ -46,37 +31,74 @@ const MainScreen = () => {
     } catch (error) {
       console.error("Error fetching friends:", error);
     }
-  };
+  }, []);
 
-  const initializeWebSocket = (userId: string) => {
-    if (!socketRef.current) {
-      const socket = io(API_URL);
+  const debouncedFetchFriends = useRef(
+    debounce((userId: string) => {
+      fetchFriends(userId);
+    }, 300)
+  ).current;
 
-      socket.on("connect", () => {
-        console.log("Connected to WebSocket");
-        socket.emit("join", { userId });
-      });
+  const initializeWebSocket = useCallback(
+    (userId: string) => {
+      if (!socketRef.current) {
+        const socket = io(API_URL, {
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+        });
 
-      socket.on("friendRequest", (data) => {
-        console.log("Received friend request:", data);
-        fetchFriends(userId);
-      });
+        socket.on("connect", () => {
+          console.log("Connected to WebSocket");
+          socket.emit("join", { userId });
+        });
 
-      socket.on("disconnect", () => {
-        console.log("Disconnected from WebSocket");
-      });
+        socket.on("connect_error", (error) => {
+          console.log("Connection error:", error);
+        });
 
-      socketRef.current = socket;
-    }
-  };
+        socket.on("friendRequest", (data) => {
+          console.log("Received friend request:", data);
+          debouncedFetchFriends(userId);
+        });
+
+        socket.on("disconnect", () => {
+          console.log("Disconnected from WebSocket");
+        });
+
+        socketRef.current = socket;
+      }
+    },
+    [debouncedFetchFriends]
+  );
 
   useEffect(() => {
+    const fetchCurrentUserId = async () => {
+      try {
+        const userId = await getUserId();
+        setCurrentUserId(userId);
+        await fetchFriends(userId);
+      } catch (error) {
+        console.error("Error fetching user ID:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCurrentUserId();
+  }, [fetchFriends]);
+
+  useEffect(() => {
+    if (currentUserId && !socketRef.current) {
+      initializeWebSocket(currentUserId);
+    }
+
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
+        socketRef.current = null;
       }
     };
-  }, []);
+  }, [currentUserId, initializeWebSocket]);
 
   if (isLoading) {
     return (
@@ -101,7 +123,7 @@ const MainScreen = () => {
       {showFriends ? (
         <FriendsScreen />
       ) : (
-        <GroupsScreen currentUserId={currentUserId || ''} friends={friends} />
+        <GroupsScreen currentUserId={currentUserId || ""} friends={friends} />
       )}
     </View>
   );
