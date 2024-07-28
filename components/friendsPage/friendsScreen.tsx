@@ -9,8 +9,6 @@ import {
   TouchableOpacity,
   Alert,
   RefreshControl,
-  FlatList,
-  Modal,
 } from "react-native";
 import LoadingComponent from "@/components/usableOnes/loading";
 import axios from "axios";
@@ -18,6 +16,7 @@ import { getUserId } from "@/lib/appwrite";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 const defaultImage = require("@/public/utilities/profileImage.png");
 import { Image } from "expo-image";
+import { io } from "socket.io-client";
 
 interface User {
   $id: string;
@@ -32,6 +31,7 @@ interface SectionData {
   title: string;
   data: User[];
 }
+
 const FriendsScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [friends, setFriends] = useState<User[]>([]);
@@ -42,66 +42,99 @@ const FriendsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchCurrentUserId = async () => {
-      const userId = await getUserId();
-      setCurrentUserId(userId);
-    };
-    fetchCurrentUserId();
+  const fetchCurrentUserId = useCallback(async () => {
+    const userId = await getUserId();
+    setCurrentUserId(userId);
+    return userId;
   }, []);
 
-  useEffect(() => {
-    const fetchFriendsData = async () => {
-      if (currentUserId) {
-        try {
-          await fetchPendingRequests();
-          await fetchEligibleFriends();
-          await fetchFriends();
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchFriendsData();
-  }, [currentUserId]);
-
-  const fetchPendingRequests = async () => {
+  const fetchPendingRequests = useCallback(async (userId: string) => {
     try {
       const response = await axios.get(
-        `${API_URL}/get-pending-friend-requests?user_id=${currentUserId}`
+        `${API_URL}/get-pending-friend-requests?user_id=${userId}`
       );
       setPendingRequests(response.data.friends);
     } catch (error) {
       console.error("Error fetching pending requests:", error);
     }
-  };
+  }, []);
 
-  const fetchEligibleFriends = async () => {
+  const fetchEligibleFriends = useCallback(async (userId: string) => {
     try {
       const response = await axios.get(
-        `${API_URL}/get-eligible-friends?user_id=${currentUserId}`
+        `${API_URL}/get-eligible-friends?user_id=${userId}`
       );
       setEligibleFriends(response.data.eligible_users);
     } catch (error) {
       console.error("Error fetching eligible friends:", error);
     }
-  };
+  }, []);
 
-  const fetchFriends = async () => {
+  const fetchFriends = useCallback(async (userId: string) => {
     try {
       const response = await axios.get(
-        `${API_URL}/get-friends?user_id=${currentUserId}`
+        `${API_URL}/get-friends?user_id=${userId}`
       );
       setFriends(response.data.friends);
     } catch (error) {
       console.error("Error fetching friends:", error);
     }
-  };
+  }, []);
 
-  const handleSearch = (text: string) => {
+  const refreshAllData = useCallback(async () => {
+    if (currentUserId) {
+      setRefreshing(true);
+      try {
+        await Promise.all([
+          fetchPendingRequests(currentUserId),
+          fetchEligibleFriends(currentUserId),
+          fetchFriends(currentUserId),
+        ]);
+      } catch (error) {
+        console.error("Error refreshing data:", error);
+      } finally {
+        setRefreshing(false);
+      }
+    }
+  }, [currentUserId, fetchPendingRequests, fetchEligibleFriends, fetchFriends]);
+
+  useEffect(() => {
+    const initializeData = async () => {
+      const userId = await fetchCurrentUserId();
+      if (userId) {
+        setLoading(true);
+        await refreshAllData();
+        setLoading(false);
+
+        // Initialize WebSocket connection
+        const socket = io(API_URL);
+
+        socket.on('connect', () => {
+          console.log('Connected to WebSocket');
+          socket.emit('join', { userId });
+        });
+
+        socket.on('friendRequest', (data) => {
+          console.log('Received friend request:', data);
+          // Update pending requests without full refresh
+          fetchPendingRequests(userId);
+        });
+
+        socket.on('friendRequestAccepted', (data) => {
+          console.log('Friend request accepted:', data);
+          // Update friends list without full refresh
+          fetchFriends(userId);
+        });
+
+        return () => {
+          socket.disconnect();
+        };
+      }
+    };
+    initializeData();
+  }, [fetchCurrentUserId, refreshAllData, fetchPendingRequests, fetchFriends]);
+  
+  const handleSearch = useCallback((text: string) => {
     setSearchQuery(text);
     if (text.length > 0) {
       const filteredResults = eligibleFriends.filter(
@@ -113,9 +146,9 @@ const FriendsScreen = () => {
     } else {
       setSearchResults([]);
     }
-  };
+  }, [eligibleFriends]);
 
-  const handleSendFriendRequest = async (receiverId: string) => {
+  const handleSendFriendRequest = useCallback(async (receiverId: string) => {
     try {
       await axios.post(`${API_URL}/send-friend-request`, {
         sender_id: currentUserId,
@@ -124,40 +157,37 @@ const FriendsScreen = () => {
       Alert.alert("Friend request sent successfully");
       setSearchQuery("");
       setSearchResults([]);
-      fetchEligibleFriends();
+      refreshAllData();
     } catch (error) {
       console.error("Error sending friend request:", error);
     }
-  };
+  }, [currentUserId, refreshAllData]);
 
-  const handleAcceptFriendRequest = async (senderId: string) => {
+  const handleAcceptFriendRequest = useCallback(async (senderId: string) => {
     try {
       await axios.post(`${API_URL}/accept-friend-request`, {
         sender_id: senderId,
         receiver_id: currentUserId,
       });
-      fetchPendingRequests();
-      fetchFriends();
-      fetchEligibleFriends();
+      refreshAllData();
     } catch (error) {
       console.error("Error accepting friend request:", error);
     }
-  };
+  }, [currentUserId, refreshAllData]);
 
-  const handleRemoveFriend = async (friendId: string) => {
+  const handleRemoveFriend = useCallback(async (friendId: string) => {
     try {
       await axios.post(`${API_URL}/remove-friend`, {
         sender_id: currentUserId,
         receiver_id: friendId,
       });
-      fetchFriends();
-      fetchEligibleFriends();
+      refreshAllData();
     } catch (error) {
       console.error("Error removing friend:", error);
     }
-  };
+  }, [currentUserId, refreshAllData]);
 
-  const getSections = (): SectionData[] => {
+  const getSections = useCallback((): SectionData[] => {
     const sections: SectionData[] = [];
 
     if (searchQuery.length > 0) {
@@ -177,9 +207,9 @@ const FriendsScreen = () => {
     }
 
     return sections;
-  };
+  }, [searchQuery, searchResults, pendingRequests, friends]);
 
-  const renderItem = ({
+  const renderItem = useCallback(({
     item,
     section,
   }: {
@@ -209,9 +239,9 @@ const FriendsScreen = () => {
         />
       );
     }
-  };
+  }, [handleSendFriendRequest, handleAcceptFriendRequest, handleRemoveFriend]);
 
-  const renderSectionHeader = ({
+  const renderSectionHeader = useCallback(({
     section: { title, data },
   }: {
     section: SectionData;
@@ -228,22 +258,7 @@ const FriendsScreen = () => {
         </Text>
       )}
     </>
-  );
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      await Promise.all([
-        fetchPendingRequests(),
-        fetchEligibleFriends(),
-        fetchFriends(),
-      ]);
-    } catch (error) {
-      console.error("Error refreshing data:", error);
-    } finally {
-      setRefreshing(false);
-    }
-  }, [currentUserId]);
+  ), []);
 
   return (
     <View style={styles.container}>
@@ -276,7 +291,7 @@ const FriendsScreen = () => {
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
+              onRefresh={refreshAllData}
               colors={["#007AFF"]}
               tintColor="#007AFF"
             />
