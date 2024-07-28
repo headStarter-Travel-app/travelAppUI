@@ -107,7 +107,10 @@ const FriendsScreen = () => {
         setLoading(false);
 
         // Initialize WebSocket connection
-        const socket = io(API_URL);
+        const socket = io(API_URL, {
+          transports: ['websocket'],
+          path: '/socket.io/',
+        });
 
         socket.on('connect', () => {
           console.log('Connected to WebSocket');
@@ -133,7 +136,7 @@ const FriendsScreen = () => {
     };
     initializeData();
   }, [fetchCurrentUserId, refreshAllData, fetchPendingRequests, fetchFriends]);
-  
+
   const handleSearch = useCallback((text: string) => {
     setSearchQuery(text);
     if (text.length > 0) {
