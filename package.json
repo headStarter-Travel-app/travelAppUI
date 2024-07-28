@@ -43,6 +43,7 @@
     "expo-updates": "~0.25.20",
     "expo-web-browser": "~13.0.3",
     "leaflet": "^1.9.4",
+    "loadash": "^1.0.0",
     "mapkit-react": "^1.15.2",
     "nativewind": "^2.0.11",
     "react": "18.2.0",
