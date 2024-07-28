@@ -68,7 +68,7 @@ const MainScreen = () => {
       {showFriends ? (
         <FriendsScreen />
       ) : (
-        <GroupsScreen currentUserId={currentUserId} friends={friends} />
+        <GroupsScreen currentUserId={currentUserId || ''} friends={friends} />
       )}
     </View>
   );

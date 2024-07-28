@@ -5,9 +5,7 @@ import {
   TextInput,
   Text,
   StyleSheet,
-  SectionList,
   TouchableOpacity,
-  Image,
   Alert,
   RefreshControl,
   FlatList,
@@ -15,37 +13,38 @@ import {
 } from "react-native";
 import LoadingComponent from "@/components/usableOnes/loading";
 import axios from "axios";
-import { getUserId } from "@/lib/appwrite";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
 interface User {
   $id: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
+}
+
+interface Group {
+  $id: string;
+  name: string;
+  expanded_members?: User[];
 }
 
 const GroupsScreen = ({
   currentUserId,
   friends,
 }: {
-  currentUserId: any;
-  friends: any;
+  currentUserId: string;
+  friends: User[];
 }) => {
-  const [groups, setGroups] = useState([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
-  const [selectedGroup, setSelectedGroup] = useState<any>(null);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [addMembersModalVisible, setAddMembersModalVisible] = useState(false);
-  const [selectedMembers, setSelectedMembers] = useState<any>([]);
-  const [groupDetailsModalVisible, setGroupDetailsModalVisible] =
-    useState(false);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [groupDetailsModalVisible, setGroupDetailsModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    fetchGroups();
-  }, [currentUserId]);
-
-  const fetchGroups = async () => {
+  const fetchGroups = useCallback(async () => {
     try {
       const response = await axios.get(
         `${API_URL}/get-groups?user_id=${currentUserId}`
@@ -53,26 +52,42 @@ const GroupsScreen = ({
       setGroups(response.data.groups);
     } catch (error) {
       console.error("Error fetching groups:", error);
+      Alert.alert("Error", "Failed to fetch groups");
     }
-  };
+  }, [currentUserId]);
 
-  const handleCreateGroup = async () => {
+  const refreshGroups = useCallback(async () => {
+    setRefreshing(true);
+    await fetchGroups();
+    setRefreshing(false);
+  }, [fetchGroups]);
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      setLoading(true);
+      await fetchGroups();
+      setLoading(false);
+    };
+    loadInitialData();
+  }, [fetchGroups]);
+
+  const handleCreateGroup = useCallback(async () => {
     try {
-      const response = await axios.post(`${API_URL}/create-group`, {
+      await axios.post(`${API_URL}/create-group`, {
         name: newGroupName,
         creator_id: currentUserId,
       });
       Alert.alert("Success", "Group created successfully");
       setModalVisible(false);
       setNewGroupName("");
-      fetchGroups();
+      refreshGroups();
     } catch (error) {
       console.error("Error creating group:", error);
       Alert.alert("Error", "Failed to create group");
     }
-  };
+  }, [newGroupName, currentUserId, refreshGroups]);
 
-  const getGroupDetails = async (groupId: string) => {
+  const getGroupDetails = useCallback(async (groupId: string) => {
     try {
       const response = await axios.get(
         `${API_URL}/get-group-details?group_id=${groupId}`
@@ -80,10 +95,12 @@ const GroupsScreen = ({
       return response.data;
     } catch (error) {
       console.error("Error getting group details:", error);
+      Alert.alert("Error", "Failed to get group details");
     }
-  };
+  }, []);
 
-  const handleAddMembers = async () => {
+  const handleAddMembers = useCallback(async () => {
+    if (!selectedGroup) return;
     try {
       await axios.post(`${API_URL}/add-members`, {
         group_id: selectedGroup.$id,
@@ -93,14 +110,14 @@ const GroupsScreen = ({
       setAddMembersModalVisible(false);
       setGroupDetailsModalVisible(false);
       setSelectedMembers([]);
-      fetchGroups();
+      refreshGroups();
     } catch (error) {
       console.error("Error adding members:", error);
       Alert.alert("Error", "Failed to add members");
     }
-  };
+  }, [selectedGroup, selectedMembers, refreshGroups]);
 
-  const renderGroupItem = ({ item }: { item: any }) => (
+  const renderGroupItem = useCallback(({ item }: { item: Group }) => (
     <TouchableOpacity
       style={styles.groupContainer}
       onPress={async () => {
@@ -111,7 +128,33 @@ const GroupsScreen = ({
     >
       <Text style={styles.groupName}>{item.name}</Text>
     </TouchableOpacity>
-  );
+  ), [getGroupDetails]);
+
+  const renderMemberItem = useCallback(({ item }: { item: User }) => (
+    <Text style={styles.memberItem}>{`${item.name} (${item.email})`}</Text>
+  ), []);
+
+  const renderFriendItem = useCallback(({ item }: { item: User }) => (
+    <TouchableOpacity
+      style={[
+        styles.memberItem,
+        selectedMembers.includes(item.$id) && styles.selectedMemberItem,
+      ]}
+      onPress={() => {
+        setSelectedMembers((prev) =>
+          prev.includes(item.$id)
+            ? prev.filter((id) => id !== item.$id)
+            : [...prev, item.$id]
+        );
+      }}
+    >
+      <Text>{`${item.name} `}</Text>
+    </TouchableOpacity>
+  ), [selectedMembers]);
+
+  if (loading) {
+    return <LoadingComponent />;
+  }
 
   return (
     <View style={styles.container}>
@@ -127,6 +170,9 @@ const GroupsScreen = ({
         renderItem={renderGroupItem}
         keyExtractor={(item) => item.$id}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refreshGroups} />
+        }
       />
 
       <Modal
@@ -165,11 +211,7 @@ const GroupsScreen = ({
           <Text style={styles.subTitle}>Members:</Text>
           <FlatList
             data={selectedGroup?.expanded_members}
-            renderItem={({ item }) => (
-              <Text
-                style={styles.memberItem}
-              >{`${item.name} (${item.email})`}</Text>
-            )}
+            renderItem={renderMemberItem}
             keyExtractor={(item) => item.$id}
           />
           <TouchableOpacity
@@ -202,26 +244,7 @@ const GroupsScreen = ({
           </Text>
           <FlatList
             data={friends}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={[
-                  styles.memberItem,
-                  selectedMembers.includes(item.$id) &&
-                    styles.selectedMemberItem,
-                ]}
-                onPress={() => {
-                  if (selectedMembers.includes(item.$id)) {
-                    setSelectedMembers(
-                      selectedMembers.filter((id: any) => id !== item.$id)
-                    );
-                  } else {
-                    setSelectedMembers([...selectedMembers, item.$id]);
-                  }
-                }}
-              >
-                <Text>{`${item.name} `}</Text>
-              </TouchableOpacity>
-            )}
+            renderItem={renderFriendItem}
             keyExtractor={(item) => item.$id}
           />
           <TouchableOpacity style={styles.button} onPress={handleAddMembers}>
