@@ -16,6 +16,7 @@ import LoadingComponent from "@/components/usableOnes/loading";
 import axios from "axios";
 import { getUserId } from "@/lib/appwrite";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
+const WS_URL = "wss://travelappbackend-c7bj.onrender.com/ws";
 const defaultImage = require("@/public/utilities/profileImage.png");
 import { Image } from "expo-image";
 
@@ -41,31 +42,49 @@ const FriendsScreen = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
     const fetchCurrentUserId = async () => {
       const userId = await getUserId();
       setCurrentUserId(userId);
+      if (userId) {
+        const ws = new WebSocket(`${WS_URL}/${userId}`);
+        setSocket(ws);
+
+        ws.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if (data.type === 'friend_request') {
+            fetchPendingRequests();
+          } else if (data.type === 'friend_accept') {
+            fetchFriends();
+          }
+        };
+
+        ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+        };
+
+        ws.onclose = () => {
+          console.log('WebSocket connection closed');
+        };
+      }
     };
     fetchCurrentUserId();
+
+    return () => {
+      if (socket) {
+        socket.close();
+      }
+    };
   }, []);
 
   useEffect(() => {
-    const fetchFriendsData = async () => {
-      if (currentUserId) {
-        try {
-          await fetchPendingRequests();
-          await fetchEligibleFriends();
-          await fetchFriends();
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchFriendsData();
+    if (currentUserId) {
+      fetchPendingRequests();
+      fetchEligibleFriends();
+      fetchFriends();
+    }
   }, [currentUserId]);
 
   const fetchPendingRequests = async () => {
