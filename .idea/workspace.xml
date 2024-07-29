@@ -36,6 +36,9 @@
     &quot;accountId&quot;: &quot;82f3a143-0020-4af9-a090-d74e599dbfa5&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -196,7 +199,7 @@
       <workItem from="1722036111407" duration="1000" />
       <workItem from="1722131484932" duration="1526000" />
       <workItem from="1722136837231" duration="1284000" />
-      <workItem from="1722214926623" duration="2003000" />
+      <workItem from="1722214926623" duration="8234000" />
     </task>
     <servers />
   </component>

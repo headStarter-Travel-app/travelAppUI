@@ -137,10 +137,10 @@ const GroupsScreen = ({
             </View>
             <View style={styles.groupIcons}>
               <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name="settings" size={24} color="#007AFF" />
+                <Ionicons name="settings" size={24} color="#000" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name="person" size={24} color="#007AFF" />
+                <Ionicons name="person" size={24} color="#000" />
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -183,9 +183,20 @@ const GroupsScreen = ({
   return (
       <View style={styles.container}>
         <View style={styles.searchContainer}>
-          <TextInput style={styles.searchInput} placeholder="Search groups..." />
-          <Ionicons name="search" size={24} color="#007AFF" style={styles.searchIcon} />
+          <TextInput
+              style={styles.searchInput}
+              placeholder="Search groups..."
+              placeholderTextColor="#000000"
+          />
+          <Ionicons name="search" size={24} color="#000" style={styles.searchIcon} />
         </View>
+        <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => setModalVisible(true)}
+        >
+          <Ionicons name="add-circle" size={24} color="#fff" />
+          <Text style={styles.addButtonText}>Create Group</Text>
+        </TouchableOpacity>
         <FlatList
             data={groups}
             renderItem={renderGroupItem}
@@ -195,32 +206,33 @@ const GroupsScreen = ({
               <RefreshControl refreshing={refreshing} onRefresh={refreshGroups} />
             }
         />
-
         <Modal
             animationType="slide"
             transparent={true}
             visible={modalVisible}
             onRequestClose={() => setModalVisible(false)}
         >
-          <View style={styles.modalView}>
-            <TextInput
-                style={styles.input}
-                placeholder="Enter group name"
-                value={newGroupName}
-                onChangeText={setNewGroupName}
-            />
-            <TouchableOpacity style={styles.button} onPress={handleCreateGroup}>
-              <Text style={styles.buttonText}>Create Group</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                style={styles.button}
-                onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TextInput
+                  style={styles.input}
+                  placeholder="Enter group name"
+                  placeholderTextColor="#888" // Ensure placeholder text is visible
+                  value={newGroupName}
+                  onChangeText={setNewGroupName}
+              />
+              <TouchableOpacity style={styles.createButton} onPress={handleCreateGroup}>
+                <Text style={styles.buttonText}>Create Group</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                  style={[styles.createButton, styles.cancelButton]}
+                  onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </Modal>
-
         <Modal
             animationType="slide"
             transparent={true}
@@ -228,31 +240,31 @@ const GroupsScreen = ({
             onRequestClose={() => setGroupDetailsModalVisible(false)}
         >
           <View style={styles.modalView}>
-            <Text style={styles.modalTitle}>{selectedGroup?.name} Details</Text>
-            <Text style={styles.subTitle}>Members:</Text>
+            <Text style={styles.modalTitle}>Group Details</Text>
+            <Text style={styles.groupDetailName}>{selectedGroup?.name} </Text>
+            <Text style={styles.subTitle}>Members: {selectedGroup?.expanded_members?.length}</Text>
             <FlatList
                 data={selectedGroup?.expanded_members}
                 renderItem={renderMemberItem}
                 keyExtractor={(item) => item.$id}
             />
             <TouchableOpacity
-                style={styles.button}
+                style={styles.modalButton}
                 onPress={() => {
                   setGroupDetailsModalVisible(false);
                   setAddMembersModalVisible(true);
                 }}
             >
-              <Text style={styles.buttonText}>Add Members</Text>
+              <Text style={styles.modalButtonText}>Add Members</Text>
             </TouchableOpacity>
             <TouchableOpacity
-                style={styles.button}
+                style={[styles.modalButton, styles.closeButton]}
                 onPress={() => setGroupDetailsModalVisible(false)}
             >
-              <Text style={styles.buttonText}>Close</Text>
+              <Text style={styles.modalButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
         </Modal>
-
         <Modal
             animationType="slide"
             transparent={true}
@@ -268,14 +280,14 @@ const GroupsScreen = ({
                 renderItem={renderFriendItem}
                 keyExtractor={(item) => item.$id}
             />
-            <TouchableOpacity style={styles.button} onPress={handleAddMembers}>
-              <Text style={styles.buttonText}>Add Selected Members</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={handleAddMembers}>
+              <Text style={styles.modalButtonText}>Add Selected Members</Text>
             </TouchableOpacity>
             <TouchableOpacity
-                style={styles.button}
+                style={[styles.modalButton, styles.closeButton]}
                 onPress={() => setAddMembersModalVisible(false)}
             >
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={styles.modalButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </Modal>
@@ -290,26 +302,34 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
     margin: 10,
-    padding: 10,
+    backgroundColor: "#fff",
     borderRadius: 5,
+    padding: 10,
+    borderColor: "#000",
+    borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   searchInput: {
     flex: 1,
     height: 40,
-    fontSize: 16,
+    fontSize: 18,
     paddingHorizontal: 10,
+    fontWeight: "bold",
+    color: "#000",
+    fontFamily: "spaceGroteskBold",
   },
   searchIcon: {
-    marginLeft: 10,
+    width: 25,
+    height: 25,
+    marginRight: 10,
   },
   listContent: {
     paddingBottom: 100,
@@ -324,15 +344,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#E6F7FF",
   },
   addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: "#007AFF",
     padding: 10,
     borderRadius: 5,
-    margin: 10,
-    alignItems: "center",
+    marginHorizontal: 10,
+    marginVertical: 5,
   },
   addButtonText: {
     color: "#fff",
     fontWeight: "bold",
+    marginLeft: 5,
   },
   groupContainer: {
     flexDirection: "row",
@@ -368,9 +392,15 @@ const styles = StyleSheet.create({
   iconButton: {
     marginLeft: 10,
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
   modalView: {
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: "#E6F7FF",
     borderRadius: 20,
     padding: 35,
     alignItems: "center",
@@ -389,12 +419,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     width: "80%",
+    backgroundColor: "#fff", // Ensure the input field has a visible background
+    color: "#000", // Ensure the text is black
   },
-  button: {
-    backgroundColor: "#2196F3",
+  createButton: {
+    backgroundColor: "#007AFF",
     borderRadius: 20,
     padding: 10,
-    elevation: 2,
+    marginTop: 10,
+    width: "80%", // Ensure the button width matches the input
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: "#FF3B30",
     marginTop: 10,
   },
   buttonText: {
@@ -403,23 +440,48 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: "#333",
+  },
+  groupDetailName: {
     fontSize: 18,
     fontWeight: "bold",
+    color: "#333",
     marginBottom: 10,
+  },
+  subTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 10,
+    marginBottom: 5,
+    color: "#333",
+  },
+  modalButton: {
+    backgroundColor: "#007AFF",
+    borderRadius: 20,
+    padding: 10,
+    marginTop: 10,
+    width: "60%",
+    alignItems: "center",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  closeButton: {
+    backgroundColor: "#FF3B30",
   },
   memberItem: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
+    fontSize: 16,
+    color: "#333",
   },
   selectedMemberItem: {
     backgroundColor: "#e6e6e6",
-  },
-  subTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 10,
-    marginBottom: 5,
   },
 });
 
