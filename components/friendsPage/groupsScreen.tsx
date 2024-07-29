@@ -28,9 +28,9 @@ interface Group {
 }
 
 const GroupsScreen = ({
-  currentUserId,
-  friends,
-}: {
+                        currentUserId,
+                        friends,
+                      }: {
   currentUserId: string;
   friends: User[];
 }) => {
@@ -41,14 +41,14 @@ const GroupsScreen = ({
   const [addMembersModalVisible, setAddMembersModalVisible] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [groupDetailsModalVisible, setGroupDetailsModalVisible] =
-    useState(false);
+      useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchGroups = useCallback(async () => {
     try {
       const response = await axios.get(
-        `${API_URL}/get-groups?user_id=${currentUserId}`
+          `${API_URL}/get-groups?user_id=${currentUserId}`
       );
       setGroups(response.data.groups);
     } catch (error) {
@@ -91,7 +91,7 @@ const GroupsScreen = ({
   const getGroupDetails = useCallback(async (groupId: string) => {
     try {
       const response = await axios.get(
-        `${API_URL}/get-group-details?group_id=${groupId}`
+          `${API_URL}/get-group-details?group_id=${groupId}`
       );
       return response.data;
     } catch (error) {
@@ -119,47 +119,61 @@ const GroupsScreen = ({
   }, [selectedGroup, selectedMembers, refreshGroups]);
 
   const renderGroupItem = useCallback(
-    ({ item }: { item: Group }) => (
-      <TouchableOpacity
-        style={styles.groupContainer}
-        onPress={async () => {
-          const details = await getGroupDetails(item.$id);
-          setSelectedGroup({ ...item, ...details });
-          setGroupDetailsModalVisible(true);
-        }}
-      >
-        <Text style={styles.groupName}>{item.name}</Text>
-      </TouchableOpacity>
-    ),
-    [getGroupDetails]
+      ({ item }: { item: Group }) => (
+          <TouchableOpacity
+              style={styles.groupContainer}
+              onPress={async () => {
+                const details = await getGroupDetails(item.$id);
+                setSelectedGroup({ ...item, ...details });
+                setGroupDetailsModalVisible(true);
+              }}
+          >
+            <View style={styles.groupInfo}>
+              <Ionicons name="people" size={40} color="#007AFF" />
+              <View style={styles.groupText}>
+                <Text style={styles.groupName}>{item.name}</Text>
+                <Text style={styles.groupNote}>Click to add note</Text>
+              </View>
+            </View>
+            <View style={styles.groupIcons}>
+              <TouchableOpacity style={styles.iconButton}>
+                <Ionicons name="settings" size={24} color="#007AFF" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconButton}>
+                <Ionicons name="person" size={24} color="#007AFF" />
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+      ),
+      [getGroupDetails]
   );
 
   const renderMemberItem = useCallback(
-    ({ item }: { item: User }) => (
-      <Text style={styles.memberItem}>{`${item.name} (${item.email})`}</Text>
-    ),
-    []
+      ({ item }: { item: User }) => (
+          <Text style={styles.memberItem}>{`${item.name} (${item.email})`}</Text>
+      ),
+      []
   );
 
   const renderFriendItem = useCallback(
-    ({ item }: { item: User }) => (
-      <TouchableOpacity
-        style={[
-          styles.memberItem,
-          selectedMembers.includes(item.$id) && styles.selectedMemberItem,
-        ]}
-        onPress={() => {
-          setSelectedMembers((prev) =>
-            prev.includes(item.$id)
-              ? prev.filter((id) => id !== item.$id)
-              : [...prev, item.$id]
-          );
-        }}
-      >
-        <Text>{`${item.name} `}</Text>
-      </TouchableOpacity>
-    ),
-    [selectedMembers]
+      ({ item }: { item: User }) => (
+          <TouchableOpacity
+              style={[
+                styles.memberItem,
+                selectedMembers.includes(item.$id) && styles.selectedMemberItem,
+              ]}
+              onPress={() => {
+                setSelectedMembers((prev) =>
+                    prev.includes(item.$id)
+                        ? prev.filter((id) => id !== item.$id)
+                        : [...prev, item.$id]
+                );
+              }}
+          >
+            <Text>{`${item.name} `}</Text>
+          </TouchableOpacity>
+      ),
+      [selectedMembers]
   );
 
   if (loading) {
@@ -167,108 +181,105 @@ const GroupsScreen = ({
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.sectionHeader}>Your Groups</Text>
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text style={styles.addButtonText}>Add Group</Text>
-      </TouchableOpacity>
-      <FlatList
-        data={groups}
-        renderItem={renderGroupItem}
-        keyExtractor={(item) => item.$id}
-        contentContainerStyle={styles.listContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refreshGroups} />
-        }
-      />
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalView}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter group name"
-            value={newGroupName}
-            onChangeText={setNewGroupName}
-          />
-          <TouchableOpacity style={styles.button} onPress={handleCreateGroup}>
-            <Text style={styles.buttonText}>Create Group</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setModalVisible(false)}
-          >
-            <Text style={styles.buttonText}>Cancel</Text>
-          </TouchableOpacity>
+      <View style={styles.container}>
+        <View style={styles.searchContainer}>
+          <TextInput style={styles.searchInput} placeholder="Search groups..." />
+          <Ionicons name="search" size={24} color="#007AFF" style={styles.searchIcon} />
         </View>
-      </Modal>
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={groupDetailsModalVisible}
-        onRequestClose={() => setGroupDetailsModalVisible(false)}
-      >
-        <View style={styles.modalView}>
-          <Text style={styles.modalTitle}>{selectedGroup?.name} Details</Text>
-          <Text style={styles.subTitle}>Members:</Text>
-          <FlatList
-            data={selectedGroup?.expanded_members}
-            renderItem={renderMemberItem}
+        <FlatList
+            data={groups}
+            renderItem={renderGroupItem}
             keyExtractor={(item) => item.$id}
-          />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              setGroupDetailsModalVisible(false);
-              setAddMembersModalVisible(true);
-            }}
-          >
-            <Text style={styles.buttonText}>Add Members</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setGroupDetailsModalVisible(false)}
-          >
-            <Text style={styles.buttonText}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={refreshGroups} />
+            }
+        />
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={addMembersModalVisible}
-        onRequestClose={() => setAddMembersModalVisible(false)}
-      >
-        <View style={styles.modalView}>
-          <Text style={styles.modalTitle}>
-            Add Members to {selectedGroup?.name}
-          </Text>
-          <FlatList
-            data={friends}
-            renderItem={renderFriendItem}
-            keyExtractor={(item) => item.$id}
-          />
-          <TouchableOpacity style={styles.button} onPress={handleAddMembers}>
-            <Text style={styles.buttonText}>Add Selected Members</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setAddMembersModalVisible(false)}
-          >
-            <Text style={styles.buttonText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-    </View>
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalView}>
+            <TextInput
+                style={styles.input}
+                placeholder="Enter group name"
+                value={newGroupName}
+                onChangeText={setNewGroupName}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleCreateGroup}>
+              <Text style={styles.buttonText}>Create Group</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={groupDetailsModalVisible}
+            onRequestClose={() => setGroupDetailsModalVisible(false)}
+        >
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>{selectedGroup?.name} Details</Text>
+            <Text style={styles.subTitle}>Members:</Text>
+            <FlatList
+                data={selectedGroup?.expanded_members}
+                renderItem={renderMemberItem}
+                keyExtractor={(item) => item.$id}
+            />
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  setGroupDetailsModalVisible(false);
+                  setAddMembersModalVisible(true);
+                }}
+            >
+              <Text style={styles.buttonText}>Add Members</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => setGroupDetailsModalVisible(false)}
+            >
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={addMembersModalVisible}
+            onRequestClose={() => setAddMembersModalVisible(false)}
+        >
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>
+              Add Members to {selectedGroup?.name}
+            </Text>
+            <FlatList
+                data={friends}
+                renderItem={renderFriendItem}
+                keyExtractor={(item) => item.$id}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleAddMembers}>
+              <Text style={styles.buttonText}>Add Selected Members</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => setAddMembersModalVisible(false)}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      </View>
   );
 };
 
@@ -277,6 +288,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#E6F7FF",
     marginTop: 50,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    margin: 10,
+    padding: 10,
+    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    fontSize: 16,
+    paddingHorizontal: 10,
+  },
+  searchIcon: {
+    marginLeft: 10,
   },
   listContent: {
     paddingBottom: 100,
@@ -302,6 +335,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   groupContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     margin: 10,
     backgroundColor: "#fff",
     borderRadius: 10,
@@ -310,10 +346,27 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderBottomWidth: 4,
   },
+  groupInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  groupText: {
+    marginLeft: 10,
+  },
   groupName: {
     fontWeight: "bold",
     fontSize: 18,
     color: "#333",
+  },
+  groupNote: {
+    fontSize: 14,
+    color: "#888",
+  },
+  groupIcons: {
+    flexDirection: "row",
+  },
+  iconButton: {
+    marginLeft: 10,
   },
   modalView: {
     margin: 20,
