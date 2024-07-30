@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   TextInput,
@@ -10,12 +10,14 @@ import {
   RefreshControl,
   FlatList,
   Modal,
+  Animated
 } from "react-native";
 import LoadingComponent from "@/components/usableOnes/loading";
 import axios from "axios";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 const defaultImage = require("@/public/utilities/profileImage.png");
 import { Image } from "expo-image";
+import { opacity } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 
 interface User {
   $id: string;
@@ -50,6 +52,8 @@ const GroupsScreen = ({
     useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [activeGroups, setActiveGroups] = useState<Group[]>([]);
 
   const fetchGroups = useCallback(async () => {
     try {
@@ -77,6 +81,28 @@ const GroupsScreen = ({
     };
     loadInitialData();
   }, [fetchGroups]);
+
+  useEffect(() => {
+    fadeAnim.setValue(0)
+    Animated.timing(fadeAnim, {
+      delay: 100,
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, [loading])
+
+  useEffect(() => {
+    function addStaggered() {
+      setActiveGroups([])
+      
+      groups.map((async (item, index) => {
+        await new Promise(resolve => setTimeout(resolve, 200 * index));
+        setActiveGroups(prev => [...prev, item])
+      }))
+    }
+    addStaggered();
+  }, [groups])
 
   const handleCreateGroup = useCallback(async () => {
     try {
@@ -157,32 +183,34 @@ const GroupsScreen = ({
   }, [selectedGroup, selectedMembers, refreshGroups]);
 
   const renderGroupItem = useCallback(
-    ({ item }: { item: Group }) => (
-      <TouchableOpacity
-        style={styles.groupContainer}
-        onPress={async () => {
-          const details = await getGroupDetails(item.$id);
-          setSelectedGroup({ ...item, ...details });
-          setGroupDetailsModalVisible(true);
-        }}
-      >
-        <View style={styles.groupInfo}>
-          <Ionicons name="people" size={40} color="#007AFF" />
-          <View style={styles.groupText}>
-            <Text style={styles.groupName}>{item.name}</Text>
-            <Text style={styles.groupNote}>Click to add note</Text>
+    ({ item }: { item: Group }) => {
+      return (
+        <TouchableOpacity
+          style={[styles.groupContainer]}
+          onPress={async () => {
+            const details = await getGroupDetails(item.$id);
+            setSelectedGroup({ ...item, ...details });
+            setGroupDetailsModalVisible(true);
+          }}
+        >
+          <View style={styles.groupInfo}>
+            <Ionicons name="people" size={40} color="#BB80DF" />
+            <View style={styles.groupText}>
+              <Text style={styles.groupName}>{item.name}</Text>
+              <Text style={styles.groupNote}>Click to add note</Text>
+            </View>
           </View>
-        </View>
-        <View style={styles.groupIcons}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="settings" size={24} color="#000" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="person" size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    ),
+          <View style={styles.groupIcons}>
+            <TouchableOpacity style={styles.iconButton}>
+              <Ionicons name="settings" size={24} color="#000" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}>
+              <Ionicons name="person" size={24} color="#000" />
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      )
+    },
     [getGroupDetails]
   );
 
@@ -249,9 +277,12 @@ const GroupsScreen = ({
   if (loading) {
     return <LoadingComponent />;
   }
+  /* Animation */
+
+  
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, {opacity: fadeAnim}]}>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -273,7 +304,7 @@ const GroupsScreen = ({
         <Text style={styles.addButtonText}>Create Group</Text>
       </TouchableOpacity>
       <FlatList
-        data={groups}
+        data={activeGroups}
         renderItem={renderGroupItem}
         keyExtractor={(item) => item.$id}
         contentContainerStyle={styles.listContent}
@@ -380,7 +411,7 @@ const GroupsScreen = ({
           </View>
         </View>
       </Modal>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -396,7 +427,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     borderColor: "#000",
-    borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
@@ -405,6 +435,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    borderWidth: 2,
+    borderBottomWidth: 4
   },
   searchInput: {
     flex: 1,
@@ -414,11 +446,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
     fontFamily: "spaceGroteskBold",
+    
   },
   searchIcon: {
     width: 25,
     height: 25,
     marginRight: 10,
+    
   },
   listContent: {
     paddingBottom: 100,
@@ -436,11 +470,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#007AFF",
+    backgroundColor: "#BB80DF",
     padding: 10,
     borderRadius: 5,
     marginHorizontal: 10,
     marginVertical: 5,
+    borderWidth: 2,
+    borderBottomWidth: 4
   },
   addButtonText: {
     color: "#fff",
