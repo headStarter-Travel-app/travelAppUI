@@ -124,6 +124,38 @@ const GroupsScreen = ({
     }
   }, [selectedGroup, selectedMembers, refreshGroups]);
 
+  const handleEditGroupName = useCallback(async () => {
+    if (!selectedGroup) return;
+    try {
+      await axios.post(`${API_URL}/edit-group-name`, {
+        group_id: selectedGroup.$id,
+        new_name: newGroupName,
+      });
+      Alert.alert("Success", "Group name updated successfully");
+      setGroupDetailsModalVisible(false);
+      refreshGroups();
+    } catch (error) {
+      console.error("Error updating group name:", error);
+      Alert.alert("Error", "Failed to update group name");
+    }
+  }, [selectedGroup, newGroupName, refreshGroups]);
+
+  const handleReassignGroupLeader = useCallback(async () => {
+    if (!selectedGroup) return;
+    try {
+      await axios.post(`${API_URL}/reassign-group-leader`, {
+        group_id: selectedGroup.$id,
+        new_leader_id: selectedMembers[0],
+      });
+      Alert.alert("Success", "Group leader reassigned successfully");
+      setGroupDetailsModalVisible(false);
+      refreshGroups();
+    } catch (error) {
+      console.error("Error reassigning group leader:", error);
+      Alert.alert("Error", "Failed to reassign group leader");
+    }
+  }, [selectedGroup, selectedMembers, refreshGroups]);
+
   const renderGroupItem = useCallback(
     ({ item }: { item: Group }) => (
       <TouchableOpacity
