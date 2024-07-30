@@ -49,6 +49,7 @@ const FriendsScreen = () => {
       const userId = await getUserId();
       setCurrentUserId(userId);
       if (userId) {
+        console.log(userId);
         const ws = new WebSocket(`${WS_URL}/${userId}`);
         setSocket(ws);
 
@@ -59,7 +60,7 @@ const FriendsScreen = () => {
           } else if (data.type === "friend_accept") {
             fetchFriends();
             fetchEligibleFriends();
-          } else if (data.type === 'friend_remove') {
+          } else if (data.type === "friend_remove") {
             fetchFriends();
             fetchEligibleFriends();
           }
