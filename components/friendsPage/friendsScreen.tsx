@@ -46,49 +46,57 @@ const FriendsScreen = () => {
 
   useEffect(() => {
     const fetchCurrentUserId = async () => {
-      const userId = await getUserId();
-      setCurrentUserId(userId);
-      if (userId) {
-        const ws = new WebSocket(`${WS_URL}/${userId}`);
-        setSocket(ws);
-
-        ws.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          if (data.type === "friend_request") {
-            fetchPendingRequests();
-          } else if (data.type === "friend_accept") {
-            fetchFriends();
-            fetchEligibleFriends();
-          } else if (data.type === 'friend_remove') {
-            fetchFriends();
-            fetchEligibleFriends();
-          }
-        };
-
-        ws.onerror = (error) => {
-          console.error("WebSocket error:", error);
-        };
-
-        ws.onclose = () => {
-          console.log("WebSocket connection closed");
-        };
+      try {
+        setLoading(true);  // Set loading to true when the component starts fetching
+        const userId = await getUserId();
+        setCurrentUserId(userId);
+        if (userId) {
+          const ws = new WebSocket(`${WS_URL}/${userId}`);
+          setSocket(ws);
+  
+          ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === "friend_request") {
+              fetchPendingRequests();
+            } else if (data.type === "friend_accept" || data.type === 'friend_remove') {
+              fetchFriends();
+              fetchEligibleFriends();
+            }
+          };
+  
+          ws.onerror = (error) => {
+            console.error("WebSocket error:", error);
+          };
+  
+          ws.onclose = () => {
+            console.log("WebSocket connection closed");
+          };
+  
+          await Promise.all([fetchFriends(), fetchPendingRequests(), fetchEligibleFriends()]);
+        }
+      } catch (error) {
+        console.error("Error fetching user ID or initial data:", error);
+      } finally {
+        setLoading(false);  // Ensure loading is set to false after all operations
       }
     };
     fetchCurrentUserId();
-
+  
     return () => {
       if (socket) {
         socket.close();
       }
     };
   }, []);
-
+  
   useEffect(() => {
-    console.log("Current User ID in FriendsScreen:", currentUserId); // Add this line
     if (currentUserId) {
-      fetchPendingRequests();
-      fetchEligibleFriends();
-      fetchFriends();
+      setLoading(true);  // Set loading to true when fetching data based on currentUserId change
+      Promise.all([
+        fetchPendingRequests(),
+        fetchEligibleFriends(),
+        fetchFriends(),
+      ]).finally(() => setLoading(false));  // Set loading to false once all fetches are done
     }
   }, [currentUserId]);
 
