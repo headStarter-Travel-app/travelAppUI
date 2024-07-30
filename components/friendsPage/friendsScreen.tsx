@@ -85,14 +85,11 @@ const FriendsScreen = () => {
   }, []);
 
   useEffect(() => {
+    console.log("Current User ID in FriendsScreen:", currentUserId); // Add this line
     if (currentUserId) {
-      const fetchAllData = async () => {
-        await fetchPendingRequests();
-        await fetchEligibleFriends();
-        await fetchFriends();
-        setLoading(false);
-      };
-      fetchAllData();
+      fetchPendingRequests();
+      fetchEligibleFriends();
+      fetchFriends();
     }
   }, [currentUserId]);
 
@@ -434,7 +431,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     borderColor: "#000",
-    borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
@@ -443,6 +439,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    borderWidth: 2,
+    borderBottomWidth: 4
   },
   searchInput: {
     flex: 1,
@@ -483,10 +481,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#D9D9D9",
     borderRadius: 25,
     marginRight: 15,
+    borderWidth: 2
   },
   friendName: {
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 20,
     marginBottom: 4,
     color: "#333",
   },
