@@ -54,9 +54,9 @@ const FriendsScreen = () => {
 
         ws.onmessage = (event) => {
           const data = JSON.parse(event.data);
-          if (data.type === 'friend_request') {
+          if (data.type === "friend_request") {
             fetchPendingRequests();
-          } else if (data.type === 'friend_accept') {
+          } else if (data.type === "friend_accept") {
             fetchFriends();
             fetchEligibleFriends();
           } else if (data.type === 'friend_remove') {
@@ -66,11 +66,11 @@ const FriendsScreen = () => {
         };
 
         ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
+          console.error("WebSocket error:", error);
         };
 
         ws.onclose = () => {
-          console.log('WebSocket connection closed');
+          console.log("WebSocket connection closed");
         };
       }
     };
