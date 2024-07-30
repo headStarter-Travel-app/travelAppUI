@@ -13,6 +13,7 @@ const API_URL = "https://travelappbackend-c7bj.onrender.com";
 import GroupsScreen from "@/components/friendsPage/groupsScreen";
 import FriendsScreen from "@/components/friendsPage/friendsScreen";
 
+
 const MainScreen = () => {
   const [showFriends, setShowFriends] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -23,6 +24,7 @@ const MainScreen = () => {
     const fetchCurrentUserId = async () => {
       try {
         const userId = await getUserId();
+        console.log("Fetched User ID:", userId); // Add this line
         setCurrentUserId(userId);
         await fetchFriends(userId);
       } catch (error) {

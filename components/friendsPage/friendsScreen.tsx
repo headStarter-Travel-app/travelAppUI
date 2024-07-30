@@ -84,14 +84,11 @@ const FriendsScreen = () => {
   }, []);
 
   useEffect(() => {
+    console.log("Current User ID in FriendsScreen:", currentUserId); // Add this line
     if (currentUserId) {
-      const fetchAllData = async () => {
-        await fetchPendingRequests();
-        await fetchEligibleFriends();
-        await fetchFriends();
-        setLoading(false);
-      };
-      fetchAllData();
+      fetchPendingRequests();
+      fetchEligibleFriends();
+      fetchFriends();
     }
   }, [currentUserId]);
 
