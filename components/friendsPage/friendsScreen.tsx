@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   TextInput,
@@ -10,6 +10,7 @@ import {
   Alert,
   RefreshControl,
   FlatList,
+  Animated,
   Modal,
 } from "react-native";
 import LoadingComponent from "@/components/usableOnes/loading";
@@ -19,6 +20,7 @@ const API_URL = "https://travelappbackend-c7bj.onrender.com";
 const WS_URL = "wss://travelappbackend-c7bj.onrender.com/ws";
 const defaultImage = require("@/public/utilities/profileImage.png");
 import { Image } from "expo-image";
+import { opacity } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 
 interface User {
   $id: string;
@@ -40,9 +42,10 @@ const FriendsScreen = () => {
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [eligibleFriends, setEligibleFriends] = useState<User[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const fetchCurrentUserId = async () => {
@@ -89,12 +92,23 @@ const FriendsScreen = () => {
         await fetchPendingRequests();
         await fetchEligibleFriends();
         await fetchFriends();
-        setLoading(false);
       };
+      
       fetchAllData();
+      
     }
   }, [currentUserId]);
 
+  useEffect(() => {
+    if(loading)return
+    fadeAnim.setValue(0);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1500,
+      useNativeDriver: true,
+    }).start()
+  }, [loading])
+  if(loading)return<LoadingComponent />
   const fetchPendingRequests = async () => {
     try {
       const response = await axios.get(
@@ -274,7 +288,7 @@ const FriendsScreen = () => {
   }, [currentUserId]);
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, {opacity: fadeAnim}]}>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -311,7 +325,7 @@ const FriendsScreen = () => {
           }
         />
       )}
-    </View>
+    </Animated.View>
   );
 };
 
