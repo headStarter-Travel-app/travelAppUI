@@ -58,6 +58,10 @@ const FriendsScreen = () => {
             fetchPendingRequests();
           } else if (data.type === 'friend_accept') {
             fetchFriends();
+            fetchEligibleFriends();
+          } else if (data.type === 'friend_remove') {
+            fetchFriends();
+            fetchEligibleFriends();
           }
         };
 
@@ -81,9 +85,13 @@ const FriendsScreen = () => {
 
   useEffect(() => {
     if (currentUserId) {
-      fetchPendingRequests();
-      fetchEligibleFriends();
-      fetchFriends();
+      const fetchAllData = async () => {
+        await fetchPendingRequests();
+        await fetchEligibleFriends();
+        await fetchFriends();
+        setLoading(false);
+      };
+      fetchAllData();
     }
   }, [currentUserId]);
 
@@ -171,6 +179,7 @@ const FriendsScreen = () => {
       });
       fetchFriends();
       fetchEligibleFriends();
+      // add alert here friend removed success
     } catch (error) {
       console.error("Error removing friend:", error);
     }
