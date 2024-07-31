@@ -197,7 +197,7 @@ const GroupsScreen = ({
             <Ionicons name="people" size={40} color="#BB80DF" />
             <View style={styles.groupText}>
               <Text style={styles.groupName}>{item.name}</Text>
-              <Text style={styles.groupNote}>Click to add note</Text>
+              {/* <Text style={styles.groupNote}>Click to add note</Text> */}
             </View>
           </View>
           <View style={styles.groupIcons}>
@@ -350,8 +350,7 @@ const GroupsScreen = ({
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Group Details</Text>
-            <Text style={styles.groupDetailName}>{selectedGroup?.name}</Text>
+            <Text style={styles.modalTitle}>{selectedGroup?.name}</Text>
             <Text style={styles.subTitle}>
               Members: {selectedGroup?.expanded_members?.length}
             </Text>
@@ -361,21 +360,25 @@ const GroupsScreen = ({
               keyExtractor={(item) => item.$id}
               style={styles.memberList}
             />
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => {
-                setGroupDetailsModalVisible(false);
-                setAddMembersModalVisible(true);
-              }}
+            <View
+              style={styles.buttonRow}
             >
-              <Text style={styles.modalButtonText}>Add Members</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.closeButton]}
-              onPress={() => setGroupDetailsModalVisible(false)}
-            >
-              <Text style={styles.modalButtonText}>Close</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => {
+                  setGroupDetailsModalVisible(false);
+                  setAddMembersModalVisible(true);
+                }}
+              >
+                <Text style={styles.modalButtonText}>Add Members</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.closeButton]}
+                onPress={() => setGroupDetailsModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -396,18 +399,20 @@ const GroupsScreen = ({
               keyExtractor={(item) => item.$id}
               style={styles.friendList}
             />
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={handleAddMembers}
-            >
-              <Text style={styles.modalButtonText}>Add Selected Members</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.closeButton]}
-              onPress={() => setAddMembersModalVisible(false)}
-            >
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleAddMembers}
+              >
+                <Text style={styles.modalButtonText}>Add Members</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.closeButton]}
+                onPress={() => setAddMembersModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -576,6 +581,7 @@ const styles = StyleSheet.create({
     padding: 20,
     width: "90%",
     maxHeight: "80%",
+    minHeight: "50%",
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
@@ -587,9 +593,9 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   modalTitle: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: 0,
     color: "#333",
   },
   groupDetailName: {
@@ -599,28 +605,33 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   subTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "600",
-    marginTop: 10,
+    marginTop: 4,
     marginBottom: 15,
     color: "#333",
   },
   memberList: {
     width: "100%",
-    marginBottom: 15,
+    marginBottom: 4,
   },
   memberCard: {
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderWidth: 1,
+    borderColor: "#333",
+    borderBottomWidth: 2,
+    marginBottom: 4,
+    borderRadius: 8
   },
   memberImage: {
     width: 50,
     height: 50,
     borderRadius: 25,
     marginRight: 15,
+    borderWidth: 2,
+    borderColor: "#333"
   },
   memberInfo: {
     flex: 1,
@@ -678,19 +689,27 @@ const styles = StyleSheet.create({
     backgroundColor: "#007AFF",
     borderRadius: 10,
     padding: 12,
-    marginTop: 10,
-    width: "80%",
+    height: 48,
+    width: "40%",
     alignItems: "center",
+    borderWidth: 2,
+    borderBottomWidth: 4
   },
   modalButtonText: {
-    color: "#fff",
     fontWeight: "bold",
-    fontSize: 16,
+    color: "#fff",
+    
   },
   closeButton: {
     backgroundColor: "#FF3B30",
-    marginTop: 10,
+    color: "#fff"
   },
+  buttonRow: {
+    flex: 1,
+    flexDirection: "row",
+    columnGap: 12,
+    maxHeight: 48
+  }
 });
 
 export default GroupsScreen;
