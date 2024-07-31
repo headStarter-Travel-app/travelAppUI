@@ -563,7 +563,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderBottomWidth: 2,
     borderRadius: 8,
-    padding: 20,
+    padding: 2,
+    paddingHorizontal: 8,
     width: 256,
     backgroundColor: "#fff",
     color: "#000",
@@ -630,6 +631,7 @@ const styles = StyleSheet.create({
   memberList: {
     width: "100%",
     marginBottom: 4,
+    height: 200
   },
   memberCard: {
     flexDirection: "row",
@@ -724,7 +726,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     columnGap: 12,
-    maxHeight: 48
+    maxHeight: 48,
+    height: 48
   }
 });
 
