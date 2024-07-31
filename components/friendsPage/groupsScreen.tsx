@@ -318,7 +318,7 @@ const GroupsScreen = ({
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.centeredView}>
+        <View style={styles.modalOverlay}>
           <View style={styles.modalView}>
             <TextInput
               style={styles.input}
@@ -327,18 +327,32 @@ const GroupsScreen = ({
               value={newGroupName}
               onChangeText={setNewGroupName}
             />
-            <TouchableOpacity
-              style={styles.createButton}
-              onPress={handleCreateGroup}
-            >
-              <Text style={styles.buttonText}>Create Group</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.createButton, styles.cancelButton]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonRow}>
+              {/* <TouchableOpacity
+                style={styles.createButton}
+                onPress={handleCreateGroup}
+              >
+                <Text style={styles.buttonText}>Create Group</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.createButton, styles.cancelButton]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity> */}
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleCreateGroup}
+              >
+                <Text style={styles.modalButtonText}>Create Group</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.closeButton]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -545,10 +559,12 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    margin: 12,
+    marginBottom: 16,
     borderWidth: 1,
-    padding: 10,
-    width: "80%",
+    borderBottomWidth: 2,
+    borderRadius: 8,
+    padding: 20,
+    width: 256,
     backgroundColor: "#fff",
     color: "#000",
   },
