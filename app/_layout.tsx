@@ -11,6 +11,7 @@ import "react-native-reanimated";
 import { View, Text, Image } from "react-native"; // Add this import
 import { useColorScheme } from "@/hooks/useColorScheme";
 import * as Updates from "expo-updates";
+import { usePushNotifications } from "@/usePushNotifications";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -70,6 +71,13 @@ export default function RootLayout() {
     spaceGroteskRegular: require("../assets/fonts/SpaceGrotesk-Regular.ttf"),
     spaceGroteskMedium: require("../assets/fonts/SpaceGrotesk-Regular.ttf"),
   });
+  const { expoPushToken, notification } = usePushNotifications();
+  const data = JSON.stringify(notification, undefined, 2);
+  useEffect(() => {
+    if (expoPushToken) {
+      console.log("Expo Push Token:", expoPushToken.data);
+    }
+  }, [expoPushToken]);
 
   const colorScheme = useColorScheme();
   const [isLoading, setIsLoading] = useState(true);

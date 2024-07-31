@@ -48,9 +48,8 @@
       [
         "expo-notifications",
         {
-          "icon": "./local/path/to/your/notification-icon.png",
-          "color": "#ffffff",
-          "sounds": ["./local/path/to/your/notification-sound.wav"]
+          "icon": "./assets/images/favicon.png",
+          "color": "#ffffff"
         }
       ],
       "expo-font"

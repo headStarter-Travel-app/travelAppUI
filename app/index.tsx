@@ -2,6 +2,7 @@ import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Spinner from "react-native-loading-spinner-overlay";
+import { usePushNotifications } from "@/usePushNotifications";
 
 export default function Index() {
   const [isLogged, setIsLogged] = useState(false);
