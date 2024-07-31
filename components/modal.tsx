@@ -10,10 +10,9 @@ import {
   ScrollView,
   Linking,
   ActivityIndicator,
-  Animated
+  Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { opacity } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 
 interface PlaceModalProps {
   isVisible: boolean;
@@ -26,9 +25,22 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
   place,
   onClose,
 }) => {
-  const slideArr = [useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0))]
-  const opacityArr = [useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0)), useRef(new Animated.Value(0))]
-  if (!place) {
+  const slideArr = [
+    useRef(new Animated.Value(0)),
+    useRef(new Animated.Value(0)),
+    useRef(new Animated.Value(0)),
+    useRef(new Animated.Value(0)),
+    useRef(new Animated.Value(0)),
+  ];
+  const opacityArr = [
+    useRef(new Animated.Value(0)),
+    useRef(new Animated.Value(0)),
+    useRef(new Animated.Value(0)),
+    useRef(new Animated.Value(0)),
+    useRef(new Animated.Value(0)),
+  ];
+
+  if (place === "error") {
     return (
       <Modal
         animationType="slide"
@@ -37,7 +49,33 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
         onRequestClose={onClose}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, styles.errorModalContent]}>
+            <View style={styles.errorContainer}>
+              <Ionicons name="alert-circle-outline" size={80} color="#FF6B6B" />
+              <Text style={styles.errorTitle}>Oops!</Text>
+              <Text style={styles.errorText}>
+                We couldn't find details for this place. Please try again later.
+              </Text>
+            </View>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
+  if (place === null) {
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isVisible}
+        onRequestClose={onClose}
+      >
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, styles.loadingModalContent]}>
             <ActivityIndicator size="large" color="#4A90E2" />
             <Text style={styles.loadingText}>Loading place details...</Text>
           </View>
@@ -71,24 +109,24 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
     );
   };
 
-  slideArr.map((item) => item.current.setValue(-10))
-  slideArr.forEach((item, index) => 
+  slideArr.map((item) => item.current.setValue(-10));
+  slideArr.forEach((item, index) =>
     Animated.timing(item.current, {
       delay: 250 * index,
       toValue: 0,
       duration: 900,
       useNativeDriver: true,
     }).start()
-  )
-  opacityArr.map((item) => item.current.setValue(0))
-  opacityArr.forEach((item, index) => 
+  );
+  opacityArr.map((item) => item.current.setValue(0));
+  opacityArr.forEach((item, index) =>
     Animated.timing(item.current, {
       delay: 250 * index,
       toValue: 1,
       duration: 900,
       useNativeDriver: true,
     }).start()
-  )
+  );
 
   return (
     <Modal
@@ -122,10 +160,12 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
           <View style={styles.infoContainer}>
             <Animated.View
               style={{
-                transform:[{
-                  translateX: slideArr[0].current
-                }],
-                opacity: opacityArr[0].current
+                transform: [
+                  {
+                    translateX: slideArr[0].current,
+                  },
+                ],
+                opacity: opacityArr[0].current,
               }}
             >
               <Text style={styles.placeName}>
@@ -134,10 +174,12 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
             </Animated.View>
             <Animated.View
               style={{
-                transform:[{
-                  translateX: slideArr[1].current
-                }],
-                opacity: opacityArr[1].current
+                transform: [
+                  {
+                    translateX: slideArr[1].current,
+                  },
+                ],
+                opacity: opacityArr[1].current,
               }}
             >
               {place.rating ? (
@@ -146,15 +188,15 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
                 <Text>No rating available</Text>
               )}
             </Animated.View>
-            
-
 
             <Animated.View
               style={{
-                transform:[{
-                  translateX: slideArr[2].current
-                }],
-                opacity: opacityArr[2].current
+                transform: [
+                  {
+                    translateX: slideArr[2].current,
+                  },
+                ],
+                opacity: opacityArr[2].current,
               }}
             >
               {place.address && (
@@ -167,10 +209,12 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
 
             <Animated.View
               style={{
-                transform:[{
-                  translateX: slideArr[3].current
-                }],
-                opacity: opacityArr[3].current
+                transform: [
+                  {
+                    translateX: slideArr[3].current,
+                  },
+                ],
+                opacity: opacityArr[3].current,
               }}
             >
               {place.hours && place.hours.length > 0 ? (
@@ -191,10 +235,12 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
 
             <Animated.View
               style={{
-                transform:[{
-                  translateX: slideArr[4].current
-                }],
-                opacity: opacityArr[4].current
+                transform: [
+                  {
+                    translateX: slideArr[4].current,
+                  },
+                ],
+                opacity: opacityArr[4].current,
               }}
             >
               {place.url ? (
@@ -227,6 +273,18 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: "80%",
+  },
+  errorModalContent: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    height: "50%",
+  },
+  loadingModalContent: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    height: "30%",
   },
   closeButton: {
     position: "absolute",
@@ -302,6 +360,8 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 18,
     marginTop: 20,
+    color: "#4A90E2",
+    fontWeight: "bold",
   },
   placeholderImage: {
     height: 250,
@@ -309,11 +369,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#f0f0f0",
   },
+  errorContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FF6B6B",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#4B5563",
+    textAlign: "center",
+    marginTop: 10,
+    fontFamily: "spaceGroteskRegular",
+  },
+  closeButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+    fontFamily: "spaceGroteskBold",
+  },
 });
 
 export default PlaceModal;
-
-
-
-
-

@@ -147,8 +147,7 @@ export default function App() {
     setSelectedPlaceDetails(null);
     setSelectedPlace(null);
     setModalVisible(true);
-    
-    
+
     try {
       const formattedAddressString = place.formattedAddressLines.join(", ");
 
@@ -161,9 +160,9 @@ export default function App() {
       );
       setSelectedPlaceDetails(response.data);
       setSelectedPlace(place);
-      
     } catch (error) {
       console.error("Error fetching place details:", error);
+      setSelectedPlaceDetails("error");
     }
   };
 
@@ -252,8 +251,8 @@ export default function App() {
                 opacity: fadeAnim,
               },
             ]}
-          > 
-            <Text style={{fontStyle: "italic"}}>
+          >
+            <Text style={{ fontStyle: "italic" }}>
               Loading Location Data...
             </Text>
           </Animated.View>

@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   TextInput,
@@ -9,8 +9,7 @@ import {
   TouchableOpacity,
   Alert,
   RefreshControl,
-  FlatList,
-  Modal,
+  Animated,
 } from "react-native";
 import LoadingComponent from "@/components/usableOnes/loading";
 import axios from "axios";
@@ -33,6 +32,7 @@ interface SectionData {
   title: string;
   data: User[];
 }
+
 const FriendsScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [friends, setFriends] = useState<User[]>([]);
@@ -43,67 +43,78 @@ const FriendsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchCurrentUserId = async () => {
+    const fetchInitialData = async () => {
       try {
-        setLoading(true);  // Set loading to true when the component starts fetching
+        setLoading(true);
         const userId = await getUserId();
         setCurrentUserId(userId);
+
         if (userId) {
           const ws = new WebSocket(`${WS_URL}/${userId}`);
           setSocket(ws);
-  
+
           ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === "friend_request") {
-              fetchPendingRequests();
-            } else if (data.type === "friend_accept" || data.type === 'friend_remove') {
-              fetchFriends();
-              fetchEligibleFriends();
+              fetchPendingRequests(userId);
+            } else if (
+              data.type === "friend_accept" ||
+              data.type === "friend_remove"
+            ) {
+              fetchFriends(userId);
+              fetchEligibleFriends(userId);
             }
           };
-  
+
           ws.onerror = (error) => {
             console.error("WebSocket error:", error);
           };
-  
+
           ws.onclose = () => {
             console.log("WebSocket connection closed");
           };
-  
-          await Promise.all([fetchFriends(), fetchPendingRequests(), fetchEligibleFriends()]);
+
+          await Promise.all([
+            fetchFriends(userId),
+            fetchPendingRequests(userId),
+            fetchEligibleFriends(userId),
+          ]);
         }
       } catch (error) {
-        console.error("Error fetching user ID or initial data:", error);
+        console.error("Error fetching initial data:", error);
       } finally {
-        setLoading(false);  // Ensure loading is set to false after all operations
+        setLoading(false);
       }
     };
-    fetchCurrentUserId();
-  
+
+    fetchInitialData();
+
     return () => {
       if (socket) {
         socket.close();
       }
     };
   }, []);
-  
-  useEffect(() => {
-    if (currentUserId) {
-      setLoading(true);  // Set loading to true when fetching data based on currentUserId change
-      Promise.all([
-        fetchPendingRequests(),
-        fetchEligibleFriends(),
-        fetchFriends(),
-      ]).finally(() => setLoading(false));  // Set loading to false once all fetches are done
-    }
-  }, [currentUserId]);
 
-  const fetchPendingRequests = async () => {
+  useEffect(() => {
+    if (!loading) {
+      fadeAnim.setValue(0);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1500,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [loading, fadeAnim]);
+
+  const fetchPendingRequests = async (userId: string) => {
     try {
       const response = await axios.get(
-        `${API_URL}/get-pending-friend-requests?user_id=${currentUserId}`
+        `${API_URL}/get-pending-friend-requests?user_id=${userId}`
       );
       setPendingRequests(response.data.friends);
     } catch (error) {
@@ -111,10 +122,10 @@ const FriendsScreen = () => {
     }
   };
 
-  const fetchEligibleFriends = async () => {
+  const fetchEligibleFriends = async (userId: string) => {
     try {
       const response = await axios.get(
-        `${API_URL}/get-eligible-friends?user_id=${currentUserId}`
+        `${API_URL}/get-eligible-friends?user_id=${userId}`
       );
       setEligibleFriends(response.data.eligible_users);
     } catch (error) {
@@ -122,10 +133,10 @@ const FriendsScreen = () => {
     }
   };
 
-  const fetchFriends = async () => {
+  const fetchFriends = async (userId: string) => {
     try {
       const response = await axios.get(
-        `${API_URL}/get-friends?user_id=${currentUserId}`
+        `${API_URL}/get-friends?user_id=${userId}`
       );
       setFriends(response.data.friends);
     } catch (error) {
@@ -148,6 +159,8 @@ const FriendsScreen = () => {
   };
 
   const handleSendFriendRequest = async (receiverId: string) => {
+    if (!currentUserId) return;
+    setIsLoading(true);
     try {
       await axios.post(`${API_URL}/send-friend-request`, {
         sender_id: currentUserId,
@@ -156,35 +169,47 @@ const FriendsScreen = () => {
       Alert.alert("Friend request sent successfully");
       setSearchQuery("");
       setSearchResults([]);
-      fetchEligibleFriends();
+      await fetchEligibleFriends(currentUserId);
     } catch (error) {
       console.error("Error sending friend request:", error);
+      Alert.alert("Failed to send friend request");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleAcceptFriendRequest = async (senderId: string) => {
+    if (!currentUserId) return;
+    setIsLoading(true);
     try {
       await axios.post(`${API_URL}/accept-friend-request`, {
         sender_id: senderId,
         receiver_id: currentUserId,
       });
-      fetchPendingRequests();
-      fetchFriends();
-      fetchEligibleFriends();
+      await Promise.all([
+        fetchPendingRequests(currentUserId),
+        fetchFriends(currentUserId),
+        fetchEligibleFriends(currentUserId),
+      ]);
+      Alert.alert("Friend request accepted");
     } catch (error) {
       console.error("Error accepting friend request:", error);
+      Alert.alert("Failed to accept friend request");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleRemoveFriend = async (friendId: string) => {
+    if (!currentUserId) return;
     try {
       await axios.post(`${API_URL}/remove-friend`, {
         sender_id: currentUserId,
         receiver_id: friendId,
       });
-      fetchFriends();
-      fetchEligibleFriends();
-      // add alert here friend removed success
+      fetchFriends(currentUserId);
+      fetchEligibleFriends(currentUserId);
+      Alert.alert("Friend removed successfully");
     } catch (error) {
       console.error("Error removing friend:", error);
     }
@@ -264,22 +289,72 @@ const FriendsScreen = () => {
   );
 
   const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      await Promise.all([
-        fetchPendingRequests(),
-        fetchEligibleFriends(),
-        fetchFriends(),
-      ]);
-    } catch (error) {
-      console.error("Error refreshing data:", error);
-    } finally {
-      setRefreshing(false);
+    if (currentUserId) {
+      setRefreshing(true);
+      try {
+        await Promise.all([
+          fetchPendingRequests(currentUserId),
+          fetchEligibleFriends(currentUserId),
+          fetchFriends(currentUserId),
+        ]);
+      } catch (error) {
+        console.error("Error refreshing data:", error);
+      } finally {
+        setRefreshing(false);
+      }
     }
   }, [currentUserId]);
+  const LoadingOverlay = () => {
+    const dot1Opacity = useRef(new Animated.Value(0.3)).current;
+    const dot2Opacity = useRef(new Animated.Value(0.3)).current;
+    const dot3Opacity = useRef(new Animated.Value(0.3)).current;
+
+    useEffect(() => {
+      Animated.loop(
+        Animated.stagger(200, [
+          pulseAnimation(dot1Opacity),
+          pulseAnimation(dot2Opacity),
+          pulseAnimation(dot3Opacity),
+        ])
+      ).start();
+    }, []);
+
+    return (
+      <View style={styles.loadingOverlay}>
+        <View style={styles.loadingContainer}>
+          <Animated.View
+            style={[styles.loadingDot, { opacity: dot1Opacity }]}
+          />
+          <Animated.View
+            style={[styles.loadingDot, { opacity: dot2Opacity }]}
+          />
+          <Animated.View
+            style={[styles.loadingDot, { opacity: dot3Opacity }]}
+          />
+        </View>
+      </View>
+    );
+  };
+  const pulseAnimation = (value: Animated.Value) => {
+    return Animated.sequence([
+      Animated.timing(value, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.timing(value, {
+        toValue: 0.3,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+    ]);
+  };
+  if (loading) {
+    return <LoadingOverlay />;
+  }
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -295,28 +370,25 @@ const FriendsScreen = () => {
           />
         </TouchableOpacity>
       </View>
-      {loading ? (
-        <LoadingComponent />
-      ) : (
-        <SectionList
-          sections={getSections()}
-          keyExtractor={(item, index) => `${item["$id"]}-${index}`}
-          renderItem={renderItem}
-          renderSectionHeader={renderSectionHeader}
-          style={styles.list}
-          stickySectionHeadersEnabled={false}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={["#007AFF"]}
-              tintColor="#007AFF"
-            />
-          }
-        />
-      )}
-    </View>
+      <SectionList
+        sections={getSections()}
+        keyExtractor={(item, index) => `${item["$id"]}-${index}`}
+        renderItem={renderItem}
+        renderSectionHeader={renderSectionHeader}
+        style={styles.list}
+        stickySectionHeadersEnabled={false}
+        contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#007AFF"]}
+            tintColor="#007AFF"
+          />
+        }
+      />
+      {isLoading && <LoadingOverlay />}
+    </Animated.View>
   );
 };
 
@@ -386,6 +458,7 @@ const PendingFriendContainer: React.FC<ContainerProps> = ({
     </View>
   );
 };
+
 const CurrentFriendsContainer: React.FC<ContainerProps> = ({
   item,
   onRemove,
@@ -447,7 +520,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderWidth: 2,
-    borderBottomWidth: 4
+    borderBottomWidth: 4,
   },
   searchInput: {
     flex: 1,
@@ -488,7 +561,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#D9D9D9",
     borderRadius: 25,
     marginRight: 15,
-    borderWidth: 2
+    borderWidth: 2,
   },
   friendName: {
     fontWeight: "bold",
@@ -534,6 +607,38 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
     zIndex: 1,
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+  },
+  loadingContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingDot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    marginHorizontal: 5,
+  },
+  dot1: {
+    opacity: 0.4,
+  },
+  dot2: {
+    opacity: 0.7,
+  },
+  dot3: {
+    opacity: 1,
   },
 });
 

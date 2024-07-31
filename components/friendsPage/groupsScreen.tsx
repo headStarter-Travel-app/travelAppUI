@@ -10,14 +10,13 @@ import {
   RefreshControl,
   FlatList,
   Modal,
-  Animated
+  Animated,
 } from "react-native";
 import LoadingComponent from "@/components/usableOnes/loading";
 import axios from "axios";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 const defaultImage = require("@/public/utilities/profileImage.png");
 import { Image } from "expo-image";
-import { opacity } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 
 interface User {
   $id: string;
@@ -34,7 +33,7 @@ interface Group {
   name: string;
   expanded_members?: User[];
 }
-//TO DO: Edit Gropu Name, remove member, reassign leader
+
 const GroupsScreen = ({
   currentUserId,
   friends,
@@ -83,26 +82,42 @@ const GroupsScreen = ({
   }, [fetchGroups]);
 
   useEffect(() => {
-    fadeAnim.setValue(0)
+    fadeAnim.setValue(0);
     Animated.timing(fadeAnim, {
       delay: 100,
       toValue: 1,
       duration: 500,
       useNativeDriver: true,
     }).start();
-  }, [loading])
+  }, [loading]);
 
   useEffect(() => {
     function addStaggered() {
-      setActiveGroups([])
-      
-      groups.map((async (item, index) => {
-        await new Promise(resolve => setTimeout(resolve, 200 * index));
-        setActiveGroups(prev => [...prev, item])
-      }))
+      setActiveGroups([]);
+
+      groups.map(async (item, index) => {
+        await new Promise((resolve) => setTimeout(resolve, 200 * index));
+        setActiveGroups((prev) => [...prev, item]);
+      });
     }
     addStaggered();
-  }, [groups])
+  }, [groups]);
+
+  const closeCreateGroupModal = () => {
+    setModalVisible(false);
+    setNewGroupName("");
+  };
+
+  const closeGroupDetailsModal = () => {
+    setGroupDetailsModalVisible(false);
+    setSelectedGroup(null);
+    setSelectedMembers([]);
+  };
+
+  const closeAddMembersModal = () => {
+    setAddMembersModalVisible(false);
+    setSelectedMembers([]);
+  };
 
   const handleCreateGroup = useCallback(async () => {
     try {
@@ -111,8 +126,7 @@ const GroupsScreen = ({
         creator_id: currentUserId,
       });
       Alert.alert("Success", "Group created successfully");
-      setModalVisible(false);
-      setNewGroupName("");
+      closeCreateGroupModal();
       refreshGroups();
     } catch (error) {
       console.error("Error creating group:", error);
@@ -140,9 +154,8 @@ const GroupsScreen = ({
         members: selectedMembers,
       });
       Alert.alert("Success", "Members added successfully");
-      setAddMembersModalVisible(false);
-      setGroupDetailsModalVisible(false);
-      setSelectedMembers([]);
+      closeAddMembersModal();
+      closeGroupDetailsModal();
       refreshGroups();
     } catch (error) {
       console.error("Error adding members:", error);
@@ -158,7 +171,7 @@ const GroupsScreen = ({
         new_name: newGroupName,
       });
       Alert.alert("Success", "Group name updated successfully");
-      setGroupDetailsModalVisible(false);
+      closeGroupDetailsModal();
       refreshGroups();
     } catch (error) {
       console.error("Error updating group name:", error);
@@ -174,7 +187,7 @@ const GroupsScreen = ({
         new_leader_id: selectedMembers[0],
       });
       Alert.alert("Success", "Group leader reassigned successfully");
-      setGroupDetailsModalVisible(false);
+      closeGroupDetailsModal();
       refreshGroups();
     } catch (error) {
       console.error("Error reassigning group leader:", error);
@@ -191,13 +204,13 @@ const GroupsScreen = ({
             const details = await getGroupDetails(item.$id);
             setSelectedGroup({ ...item, ...details });
             setGroupDetailsModalVisible(true);
+            setSelectedMembers([]);
           }}
         >
           <View style={styles.groupInfo}>
             <Ionicons name="people" size={40} color="#BB80DF" />
             <View style={styles.groupText}>
               <Text style={styles.groupName}>{item.name}</Text>
-              <Text style={styles.groupNote}>Click to add note</Text>
             </View>
           </View>
           <View style={styles.groupIcons}>
@@ -209,7 +222,7 @@ const GroupsScreen = ({
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
-      )
+      );
     },
     [getGroupDetails]
   );
@@ -277,12 +290,9 @@ const GroupsScreen = ({
   if (loading) {
     return <LoadingComponent />;
   }
-  /* Animation */
-
-  
 
   return (
-    <Animated.View style={[styles.container, {opacity: fadeAnim}]}>
+    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -316,9 +326,9 @@ const GroupsScreen = ({
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={closeCreateGroupModal}
       >
-        <View style={styles.centeredView}>
+        <View style={styles.modalOverlay}>
           <View style={styles.modalView}>
             <TextInput
               style={styles.input}
@@ -327,18 +337,20 @@ const GroupsScreen = ({
               value={newGroupName}
               onChangeText={setNewGroupName}
             />
-            <TouchableOpacity
-              style={styles.createButton}
-              onPress={handleCreateGroup}
-            >
-              <Text style={styles.buttonText}>Create Group</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.createButton, styles.cancelButton]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleCreateGroup}
+              >
+                <Text style={styles.modalButtonText}>Create Group</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.closeButton]}
+                onPress={closeCreateGroupModal}
+              >
+                <Text style={styles.modalButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -346,12 +358,11 @@ const GroupsScreen = ({
         animationType="fade"
         transparent={true}
         visible={groupDetailsModalVisible}
-        onRequestClose={() => setGroupDetailsModalVisible(false)}
+        onRequestClose={closeGroupDetailsModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Group Details</Text>
-            <Text style={styles.groupDetailName}>{selectedGroup?.name}</Text>
+            <Text style={styles.modalTitle}>{selectedGroup?.name}</Text>
             <Text style={styles.subTitle}>
               Members: {selectedGroup?.expanded_members?.length}
             </Text>
@@ -361,21 +372,23 @@ const GroupsScreen = ({
               keyExtractor={(item) => item.$id}
               style={styles.memberList}
             />
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => {
-                setGroupDetailsModalVisible(false);
-                setAddMembersModalVisible(true);
-              }}
-            >
-              <Text style={styles.modalButtonText}>Add Members</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.closeButton]}
-              onPress={() => setGroupDetailsModalVisible(false)}
-            >
-              <Text style={styles.modalButtonText}>Close</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => {
+                  closeGroupDetailsModal();
+                  setAddMembersModalVisible(true);
+                }}
+              >
+                <Text style={styles.modalButtonText}>Add Members</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.closeButton]}
+                onPress={closeGroupDetailsModal}
+              >
+                <Text style={styles.modalButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -383,7 +396,7 @@ const GroupsScreen = ({
         animationType="fade"
         transparent={true}
         visible={addMembersModalVisible}
-        onRequestClose={() => setAddMembersModalVisible(false)}
+        onRequestClose={closeAddMembersModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -396,18 +409,20 @@ const GroupsScreen = ({
               keyExtractor={(item) => item.$id}
               style={styles.friendList}
             />
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={handleAddMembers}
-            >
-              <Text style={styles.modalButtonText}>Add Selected Members</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.closeButton]}
-              onPress={() => setAddMembersModalVisible(false)}
-            >
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleAddMembers}
+              >
+                <Text style={styles.modalButtonText}>Add Members</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.closeButton]}
+                onPress={closeAddMembersModal}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -436,7 +451,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderWidth: 2,
-    borderBottomWidth: 4
+    borderBottomWidth: 4,
   },
   searchInput: {
     flex: 1,
@@ -446,13 +461,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
     fontFamily: "spaceGroteskBold",
-    
   },
   searchIcon: {
     width: 25,
     height: 25,
     marginRight: 10,
-    
   },
   listContent: {
     paddingBottom: 100,
@@ -476,7 +489,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginVertical: 5,
     borderWidth: 2,
-    borderBottomWidth: 4
+    borderBottomWidth: 4,
   },
   addButtonText: {
     color: "#fff",
@@ -540,10 +553,13 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    margin: 12,
+    marginBottom: 16,
     borderWidth: 1,
-    padding: 10,
-    width: "80%",
+    borderBottomWidth: 2,
+    borderRadius: 8,
+    padding: 2,
+    paddingHorizontal: 8,
+    width: 256,
     backgroundColor: "#fff",
     color: "#000",
   },
@@ -576,6 +592,7 @@ const styles = StyleSheet.create({
     padding: 20,
     width: "90%",
     maxHeight: "80%",
+    minHeight: "50%",
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
@@ -587,9 +604,9 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   modalTitle: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: 0,
     color: "#333",
   },
   groupDetailName: {
@@ -599,28 +616,34 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   subTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "600",
-    marginTop: 10,
+    marginTop: 4,
     marginBottom: 15,
     color: "#333",
   },
   memberList: {
     width: "100%",
-    marginBottom: 15,
+    marginBottom: 4,
+    height: 200,
   },
   memberCard: {
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderWidth: 1,
+    borderColor: "#333",
+    borderBottomWidth: 2,
+    marginBottom: 4,
+    borderRadius: 8,
   },
   memberImage: {
     width: 50,
     height: 50,
     borderRadius: 25,
     marginRight: 15,
+    borderWidth: 2,
+    borderColor: "#333",
   },
   memberInfo: {
     flex: 1,
@@ -678,18 +701,26 @@ const styles = StyleSheet.create({
     backgroundColor: "#007AFF",
     borderRadius: 10,
     padding: 12,
-    marginTop: 10,
-    width: "80%",
+    height: 48,
+    width: "40%",
     alignItems: "center",
+    borderWidth: 2,
+    borderBottomWidth: 4,
   },
   modalButtonText: {
-    color: "#fff",
     fontWeight: "bold",
-    fontSize: 16,
+    color: "#fff",
   },
   closeButton: {
     backgroundColor: "#FF3B30",
-    marginTop: 10,
+    color: "#fff",
+  },
+  buttonRow: {
+    flex: 1,
+    flexDirection: "row",
+    columnGap: 12,
+    maxHeight: 48,
+    height: 48,
   },
 });
 
