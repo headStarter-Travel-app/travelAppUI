@@ -163,7 +163,7 @@ export default function App() {
       setSelectedPlace(place);
     } catch (error) {
       console.error("Error fetching place details:", error);
-      setSelectedPlaceDetails(null); // Set to null to indicate an error
+      setSelectedPlaceDetails("error"); // Set to null to indicate an error
     }
   };
 
