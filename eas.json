@@ -9,6 +9,9 @@
       "ios": {
         "simulator": false
       },
+      "android": {
+        "gradleCommand": ":app:assembleDebug"
+      },
       "channel": "development"
     },
     "preview": {
@@ -16,13 +19,24 @@
       "channel": "preview",
       "ios": {
         "distribution": "internal"
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "production": {
-      "channel": "production"
+      "channel": "production",
+      "android": {
+        "buildType": "app-bundle"
+      }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./path-to-your-service-account-key.json",
+        "track": "production"
+      }
+    }
   }
 }

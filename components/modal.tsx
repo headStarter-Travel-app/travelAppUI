@@ -40,7 +40,7 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
     useRef(new Animated.Value(0)),
   ];
 
-  if (place === null) {
+  if (place === "error") {
     return (
       <Modal
         animationType="slide"
@@ -49,11 +49,12 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
         onRequestClose={onClose}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, styles.errorModalContent]}>
             <View style={styles.errorContainer}>
-              <Ionicons name="alert-circle-outline" size={50} color="#FF6B6B" />
+              <Ionicons name="alert-circle-outline" size={80} color="#FF6B6B" />
+              <Text style={styles.errorTitle}>Oops!</Text>
               <Text style={styles.errorText}>
-                Oops! We couldn't find details for this place.
+                We couldn't find details for this place. Please try again later.
               </Text>
             </View>
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -65,16 +66,16 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
     );
   }
 
-  if (!place) {
+  if (place === null) {
     return (
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={isVisible}
         onRequestClose={onClose}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, styles.loadingModalContent]}>
             <ActivityIndicator size="large" color="#4A90E2" />
             <Text style={styles.loadingText}>Loading place details...</Text>
           </View>
@@ -273,6 +274,18 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     maxHeight: "80%",
   },
+  errorModalContent: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    height: "50%",
+  },
+  loadingModalContent: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    height: "30%",
+  },
   closeButton: {
     position: "absolute",
     top: 10,
@@ -347,6 +360,8 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 18,
     marginTop: 20,
+    color: "#4A90E2",
+    fontWeight: "bold",
   },
   placeholderImage: {
     height: 250,
@@ -358,6 +373,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FF6B6B",
+    marginTop: 10,
+    marginBottom: 10,
   },
   errorText: {
     fontSize: 16,
