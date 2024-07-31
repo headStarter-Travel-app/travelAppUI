@@ -58,6 +58,7 @@ export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0.3));
   const [loadingRecs, setLoadingRecs] = useState(false);
+
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -147,8 +148,7 @@ export default function App() {
     setSelectedPlaceDetails(null);
     setSelectedPlace(null);
     setModalVisible(true);
-    
-    
+
     try {
       const formattedAddressString = place.formattedAddressLines.join(", ");
 
@@ -161,9 +161,9 @@ export default function App() {
       );
       setSelectedPlaceDetails(response.data);
       setSelectedPlace(place);
-      
     } catch (error) {
       console.error("Error fetching place details:", error);
+      setSelectedPlaceDetails(null); // Set to null to indicate an error
     }
   };
 
@@ -252,8 +252,8 @@ export default function App() {
                 opacity: fadeAnim,
               },
             ]}
-          > 
-            <Text style={{fontStyle: "italic"}}>
+          >
+            <Text style={{ fontStyle: "italic" }}>
               Loading Location Data...
             </Text>
           </Animated.View>
@@ -297,15 +297,15 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#E6F7FF", // Very light blue background
-    marginTop: 50, // Move everything down by 50 pixels
+    backgroundColor: "#E6F7FF",
+    marginTop: 50,
   },
   searchContainer: {
     margin: 10,
     backgroundColor: "#fff",
     borderRadius: 5,
     padding: 10,
-    borderColor: "#000", // Dark border
+    borderColor: "#000",
     borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   searchInput: {
     height: 40,
     fontSize: 18,
-    fontWeight: "bold", // Bold text
+    fontWeight: "bold",
     color: "#000",
     fontFamily: "spaceGroteskBold",
   },
@@ -330,10 +330,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
-    padding: 20, // Increase padding for larger text
-    backgroundColor: "#E6F7FF", // Light blue background similar to the page
+    padding: 20,
+    backgroundColor: "#E6F7FF",
     borderRadius: 5,
-    borderColor: "#000", // Dark border similar to the search container
+    borderColor: "#000",
     borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
     marginTop: 0,
-    height: "50%", // Increase map height
+    height: "50%",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -416,8 +416,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: "100%", // Changed from 90% to 100%
-    backgroundColor: "darkgrey", // Changed to a light blue color
+    width: "100%",
+    backgroundColor: "darkgrey",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -432,13 +432,13 @@ const styles = StyleSheet.create({
   placeName: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1E3A8A", // Changed to a darker blue
+    color: "#1E3A8A",
     marginBottom: 10,
     fontFamily: "DM Sans",
   },
   placeDescription: {
     fontSize: 16,
-    color: "#4B5563", // Changed to a darker gray
+    color: "#4B5563",
     marginBottom: 15,
     textAlign: "center",
     fontFamily: "spaceGroteskRegular",
@@ -451,11 +451,11 @@ const styles = StyleSheet.create({
   placeDetailText: {
     marginLeft: 10,
     fontSize: 14,
-    color: "#1F2937", // Changed to a dark gray
+    color: "#1F2937",
     fontFamily: "spaceGroteskRegular",
   },
   closeButton: {
-    backgroundColor: "#2563EB", // Changed to a vibrant blue
+    backgroundColor: "#2563EB",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,

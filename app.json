@@ -2,14 +2,15 @@
   "expo": {
     "name": "Proxi Link",
     "slug": "headstarterProject",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/favicon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#000000",
+      "imageResizeMode": "contain"
     },
     "ios": {
       "supportsTablet": true,
