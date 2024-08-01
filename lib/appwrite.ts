@@ -1,6 +1,7 @@
 import { Account, Client, Databases, ID, Storage } from "react-native-appwrite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { get } from "http";
+import { Query } from "react-native-appwrite";
 
 export const appwriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -11,6 +12,7 @@ export const appwriteConfig = {
   preferencesCollectionId: "6696016b00117bbf6352",
   storageId: "66930ebf003d9d175225",
   profileImageBucketID: "profilePictures",
+  notifications: "66abd65b0027a6d279bc",
 };
 
 // Init your React Native SDK
@@ -279,6 +281,36 @@ export const updateUserPassword = async (
     await account.updatePassword(newPassword, oldPassword);
   } catch (error) {
     console.error("Error updating password:", error);
+    throw error;
+  }
+};
+
+export const addNotificationToken = async (token: string) => {
+  try {
+    // Check if the token already exists
+    const existingTokens = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.notifications,
+      [Query.equal("ID", token)]
+    );
+
+    if (existingTokens.total > 0) {
+      console.log("Token already exists, not adding.");
+      return;
+    }
+
+    // Add the token if it doesn't exist
+    await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.notifications,
+      ID.unique(),
+      {
+        ID: token,
+        user_id: await getUserId(),
+      }
+    );
+  } catch (error) {
+    console.error("Error adding notification token:", error);
     throw error;
   }
 };

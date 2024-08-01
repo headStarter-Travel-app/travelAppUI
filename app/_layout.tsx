@@ -13,6 +13,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import * as Updates from "expo-updates";
 import { usePushNotifications } from "@/usePushNotifications";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { addNotificationToken } from "@/lib/appwrite";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -77,6 +78,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (expoPushToken) {
       console.log("Expo Push Token:", expoPushToken.data);
+      addNotificationToken(expoPushToken.data);
     }
   }, [expoPushToken]);
 
