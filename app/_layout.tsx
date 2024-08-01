@@ -12,6 +12,7 @@ import { View, Text, Image } from "react-native"; // Add this import
 import { useColorScheme } from "@/hooks/useColorScheme";
 import * as Updates from "expo-updates";
 import { usePushNotifications } from "@/usePushNotifications";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

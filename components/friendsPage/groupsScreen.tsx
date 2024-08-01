@@ -53,6 +53,7 @@ const GroupsScreen = ({
   const [refreshing, setRefreshing] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [activeGroups, setActiveGroups] = useState<Group[]>([]);
+  const [isEditingGroupName, setIsEditingGroupName] = useState(false);
 
   const fetchGroups = useCallback(async () => {
     try {
@@ -108,10 +109,34 @@ const GroupsScreen = ({
     setNewGroupName("");
   };
 
+  const handleEditGroupName = useCallback(async () => {
+    if (!selectedGroup) return;
+    if (newGroupName.trim() === "") {
+      Alert.alert("Error", "Group name cannot be empty");
+      setNewGroupName(selectedGroup.name);
+      return;
+    }
+    try {
+      await axios.post(`${API_URL}/edit-group-name`, {
+        group_id: selectedGroup.$id,
+        new_name: newGroupName,
+      });
+      Alert.alert("Success", "Group name updated successfully");
+      setSelectedGroup({ ...selectedGroup, name: newGroupName });
+      refreshGroups();
+    } catch (error) {
+      console.error("Error updating group name:", error);
+      Alert.alert("Error", "Failed to update group name");
+    }
+    setIsEditingGroupName(false);
+  }, [selectedGroup, newGroupName, refreshGroups]);
+
   const closeGroupDetailsModal = () => {
+    handleEditGroupName();
     setGroupDetailsModalVisible(false);
     setSelectedGroup(null);
     setSelectedMembers([]);
+    setIsEditingGroupName(false);
   };
 
   const closeAddMembersModal = () => {
@@ -163,37 +188,30 @@ const GroupsScreen = ({
     }
   }, [selectedGroup, selectedMembers, refreshGroups]);
 
-  const handleEditGroupName = useCallback(async () => {
-    if (!selectedGroup) return;
-    try {
-      await axios.post(`${API_URL}/edit-group-name`, {
-        group_id: selectedGroup.$id,
-        new_name: newGroupName,
-      });
-      Alert.alert("Success", "Group name updated successfully");
-      closeGroupDetailsModal();
-      refreshGroups();
-    } catch (error) {
-      console.error("Error updating group name:", error);
-      Alert.alert("Error", "Failed to update group name");
-    }
-  }, [selectedGroup, newGroupName, refreshGroups]);
-
-  const handleReassignGroupLeader = useCallback(async () => {
-    if (!selectedGroup) return;
-    try {
-      await axios.post(`${API_URL}/reassign-group-leader`, {
-        group_id: selectedGroup.$id,
-        new_leader_id: selectedMembers[0],
-      });
-      Alert.alert("Success", "Group leader reassigned successfully");
-      closeGroupDetailsModal();
-      refreshGroups();
-    } catch (error) {
-      console.error("Error reassigning group leader:", error);
-      Alert.alert("Error", "Failed to reassign group leader");
-    }
-  }, [selectedGroup, selectedMembers, refreshGroups]);
+  const handleRemoveMember = useCallback(
+    async (memberId: string) => {
+      if (!selectedGroup) return;
+      try {
+        await axios.post(`${API_URL}/remove-member`, {
+          group_id: selectedGroup.$id,
+          member_id: memberId,
+        });
+        Alert.alert("Success", "Member removed successfully");
+        const updatedMembers = selectedGroup.expanded_members?.filter(
+          (member) => member.$id !== memberId
+        );
+        setSelectedGroup({
+          ...selectedGroup,
+          expanded_members: updatedMembers,
+        });
+        refreshGroups();
+      } catch (error) {
+        console.error("Error removing member:", error);
+        Alert.alert("Error", "Failed to remove member");
+      }
+    },
+    [selectedGroup, refreshGroups]
+  );
 
   const renderGroupItem = useCallback(
     ({ item }: { item: Group }) => {
@@ -227,22 +245,31 @@ const GroupsScreen = ({
     [getGroupDetails]
   );
 
-  const renderMemberItem = useCallback(({ item }: { item: User }) => {
-    const profileImageUrl = item.prefs?.profileImageUrl;
+  const renderMemberItem = useCallback(
+    ({ item }: { item: User }) => {
+      const profileImageUrl = item.prefs?.profileImageUrl;
 
-    return (
-      <View style={styles.memberCard}>
-        <Image
-          source={profileImageUrl ? { uri: profileImageUrl } : defaultImage}
-          style={styles.memberImage}
-        />
-        <View style={styles.memberInfo}>
-          <Text style={styles.memberName}>{item.name}</Text>
-          <Text style={styles.memberEmail}>{item.email}</Text>
+      return (
+        <View style={styles.memberCard}>
+          <Image
+            source={profileImageUrl ? { uri: profileImageUrl } : defaultImage}
+            style={styles.memberImage}
+          />
+          <View style={styles.memberInfo}>
+            <Text style={styles.memberName}>{item.name}</Text>
+            <Text style={styles.memberEmail}>{item.email}</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.removeButton}
+            onPress={() => handleRemoveMember(item.$id)}
+          >
+            <Ionicons name="close-circle" size={24} color="#FF3B30" />
+          </TouchableOpacity>
         </View>
-      </View>
-    );
-  }, []);
+      );
+    },
+    [handleRemoveMember]
+  );
 
   const renderFriendItem = useCallback(
     ({ item }: { item: User }) => {
@@ -362,7 +389,24 @@ const GroupsScreen = ({
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{selectedGroup?.name}</Text>
+            <TouchableOpacity
+              onPress={() => {
+                setIsEditingGroupName(true);
+                setNewGroupName(selectedGroup?.name || "");
+              }}
+            >
+              {isEditingGroupName ? (
+                <TextInput
+                  style={styles.editGroupNameInput}
+                  value={newGroupName}
+                  onChangeText={setNewGroupName}
+                  onBlur={handleEditGroupName}
+                  autoFocus
+                />
+              ) : (
+                <Text style={styles.modalTitle}>{selectedGroup?.name}</Text>
+              )}
+            </TouchableOpacity>
             <Text style={styles.subTitle}>
               Members: {selectedGroup?.expanded_members?.length}
             </Text>
@@ -713,7 +757,6 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     backgroundColor: "#FF3B30",
-    color: "#fff",
   },
   buttonRow: {
     flex: 1,
@@ -721,6 +764,19 @@ const styles = StyleSheet.create({
     columnGap: 12,
     maxHeight: 48,
     height: 48,
+  },
+  removeButton: {
+    padding: 5,
+  },
+  editGroupNameInput: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#333",
+    borderBottomWidth: 1,
+    borderBottomColor: "#333",
+    marginBottom: 10,
+    minWidth: 200,
+    textAlign: "center",
   },
 });
 
