@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRef } from "react";
 import {
   Modal,
@@ -39,7 +39,7 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
     useRef(new Animated.Value(0)),
     useRef(new Animated.Value(0)),
   ];
-
+  const[yStart, setYStart] = useState(0)
   if (place === "error") {
     return (
       <Modal
@@ -48,7 +48,9 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
         visible={isVisible}
         onRequestClose={onClose}
       >
-        <View style={styles.modalContainer}>
+        <View style={styles.modalContainer}
+          
+        >
           <View style={[styles.modalContent, styles.errorModalContent]}>
             <View style={styles.errorContainer}>
               <Ionicons name="alert-circle-outline" size={80} color="#FF6B6B" />

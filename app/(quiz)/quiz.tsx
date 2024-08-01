@@ -99,6 +99,9 @@ const PreferenceQuiz = () => {
         case 4:
           setCanProceed(learning.length > 0);
           break;
+        case 5:
+          setCanProceed(atmosphere.length > 0 && time.length > 0)
+          break
         default:
           setCanProceed(false);
       }
