@@ -112,7 +112,6 @@ const GroupsScreen = ({
   const handleEditGroupName = useCallback(async () => {
     if (!selectedGroup) return;
     if (newGroupName.trim() === "") {
-      Alert.alert("Error", "Group name cannot be empty");
       setNewGroupName(selectedGroup.name);
       return;
     }
@@ -121,12 +120,10 @@ const GroupsScreen = ({
         group_id: selectedGroup.$id,
         new_name: newGroupName,
       });
-      Alert.alert("Success", "Group name updated successfully");
       setSelectedGroup({ ...selectedGroup, name: newGroupName });
       refreshGroups();
     } catch (error) {
       console.error("Error updating group name:", error);
-      Alert.alert("Error", "Failed to update group name");
     }
     setIsEditingGroupName(false);
   }, [selectedGroup, newGroupName, refreshGroups]);
