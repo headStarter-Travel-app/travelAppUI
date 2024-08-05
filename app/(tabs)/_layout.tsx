@@ -3,6 +3,7 @@ import React from "react";
 import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { FontAwesome } from "@expo/vector-icons"; // Using FontAwesome for the sparkle icon
+import { useRouter } from "expo-router";
 
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
@@ -11,7 +12,11 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 const { width } = Dimensions.get("window");
 
 export default function TabLayout() {
+  const router = useRouter();
   const colorScheme = useColorScheme();
+  const onAIClick = () => {
+    router.push("/aiScreen");
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -78,7 +83,7 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-      <TouchableOpacity style={styles.floatingButton}>
+      <TouchableOpacity style={styles.floatingButton} onPress={onAIClick}>
         <TabBarIcon name="sparkles" color="purple" />
       </TouchableOpacity>
     </View>
