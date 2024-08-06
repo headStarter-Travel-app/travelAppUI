@@ -6,11 +6,13 @@ import {
   ScrollView,
   Image,
   Linking,
+  TouchableOpacity,
 } from "react-native";
 import React from "react";
 import { useRouter } from "expo-router";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { FontAwesome } from "@expo/vector-icons";
+import moment from "moment-timezone";
 
 const locationsData = [
   {
@@ -39,7 +41,7 @@ const locationsData = [
     budget: "Free",
     hours: [
       "Monday: 5:00 AM – 9:00 PM",
-      "Tuesday: 5:00 AM – 9:00 PM",
+      "Tuesday: 5:00 AM – 7:00 AM",
       "Wednesday: 5:00 AM – 9:00 PM",
       "Thursday: 5:00 AM – 9:00 PM",
       "Friday: 5:00 AM – 9:00 PM",
@@ -178,18 +180,18 @@ const Card: React.FC<CardProps> = ({
       <View style={styles.starContainer}>
         {[...Array(fullStars)].map((_, i) => (
           <View key={`full-${i}`}>
-            <FontAwesome name="star" size={16} color="#FDCC0D" />
+            <FontAwesome name="star" size={16} color="#1E90FF" />
           </View>
         ))}
         {hasHalfStar && (
-          <FontAwesome name="star-half-o" size={16} color="#FDCC0D" />
+          <FontAwesome name="star-half-o" size={16} color="#1E90FF" />
         )}
         {[...Array(emptyStars)].map((_, i) => (
           <FontAwesome
             key={`empty-${i}`}
             name="star-o"
             size={16}
-            color="#FDCC0D"
+            color="#1E90FF"
           />
         ))}
       </View>
@@ -204,6 +206,32 @@ const Card: React.FC<CardProps> = ({
     return "#FF5722";
   };
 
+  const isOpen = () => {
+    const now = moment().tz("America/New_York");
+    const day = now.format("dddd");
+    const currentTime = now.format("HH:mm");
+
+    const todayHours = hours.find((hour) => hour.startsWith(day));
+    if (!todayHours) return "Closed";
+
+    const matchResult = todayHours.match(
+      /(\d{1,2}:\d{2} [AP]M) – (\d{1,2}:\d{2} [AP]M)/
+    );
+    const [, openTime, closeTime] = matchResult ? matchResult : ["", "", ""];
+    const open = moment(openTime, "h:mm A");
+    let close = moment(closeTime, "h:mm A");
+    if (closeTime === "12:00 AM") {
+      close.add(1, "day");
+    }
+
+    return now.isBetween(open, close) || now.isSame(open) || now.isSame(close)
+      ? "Open"
+      : "Closed";
+  };
+
+  const openStatus = isOpen();
+  const statusColor = openStatus === "Open" ? "#4CAF50" : "#FF5722";
+
   return (
     <View style={styles.cardBGStyle}>
       <Image source={{ uri: photoURL || defaultImage }} style={styles.image} />
@@ -217,7 +245,7 @@ const Card: React.FC<CardProps> = ({
               { backgroundColor: getMatchScoreColor(matchScore) },
             ]}
           >
-            <TabBarIcon name="sparkles" color="black" />
+            <TabBarIcon name="sparkles" color="black" size={16} />
             <Text style={styles.matchScoreText}>{matchScore}</Text>
           </View>
         </View>
@@ -227,15 +255,18 @@ const Card: React.FC<CardProps> = ({
           <Text style={styles.ratingText}>({rating})</Text>
         </View>
         <Text style={styles.budget}>Budget: {budget}</Text>
-        <Text style={styles.website} onPress={() => Linking.openURL(website)}>
-          Website: {website}
-        </Text>
-        <Text style={styles.hoursTitle}>Hours:</Text>
-        {hours.map((hour, index) => (
-          <Text key={index} style={styles.hours}>
-            {hour}
+        <TouchableOpacity
+          style={styles.websiteButton}
+          onPress={() => Linking.openURL(website)}
+        >
+          <Text style={styles.websiteButtonText}>Visit Website</Text>
+        </TouchableOpacity>
+        <Text style={styles.hoursTitle}>
+          Status:{" "}
+          <Text style={[styles.hoursStatus, { color: statusColor }]}>
+            {openStatus}
           </Text>
-        ))}
+        </Text>
       </View>
     </View>
   );
@@ -259,14 +290,6 @@ const styles = StyleSheet.create({
     fontFamily: "DM Sans",
     textAlign: "center",
   },
-  cardBGStyle: {
-    backgroundColor: "#C7ECFD",
-    margin: 10,
-    borderRadius: 15,
-    borderColor: "#000",
-    borderWidth: 2,
-    overflow: "hidden",
-  },
   image: {
     width: "100%",
     height: 200,
@@ -274,11 +297,13 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     padding: 15,
+    alignItems: "center",
   },
   locationName: {
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
+    textAlign: "center",
   },
   matchScoreContainer: {
     flexDirection: "row",
@@ -298,7 +323,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   matchScoreText: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "bold",
     color: "black",
     marginLeft: 5,
@@ -324,6 +349,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
     fontFamily: "spaceGroteskRegular",
+    textAlign: "center",
   },
   website: {
     fontSize: 16,
@@ -331,16 +357,46 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
     marginBottom: 10,
     fontFamily: "spaceGroteskRegular",
+    textAlign: "center",
+  },
+  hours: {
+    fontSize: 14,
+    marginLeft: 10,
+    fontFamily: "spaceGroteskRegular",
+    textAlign: "center",
+  },
+  cardBGStyle: {
+    backgroundColor: "#C7ECFD",
+    margin: 10,
+    borderRadius: 15,
+    borderColor: "#000",
+    borderWidth: 2,
+    overflow: "hidden",
+    alignItems: "center",
+    alignSelf: "center",
+    width: "90%",
+  },
+  websiteButton: {
+    backgroundColor: "#1E90FF",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  websiteButtonText: {
+    color: "white",
+    fontFamily: "spaceGroteskRegular",
+    fontSize: 16,
   },
   hoursTitle: {
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
     fontFamily: "spaceGroteskBold",
+    textAlign: "center",
   },
-  hours: {
-    fontSize: 14,
-    marginLeft: 10,
+  hoursStatus: {
+    fontWeight: "normal",
     fontFamily: "spaceGroteskRegular",
   },
 });
