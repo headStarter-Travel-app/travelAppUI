@@ -519,6 +519,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: "#000",
     backgroundColor: "#E6F7FF",
+    fontFamily: "spaceGroteskBold",
   },
   addButton: {
     flexDirection: "row",
@@ -532,10 +533,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderBottomWidth: 4,
   },
+
   addButtonText: {
     color: "#fff",
     fontWeight: "bold",
     marginLeft: 5,
+    fontFamily: "DM Sans",
   },
   groupContainer: {
     flexDirection: "row",
@@ -555,11 +558,13 @@ const styles = StyleSheet.create({
   },
   groupText: {
     marginLeft: 10,
+    fontFamily: "spaceGroteskBold",
   },
   groupName: {
     fontWeight: "bold",
     fontSize: 18,
     color: "#333",
+    fontFamily: "spaceGroteskBold",
   },
   groupNote: {
     fontSize: 14,
@@ -655,6 +660,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#007AFF",
     marginBottom: 10,
+    fontFamily: "spaceGroteskBold",
   },
   subTitle: {
     fontSize: 14,
@@ -662,6 +668,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 15,
     color: "#333",
+    fontFamily: "spaceGroteskMedium",
   },
   memberList: {
     width: "100%",
@@ -697,6 +704,7 @@ const styles = StyleSheet.create({
   memberEmail: {
     fontSize: 14,
     color: "#666",
+    fontFamily: "spaceGroteskRegular",
   },
   friendList: {
     width: "100%",
@@ -728,10 +736,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#333",
+    fontFamily: "spaceGroteskMedium",
   },
   friendEmail: {
     fontSize: 14,
     color: "#666",
+    fontFamily: "spaceGroteskMedium",
   },
   alreadyMemberText: {
     fontSize: 12,

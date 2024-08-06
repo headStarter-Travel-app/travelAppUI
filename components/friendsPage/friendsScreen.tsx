@@ -568,6 +568,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 4,
     color: "#333",
+    fontFamily: "spaceGroteskBold",
   },
   actionButtonsContainer: {
     flexDirection: "row",

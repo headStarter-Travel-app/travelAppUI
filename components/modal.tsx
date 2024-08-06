@@ -39,7 +39,7 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
     useRef(new Animated.Value(0)),
     useRef(new Animated.Value(0)),
   ];
-  const[yStart, setYStart] = useState(0)
+  const [yStart, setYStart] = useState(0);
   if (place === "error") {
     return (
       <Modal
@@ -48,9 +48,7 @@ const PlaceModal: React.FC<PlaceModalProps> = ({
         visible={isVisible}
         onRequestClose={onClose}
       >
-        <View style={styles.modalContainer}
-          
-        >
+        <View style={styles.modalContainer}>
           <View style={[styles.modalContent, styles.errorModalContent]}>
             <View style={styles.errorContainer}>
               <Ionicons name="alert-circle-outline" size={80} color="#FF6B6B" />
@@ -312,6 +310,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,
+    fontFamily: "DM Sans",
   },
   starContainer: {
     flexDirection: "row",
@@ -322,6 +321,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontSize: 16,
     color: "#666",
+    fontFamily: "spaceGroteskRegular",
   },
   detailRow: {
     flexDirection: "row",
@@ -333,6 +333,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#333",
+    fontFamily: "spaceGroteskMedium",
   },
   hoursContainer: {
     marginLeft: 10,
@@ -341,6 +342,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginBottom: 5,
+    fontFamily: "spaceGroteskRegular",
   },
   websiteButton: {
     backgroundColor: "#4A90E2",
@@ -358,12 +360,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginLeft: 10,
+    fontFamily: "spaceGroteskBold",
   },
   loadingText: {
     fontSize: 18,
     marginTop: 20,
     color: "#4A90E2",
     fontWeight: "bold",
+    fontFamily: "spaceGroteskBold",
   },
   placeholderImage: {
     height: 250,

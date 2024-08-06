@@ -7,6 +7,14 @@
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
+        "simulator": true
+      },
+      "channel": "development"
+    },
+    "development-device": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
         "simulator": false
       },
       "channel": "development"
