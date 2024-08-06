@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
-import React from 'react'
-import { TabBarIcon } from '../navigation/TabBarIcon'
+import { StyleSheet, Text, View, Image } from "react-native";
+import React from "react";
+import { TabBarIcon } from "../navigation/TabBarIcon";
 
 const TitleContainer = () => {
   return (
@@ -12,10 +12,10 @@ const TitleContainer = () => {
       </View>
       <Text style={styles.bottomText}>Curating Your Perfect Trip...</Text>
     </View>
-  )
-}
+  );
+};
 
-export default TitleContainer
+export default TitleContainer;
 
 const styles = StyleSheet.create({
   container: {
@@ -30,10 +30,12 @@ const styles = StyleSheet.create({
   },
   topText: {
     fontSize: 32,
-    fontWeight: "600"
+    fontWeight: "600",
+    fontFamily: "DM Sans",
   },
   bottomText: {
     fontSize: 16,
-    fontWeight: "bold"
-  }
-})
+    fontWeight: "bold",
+    fontFamily: "DM Sans",
+  },
+});
