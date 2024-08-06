@@ -29,6 +29,7 @@
     "expo": "~51.0.20",
     "expo-constants": "~16.0.2",
     "expo-dev-client": "~4.0.20",
+    "expo-device": "~6.0.2",
     "expo-file-system": "~17.0.1",
     "expo-font": "~12.0.9",
     "expo-image": "~1.12.13",
@@ -53,6 +54,7 @@
     "react-native": "0.74.3",
     "react-native-appwrite": "^0.4.0",
     "react-native-gesture-handler": "~2.16.1",
+    "react-native-linear-gradient": "^2.8.3",
     "react-native-loading-spinner-overlay": "^3.0.1",
     "react-native-maps": "1.14.0",
     "react-native-reanimated": "~3.10.1",
@@ -62,8 +64,7 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.19.10",
     "socket.io-client": "^4.7.5",
-    "tailwind-rn": "^4.2.0",
-    "expo-device": "~6.0.2"
+    "tailwind-rn": "^4.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
