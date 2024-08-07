@@ -112,7 +112,7 @@ export const initiatePasswordRecovery = async (email: string) => {
   try {
     const response = await account.createRecovery(
       email,
-      "http://localhost:8081/reset"
+      "http://www.proxilink.info/reset-password"
     );
     console.log(response);
   } catch (error) {

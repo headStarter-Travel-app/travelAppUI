@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Linking,
   Text,
+  SafeAreaView,
   Modal,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
@@ -182,8 +183,8 @@ export default function App() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <View style={styles.container}>
-        <View style={styles.searchContainer}>
+      <SafeAreaView style={styles.container}>
+        {/* <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
             placeholder="Create a new party..."
@@ -193,7 +194,7 @@ export default function App() {
             source={require("@/public/utilities/search.png")}
             style={styles.Magnicon}
           />
-        </View>
+        </View> */}
         {!isLoading ? (
           <MapView
             style={styles.map}
@@ -279,7 +280,7 @@ export default function App() {
             </ThemedView>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaView>
       <PlaceModal
         isVisible={modalVisible}
         place={selectedPlaceDetails}
