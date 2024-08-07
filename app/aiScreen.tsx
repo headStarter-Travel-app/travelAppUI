@@ -27,6 +27,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     alignItems: "center",
-    rowGap: 20,
+    rowGap: 10,
   }
 });

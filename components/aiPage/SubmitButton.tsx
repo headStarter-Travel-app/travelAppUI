@@ -1,10 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import Button from "@/components/usableOnes/button"
 
 const SubmitButton = () => {
   return (
     <View>
-      <Text>SubmitButton</Text>
+      <Button title={"Submit"} />
     </View>
   )
 }
