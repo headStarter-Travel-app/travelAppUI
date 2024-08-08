@@ -5,6 +5,7 @@ import {
   View,
   ScrollView,
   FlatList,
+  Pressable,
 } from "react-native";
 import React, { useCallback } from "react";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,21 +16,14 @@ const DEFAULT_ITEMS = [
   "Outdoor Adventure",
   "Romantic Date",
   "Nights Out",
-  "Educational Trip",
-  "Outdoor Adventure",
-  "Romantic Date",
-  "Nights Out",
-  "Educational Trip",
-  "Outdoor Adventure",
-  "Romantic Date",
-  "Nights Out",
 ];
 
-const ThemeContainer = () => {
+const ThemeContainer = ({setTheme, theme} : {setTheme: (theme: string) => void, theme: string}) => {
   const renderCard = useCallback(
     ({ item, index }: { item: string; index: number }) => {
       return (
-        <View
+        <Pressable
+          onPress={() => setTheme(item)}
           key={index}
           style={[
             styles.themeCard,
@@ -39,13 +33,14 @@ const ThemeContainer = () => {
               marginLeft: index % 4 == 2 || index % 4 == 3 ? 10 : 0,
               marginRight: index % 4 == 0 || index % 4 == 1 ? 10 : 0,
             },
+            {backgroundColor: (theme === item ? "#BB80DF" : "#FFF")}
           ]}
         >
           <Text style={styles.themeCardText}>{item}</Text>
-        </View>
+        </Pressable>
       );
     },
-    []
+    [setTheme, theme]
   );
 
   // const renderGrid = useCallback((args : string[]) => {

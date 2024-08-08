@@ -1,43 +1,101 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useCallback, useState } from 'react'
 import DropDownPicker from 'react-native-dropdown-picker';
 
-const BudgetContainer = () => {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    { label: 'Option 1', value: 'option1' },
-    { label: 'Option 2', value: 'option2' },
-    { label: 'Option 3', value: 'option3' },
-  ]);
-  const renderDropDown = useCallback(() => {
-    return (
-      <View style={{width: 180, height: 50}}>
-        <DropDownPicker 
-          open={open}
-          value={value}
-          items={items}
-          setOpen={setOpen}
-          setValue={setValue}
-          setItems={setItems}
-          placeholder="Select an option"
-          style={styles.picker}
-          textStyle={styles.pickerText}
-        />
-      </View>
-    )
+interface BudgetProps {
+  budget: number
+  time: string
+  groupId: number
+  location: string
+  setBudget: (budget: any) => void
+  setTime: (time: any) => void
+  setGroupId: (is: any) => void
+  setLocation: (location: any) => void
+}
 
-  }, [items, open, value, styles])
+const BudgetContainer = ({
+  budget,
+  time,
+  groupId,
+  location,
+  setBudget,
+  setGroupId,
+  setLocation,
+  setTime
+}: BudgetProps) => {
+  const[openBudget, setOpenBudget] = useState(false);
+  const[openTime, setOpenTime] = useState(false);
+  const[openGroup, setOpenGroup] = useState(false);
+  const [budgetItems, setBudgetItems] = useState([
+    { label: '< 10$', value: 10 },
+    { label: '< 20$', value: 20 },
+    { label: '< 30$', value: 30 },
+  ]);
+  const [timeItems, setTimeItems] = useState([
+    { label: 'Morning', value: 'Morning' },
+    { label: 'Afternoon', value: 'Afternoon' },
+    { label: 'Night', value: 'Night' },
+  ]);
+  const [groupItems, setGroupItems] = useState([
+    { label: 'Individual', value: -1 },
+    { label: 'Group 1', value: 0 },
+    { label: 'Group 2', value: 1 },
+  ]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Info</Text>
       <View style={styles.inputRow}>
-        {renderDropDown()}
-        {renderDropDown()}
+        <View style={{width: 180, height: 50, elevation: 1000}}>
+          <DropDownPicker 
+            open={openBudget}
+            value={budget}
+            items={budgetItems}
+            setOpen={setOpenBudget}
+            setValue={setBudget}
+            setItems={setBudgetItems}
+            placeholder="Select Budget"
+            style={styles.picker}
+            textStyle={styles.pickerText}
+            dropDownContainerStyle={styles.pickerItemContainer}
+          />
+        </View>
+        <View style={{width: 180, height: 50}}>
+          <DropDownPicker 
+            open={openTime}
+            value={time}
+            items={timeItems}
+            setOpen={setOpenTime}
+            setValue={setTime}
+            setItems={setTimeItems}
+            placeholder="Select Time"
+            style={styles.picker}
+            textStyle={styles.pickerText}
+          />
+        </View>
       </View>
       <View style={styles.inputRow}>
-        {renderDropDown()}
-        {renderDropDown()}
+        <View style={{width: 180, height: 50, elevation: 10}}>
+          <DropDownPicker 
+            open={openGroup}
+            value={groupId}
+            items={groupItems}
+            setOpen={setOpenGroup}
+            setValue={setGroupId}
+            setItems={setGroupItems}
+            placeholder="Select Group"
+            style={styles.picker}
+            textStyle={styles.pickerText}
+          />
+        </View>
+        <View style={{width: 180, height: 50}}>
+          <TextInput
+            style={[styles.picker]}
+            placeholder="Enter Location"
+            onChangeText={e => setLocation(e)}
+            value={location}
+          />
+        </View>
       </View>
     </View>
   )
@@ -65,10 +123,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     margin: 0,
     flex: 0,
+    height: "100%",
+    paddingLeft: 4
   },
   pickerText : {
     margin: 1,
     padding: 0
+  },
+  pickerItemContainer:{
+    zIndex: 50,
+    elevation: 50000000
   },
   inputRow: {
     flexDirection: "row",

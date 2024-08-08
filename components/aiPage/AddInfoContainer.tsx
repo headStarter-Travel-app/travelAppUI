@@ -1,12 +1,18 @@
 import { StyleSheet, Text, View, TextInput } from 'react-native'
 import React from 'react'
 
-const AddInfoContainer = () => {
+const AddInfoContainer = (
+  {addInfo, setAddInfo} : 
+  {addInfo: string, setAddInfo: (info:string) => void}
+) => {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Additional Info</Text>
-      <TextInput style={styles.textBox}>
-
+      <TextInput 
+        style={styles.textBox}
+        value={addInfo}
+        onChangeText={e => setAddInfo(e)}
+      >
       </TextInput>
     </View>
   )
