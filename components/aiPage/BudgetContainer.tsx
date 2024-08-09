@@ -1,16 +1,18 @@
 import { StyleSheet, Text, TextInput, View } from 'react-native'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import DropDownPicker from 'react-native-dropdown-picker';
+import { group } from 'console';
 
 interface BudgetProps {
   budget: number
   time: string
-  groupId: number
+  groupId: string
   location: string
   setBudget: (budget: any) => void
   setTime: (time: any) => void
   setGroupId: (is: any) => void
   setLocation: (location: any) => void
+  group: any[]
 }
 
 const BudgetContainer = ({
@@ -21,7 +23,8 @@ const BudgetContainer = ({
   setBudget,
   setGroupId,
   setLocation,
-  setTime
+  setTime,
+  group
 }: BudgetProps) => {
   const[openBudget, setOpenBudget] = useState(false);
   const[openTime, setOpenTime] = useState(false);
@@ -37,10 +40,12 @@ const BudgetContainer = ({
     { label: 'Night', value: 'Night' },
   ]);
   const [groupItems, setGroupItems] = useState([
-    { label: 'Individual', value: -1 },
-    { label: 'Group 1', value: 0 },
-    { label: 'Group 2', value: 1 },
+    { label: 'Individual', value: "0" }
   ]);
+  useEffect(() => {
+    if(!group)return
+    setGroupItems([{ label: 'Individual', value: "0" }, ...group])
+  }, [group])
 
   return (
     <View style={[styles.container, {elevation: 1000, zIndex: 10000}]}>

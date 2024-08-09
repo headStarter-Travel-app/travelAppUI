@@ -13,12 +13,13 @@ export default function AIScreen() {
   const [theme, setTheme] = useState("");
   const [budget, setBudget] = useState(10);
   const [time, setTime] = useState("");
-  const [groupId, setGroupId] = useState(-1);
+  const [groupId, setGroupId] = useState("0");
   const [location, setLocation] = useState("");
   const [addInfo, setAddInfo] = useState("");
-  const [groups, setGroups] = useState([]);
+  const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<String | null>(null);
+  const [formatted, setFormatted] = useState<any[]>([])
 
   const submit = theme !== "" && location !== "";
 
@@ -52,7 +53,10 @@ export default function AIScreen() {
     fetchCurrentUserId();
   }, [fetchGroups]);
   useEffect(() => {
-    console.log("Groups:", groups);
+    setFormatted([])
+    groups.forEach(item => {
+      setFormatted(prev => [...prev, {label: item.name, value: item["$id"]}])
+    })
   }, [groups]);
 
   return (
@@ -66,8 +70,9 @@ export default function AIScreen() {
         location={location}
         setBudget={(num) => setBudget(Number(num))}
         setTime={(time) => setTime(time)}
-        setGroupId={(id) => setGroupId(Number(id))}
+        setGroupId={(id) => setGroupId(id)}
         setLocation={(location) => setLocation(location)}
+        group={formatted}
       />
       <AddInfoContainer addInfo={addInfo} setAddInfo={setAddInfo} />
       <SubmitButton active={submit} />
