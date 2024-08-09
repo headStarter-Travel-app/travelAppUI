@@ -43,10 +43,10 @@ const BudgetContainer = ({
   ]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {elevation: 1000, zIndex: 10000}]}>
       <Text style={styles.label}>Info</Text>
-      <View style={styles.inputRow}>
-        <View style={{width: 180, height: 50, elevation: 1000}}>
+      <View style={[styles.inputRow, {zIndex: 100000}]}>
+        <View style={{width: 180, height: 50}}>
           <DropDownPicker 
             open={openBudget}
             value={budget}
@@ -75,7 +75,7 @@ const BudgetContainer = ({
         </View>
       </View>
       <View style={styles.inputRow}>
-        <View style={{width: 180, height: 50, elevation: 10}}>
+        <View style={{width: 180, height: 50}}>
           <DropDownPicker 
             open={openGroup}
             value={groupId}
@@ -88,14 +88,14 @@ const BudgetContainer = ({
             textStyle={styles.pickerText}
           />
         </View>
-        <View style={{width: 180, height: 50}}>
+        {/* <View style={{width: 180, height: 50}}>
           <TextInput
             style={[styles.picker]}
             placeholder="Enter Location"
             onChangeText={e => setLocation(e)}
             value={location}
           />
-        </View>
+        </View> */}
       </View>
     </View>
   )
@@ -113,7 +113,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 24,
     fontWeight: "bold",
-    letterSpacing: .3
+    letterSpacing: .3,
+    fontFamily: "DM Sans"
   },
   picker: {
     padding: 1,
@@ -124,11 +125,13 @@ const styles = StyleSheet.create({
     margin: 0,
     flex: 0,
     height: "100%",
-    paddingLeft: 4
+    paddingLeft: 8
   },
   pickerText : {
     margin: 1,
-    padding: 0
+    padding: 0,
+    fontFamily: "DM Sans",
+    fontWeight: "bold"
   },
   pickerItemContainer:{
     zIndex: 50,
