@@ -12,10 +12,18 @@ import { LinearGradient } from "expo-linear-gradient";
 import { relative } from "path";
 
 const DEFAULT_ITEMS = [
-  "Educational Trip",
-  "Outdoor Adventure",
   "Romantic Date",
-  "Nights Out",
+  "Family Outing",
+  "Outdoor Adventure",
+  "Educational Trip",
+  "Night Out",
+  "Relaxation / Wellness",
+  "Sports and Fitness",
+  "Shopping Spree",
+  "Kids Fun Day",
+  "Historical / Cultural",
+  "Vacation",
+  "Food and Drinks"
 ];
 
 const ThemeContainer = ({setTheme, theme} : {setTheme: (theme: string) => void, theme: string}) => {
@@ -73,10 +81,6 @@ const ThemeContainer = ({setTheme, theme} : {setTheme: (theme: string) => void, 
         style={styles.topFade}
         colors={["#D9F0F8FF", "#D9F0F811"]}
       ></LinearGradient>
-      <LinearGradient
-        style={styles.bottomFade}
-        colors={["#D9F0F811", "#D9F0F8FF"]}
-      ></LinearGradient>
     </View>
   );
 };
@@ -132,7 +136,7 @@ const styles = StyleSheet.create({
   themeScroll: {
     width: 330,
     height: 225,
-    padding: 15,
+    paddingHorizontal:16,
   },
   topFade: {
     position: "absolute",
