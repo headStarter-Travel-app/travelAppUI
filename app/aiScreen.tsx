@@ -8,6 +8,7 @@ import SubmitButton from "@/components/aiPage/SubmitButton";
 import axios from "axios";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 import { getUserId } from "@/lib/appwrite";
+import { useRouter } from "expo-router";
 
 export default function AIScreen() {
   const [theme, setTheme] = useState("");
@@ -20,6 +21,9 @@ export default function AIScreen() {
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<String | null>(null);
   const [formatted, setFormatted] = useState<any[]>([])
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+
+  const router = useRouter();
 
   const submit = theme !== "" && location !== "";
 
@@ -34,6 +38,25 @@ export default function AIScreen() {
       Alert.alert("Error", "Failed to fetch groups");
     }
   }, []);
+
+  const handleSubmit = async () => {
+    if (submit) {
+      try {
+        const response = await axios.post(`${API_URL}/get-recommendationsAI`, {
+          // users : [currentUserId],
+          // location: location,
+          // theme: theme,
+          // other : addInfo.split(","),
+          // budget: parseInt(budget),
+      });
+      setRecommendations(response.data.recommendations);
+      //router.push("/recommendations", { recommendations });
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+      Alert.alert("Error", "Failed to fetch recommendations");
+    }
+  }
+}
 
   useEffect(() => {
     const fetchCurrentUserId = async () => {
