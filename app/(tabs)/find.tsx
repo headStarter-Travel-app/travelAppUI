@@ -8,7 +8,7 @@ import {
   Linking,
   TouchableOpacity,
 } from "react-native";
-import React from "react";
+import React, { useCallback } from "react";
 import { useRouter } from "expo-router";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { FontAwesome } from "@expo/vector-icons";
@@ -116,6 +116,21 @@ interface RecommendationsProps {
 
 const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
   const num = data.length;
+  const renderCard = useCallback((location: any, key: number) => {
+    return(
+      <View key={key}>
+        <Card
+          locationName={location.locationName}
+          matchScore={location.matchScore}
+          photoURL={location.photoURL}
+          rating={location.rating}
+          website={location.website}
+          budget={location.budget}
+          hours={location.hours}
+        />
+      </View>
+    )
+  }, [])
   return (
     <ScrollView>
       <SafeAreaView>
@@ -127,19 +142,19 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
       <Text style={styles.numHeading}>
         Number of Suggestions: <Text style={{ color: "#410DFF" }}>{num}</Text>
       </Text>
-      {data.map((location, index) => (
-        <View key={index}>
-          <Card
-            locationName={location.locationName}
-            matchScore={location.matchScore}
-            photoURL={location.photoURL}
-            rating={location.rating}
-            website={location.website}
-            budget={location.budget}
-            hours={location.hours}
-          />
+      <View style={styles.locationContainer}>
+        <View style={styles.locationColumn}>
+          {data.map((location, index) => (
+            (index % 2 == 0 ? renderCard(location, index) : <></>)
+          ))}
         </View>
-      ))}
+        <View style={styles.locationColumn}>
+          {data.map((location, index) => (
+            (index % 2 == 1 ? renderCard(location, index) : <></>)
+          ))}
+        </View>
+      </View>
+      
     </ScrollView>
   );
 };
@@ -177,7 +192,7 @@ const Card: React.FC<CardProps> = ({
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
-      <View style={styles.starContainer}>
+      <View style={{flexDirection: "row"}}>
         {[...Array(fullStars)].map((_, i) => (
           <View key={`full-${i}`}>
             <FontAwesome name="star" size={16} color="#1E90FF" />
@@ -230,17 +245,36 @@ const Card: React.FC<CardProps> = ({
   };
 
   const openStatus = isOpen();
-  const statusColor = openStatus === "Open" ? "#4CAF50" : "#FF5722";
+  const statusColor = openStatus === "Open" ? "#12F19F" : "#FF5722";
 
   return (
     <View style={styles.cardBGStyle}>
       <Image source={{ uri: photoURL || defaultImage }} style={styles.image} />
       <View style={styles.cardContent}>
-        <Text style={styles.locationName}>{locationName}</Text>
-        <View style={styles.matchScoreContainer}>
-          <Text style={styles.matchScoreLabel}>Match Score: </Text>
-          <View
+        <View style={[styles.labelCard, {flexGrow: 1, maxHeight: 48}]}>
+          <View style={{flexGrow:1, flexWrap: "wrap", flex:1, flexDirection: "column", height: 12, justifyContent: "center", alignItems: "center"}}>
+            <Text style={styles.locationName}>{locationName}</Text>
+          </View>
+        </View>
+        <View style={styles.infoRow}>
+          <View style={styles.labelCard}>
+            <Text style={styles.budget}>{budget}</Text>
+          </View>
+          <View style={[styles.labelCard]}>
+            {renderStars(rating)}
+            {/* <Text style={styles.ratingText}>({rating})</Text> */}
+          </View>
+        </View>
+        <View style={styles.infoRow}>
+          <View style={styles.labelCard}>
+            <Text style={[styles.hoursStatus, { color: statusColor }]}>
+              {openStatus}
+            </Text>
+          </View>
+          
+            <View
             style={[
+              styles.labelCard,
               styles.matchScoreOval,
               { backgroundColor: getMatchScoreColor(matchScore) },
             ]}
@@ -249,24 +283,15 @@ const Card: React.FC<CardProps> = ({
             <Text style={styles.matchScoreText}>{matchScore}</Text>
           </View>
         </View>
-        <View style={styles.ratingContainer}>
-          <Text style={styles.rating}>Rating: </Text>
-          {renderStars(rating)}
-          <Text style={styles.ratingText}>({rating})</Text>
-        </View>
-        <Text style={styles.budget}>Budget: {budget}</Text>
+
         <TouchableOpacity
           style={styles.websiteButton}
           onPress={() => Linking.openURL(website)}
         >
           <Text style={styles.websiteButtonText}>Visit Website</Text>
         </TouchableOpacity>
-        <Text style={styles.hoursTitle}>
-          Status:{" "}
-          <Text style={[styles.hoursStatus, { color: statusColor }]}>
-            {openStatus}
-          </Text>
-        </Text>
+        
+
       </View>
     </View>
   );
@@ -292,18 +317,23 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 200,
+    height: 120,
     resizeMode: "cover",
   },
   cardContent: {
-    padding: 15,
+    padding: 8,
     alignItems: "center",
+    position: "relative",
+    paddingBottom: 64
   },
   locationName: {
-    fontSize: 20,
+    fontSize: 14,
     fontWeight: "bold",
-    marginBottom: 10,
+    paddingHorizontal: 4,
+    width: "100%",
     textAlign: "center",
+    textAlignVertical: "center",
+    
   },
   matchScoreContainer: {
     flexDirection: "row",
@@ -338,8 +368,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   starContainer: {
-    flexDirection: "row",
-    marginLeft: 5,
+    flexDirection: "row"
   },
   ratingText: {
     fontSize: 16,
@@ -347,7 +376,6 @@ const styles = StyleSheet.create({
   },
   budget: {
     fontSize: 16,
-    marginBottom: 5,
     fontFamily: "spaceGroteskRegular",
     textAlign: "center",
   },
@@ -368,7 +396,7 @@ const styles = StyleSheet.create({
   cardBGStyle: {
     backgroundColor: "#C7ECFD",
     margin: 10,
-    borderRadius: 15,
+    borderRadius: 8,
     borderColor: "#000",
     borderWidth: 2,
     overflow: "hidden",
@@ -377,11 +405,15 @@ const styles = StyleSheet.create({
     width: "90%",
   },
   websiteButton: {
+    position: "absolute",
     backgroundColor: "#1E90FF",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 8,
     alignItems: "center",
-    marginBottom: 10,
+    borderWidth: 2,
+    borderBottomWidth: 4,
+    bottom: 4,
+    right: 4,
   },
   websiteButtonText: {
     color: "white",
@@ -396,7 +428,36 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   hoursStatus: {
-    fontWeight: "normal",
-    fontFamily: "spaceGroteskRegular",
+    fontSize: 16,
+    fontWeight: "bold",
+    fontFamily: "DM Sans",
   },
+  locationContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    marginBottom: 128
+  },
+  locationColumn: {
+    width: "50%"
+  },
+  labelCard: {
+    backgroundColor: "#FFF",
+    paddingHorizontal: 6,
+    borderWidth: 2,
+    borderRadius: 8,
+    height: 36,
+    flexDirection: "column",
+    justifyContent: "center",
+    maxWidth: 120,
+    minWidth: 36,
+    shadowOpacity: .3,
+    shadowOffset: {width: 0, height: 4}
+  },
+  infoRow: {
+    flexDirection: "row", 
+    justifyContent: "space-between", 
+    width: "100%",
+    paddingTop: 4
+  }
 });
