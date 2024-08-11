@@ -6,6 +6,7 @@ import {
   Alert,
   Linking,
   TouchableOpacity,
+  Modal,
 } from "react-native";
 import React, { useState, useCallback, useEffect } from "react";
 import TitleContainer from "@/components/aiPage/TitleContainer";
@@ -20,12 +21,52 @@ import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import { G } from "react-native-svg";
 import { group } from "console";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
+
+let globalRecommendations: any[] = [];
 
 const DEFAULT_LOCATION = {
   latitude: 37.78825,
   longitude: -122.4324,
   latitudeDelta: 0.05,
   longitudeDelta: 0.05,
+};
+
+const LoadingOverlay = () => {
+  const rotation = useSharedValue(0);
+
+  useEffect(() => {
+    rotation.value = withRepeat(
+      withTiming(360, {
+        duration: 2000,
+        easing: Easing.linear,
+      }),
+      -1
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ rotate: `${rotation.value}deg` }],
+    };
+  });
+
+  return (
+    <View style={styles.loadingOverlay}>
+      <Animated.View style={[styles.loadingIcon, animatedStyle]}>
+        <Text style={styles.loadingIconText}>🌍</Text>
+      </Animated.View>
+      <Text style={styles.loadingText}>
+        Discovering amazing places for you...
+      </Text>
+    </View>
+  );
 };
 
 export default function AIScreen() {
@@ -40,6 +81,7 @@ export default function AIScreen() {
   const [currentUserId, setCurrentUserId] = useState<String | null>(null);
   const [formatted, setFormatted] = useState<any[]>([]);
   const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [recsLoading, setRecsLoading] = useState(false);
 
   const router = useRouter();
 
@@ -105,6 +147,7 @@ export default function AIScreen() {
     };
     if (submit) {
       try {
+        setRecsLoading(true);
         let locationList = [];
         locationList.push({
           lat: location.latitude,
@@ -118,18 +161,21 @@ export default function AIScreen() {
         }
 
         // Check for missing preferences
-        const missingPreferences = await axios.post(`${API_URL}/check-preferences`, {
-        params: { users: ids }
-        });
+        // const missingPreferences = await axios.get(
+        //   `${API_URL}/check-preferences`,
+        //   {
+        //     params: { users: ids },
+        //   }
+        // );
 
-        if (missingPreferences.data.missing) {
-          Alert.alert(
-            "Preferences Missing",
-            "Preferences quiz not submitted. Please take it.",
-            [{ text: "OK", onPress: () => router.push("/quiz") }]
-          );
-          return;
-        }
+        // if (missingPreferences.data.missing) {
+        //   Alert.alert(
+        //     "Preferences Missing",
+        //     "Preferences quiz not submitted. Please take it.",
+        //     [{ text: "OK", onPress: () => router.push("/quiz") }]
+        //   );
+        //   return;
+        // }
 
         let locationObject = [
           {
@@ -156,18 +202,17 @@ export default function AIScreen() {
           return;
         } else if (response.data) {
           setRecommendations(response.data.recommendations);
+          globalRecommendations = response.data.recommendations;
+          router.push("/recommendations");
         }
-        router.replace("/(tabs)/find");
       } catch (error) {
         console.error("Error fetching recommendations:", error);
         Alert.alert("Error", "Failed to fetch recommendations");
+      } finally {
+        setRecsLoading(false);
       }
     }
   };
-
-  useEffect(() => {
-    console.log(recommendations);
-  }, [recommendations]);
 
   useEffect(() => {
     const fetchCurrentUserId = async () => {
@@ -186,6 +231,7 @@ export default function AIScreen() {
     };
     fetchCurrentUserId();
   }, [fetchGroups]);
+
   useEffect(() => {
     setFormatted([]);
     groups.forEach((item) => {
@@ -213,6 +259,10 @@ export default function AIScreen() {
       />
       <AddInfoContainer addInfo={addInfo} setAddInfo={setAddInfo} />
       <SubmitButton active={submit} onSubmit={handleSubmit} />
+
+      <Modal transparent={true} visible={recsLoading} animationType="fade">
+        <LoadingOverlay />
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -226,4 +276,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     rowGap: 10,
   },
+  loadingOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingIcon: {
+    width: 80,
+    height: 80,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  loadingIconText: {
+    fontSize: 50,
+  },
+  loadingText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });
+
+export { globalRecommendations };
