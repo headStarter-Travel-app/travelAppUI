@@ -161,9 +161,12 @@ export default function AIScreen() {
         }
 
         // Check for missing preferences
-        const missingPreferences = await axios.get(`${API_URL}/check-preferences`, {
-        params: { users: ids }
-        });
+        const missingPreferences = await axios.get(
+          `${API_URL}/check-preferences`,
+          {
+            params: { users: ids },
+          }
+        );
 
         if (missingPreferences.data.missing) {
           Alert.alert(
@@ -202,9 +205,6 @@ export default function AIScreen() {
           globalRecommendations = response.data.recommendations;
           router.push("/recommendations");
         }
-<<<<<<< HEAD
-=======
->>>>>>> 7134c7b5b09fbc214ca548e0d892c6ddd5c3b001
       } catch (error) {
         console.error("Error fetching recommendations:", error);
         Alert.alert("Error", "Failed to fetch recommendations");
