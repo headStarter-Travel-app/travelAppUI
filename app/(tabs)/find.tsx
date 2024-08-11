@@ -17,7 +17,7 @@ import moment from "moment-timezone";
 const locationsData = [
   {
     locationName: "Central Park",
-    matchScore: 9,
+    hybrid_score: 9,
     photoURL: "https://example.com/photos/central_park.jpg",
     rating: 4.5,
     website: "https://centralpark.com",
@@ -34,7 +34,7 @@ const locationsData = [
   },
   {
     locationName: "Golden Gate Bridge",
-    matchScore: 8,
+    hybrid_score: 8,
     photoURL: "https://example.com/photos/golden_gate_bridge.jpg",
     rating: 4.7,
     website: "https://goldengatebridge.org",
@@ -51,7 +51,7 @@ const locationsData = [
   },
   {
     locationName: "Eiffel Tower",
-    matchScore: 10,
+    hybrid_score: 10,
     photoURL: "https://example.com/photos/eiffel_tower.jpg",
     rating: 4.8,
     website: "https://toureiffel.paris",
@@ -68,7 +68,7 @@ const locationsData = [
   },
   {
     locationName: "Louvre Museum",
-    matchScore: 7,
+    hybrid_score: 7,
     photoURL: "https://example.com/photos/louvre_museum.jpg",
     rating: 4.6,
     website: "https://louvre.fr",
@@ -85,7 +85,7 @@ const locationsData = [
   },
   {
     locationName: "Statue of Liberty",
-    matchScore: 8,
+    hybrid_score: 8,
     photoURL: "https://example.com/photos/statue_of_liberty.jpg",
     rating: 4.4,
     website: "https://nps.gov/stli",
@@ -105,7 +105,7 @@ const locationsData = [
 interface RecommendationsProps {
   data: {
     locationName: string;
-    matchScore: number;
+    hybrid_score: number;
     photoURL: string;
     rating: number;
     website: string;
@@ -117,11 +117,11 @@ interface RecommendationsProps {
 const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
   const num = data.length;
   const renderCard = useCallback((location: any, key: number) => {
-    return(
+    return (
       <View key={key}>
         <Card
           locationName={location.locationName}
-          matchScore={location.matchScore}
+          hybrid_score={location.hybrid_score}
           photoURL={location.photoURL}
           rating={location.rating}
           website={location.website}
@@ -129,8 +129,8 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
           hours={location.hours}
         />
       </View>
-    )
-  }, [])
+    );
+  }, []);
   return (
     <ScrollView>
       <SafeAreaView>
@@ -144,17 +144,16 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
       </Text>
       <View style={styles.locationContainer}>
         <View style={styles.locationColumn}>
-          {data.map((location, index) => (
-            (index % 2 == 0 ? renderCard(location, index) : <></>)
-          ))}
+          {data.map((location, index) =>
+            index % 2 == 0 ? renderCard(location, index) : <></>
+          )}
         </View>
         <View style={styles.locationColumn}>
-          {data.map((location, index) => (
-            (index % 2 == 1 ? renderCard(location, index) : <></>)
-          ))}
+          {data.map((location, index) =>
+            index % 2 == 1 ? renderCard(location, index) : <></>
+          )}
         </View>
       </View>
-      
     </ScrollView>
   );
 };
@@ -167,7 +166,7 @@ export default App;
 
 interface CardProps {
   locationName: string;
-  matchScore: number;
+  hybrid_score: number;
   photoURL: string;
   rating: number;
   website: string;
@@ -177,7 +176,7 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({
   locationName,
-  matchScore,
+  hybrid_score,
   photoURL,
   rating,
   website,
@@ -192,7 +191,7 @@ const Card: React.FC<CardProps> = ({
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
-      <View style={{flexDirection: "row"}}>
+      <View style={{ flexDirection: "row" }}>
         {[...Array(fullStars)].map((_, i) => (
           <View key={`full-${i}`}>
             <FontAwesome name="star" size={16} color="#1E90FF" />
@@ -213,7 +212,7 @@ const Card: React.FC<CardProps> = ({
     );
   };
 
-  const getMatchScoreColor = (score: number) => {
+  const gethybrid_scoreColor = (score: number) => {
     if (score >= 9) return "#4CAF50";
     if (score >= 7) return "#8BC34A";
     if (score >= 5) return "#FFEB3B";
@@ -251,8 +250,18 @@ const Card: React.FC<CardProps> = ({
     <View style={styles.cardBGStyle}>
       <Image source={{ uri: photoURL || defaultImage }} style={styles.image} />
       <View style={styles.cardContent}>
-        <View style={[styles.labelCard, {flexGrow: 1, maxHeight: 48}]}>
-          <View style={{flexGrow:1, flexWrap: "wrap", flex:1, flexDirection: "column", height: 12, justifyContent: "center", alignItems: "center"}}>
+        <View style={[styles.labelCard, { flexGrow: 1, maxHeight: 48 }]}>
+          <View
+            style={{
+              flexGrow: 1,
+              flexWrap: "wrap",
+              flex: 1,
+              flexDirection: "column",
+              height: 12,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <Text style={styles.locationName}>{locationName}</Text>
           </View>
         </View>
@@ -271,16 +280,16 @@ const Card: React.FC<CardProps> = ({
               {openStatus}
             </Text>
           </View>
-          
-            <View
+
+          <View
             style={[
               styles.labelCard,
-              styles.matchScoreOval,
-              { backgroundColor: getMatchScoreColor(matchScore) },
+              styles.hybrid_scoreOval,
+              { backgroundColor: gethybrid_scoreColor(hybrid_score) },
             ]}
           >
             <TabBarIcon name="sparkles" color="black" size={16} />
-            <Text style={styles.matchScoreText}>{matchScore}</Text>
+            <Text style={styles.hybrid_scoreText}>{hybrid_score}</Text>
           </View>
         </View>
 
@@ -290,8 +299,6 @@ const Card: React.FC<CardProps> = ({
         >
           <Text style={styles.websiteButtonText}>Visit Website</Text>
         </TouchableOpacity>
-        
-
       </View>
     </View>
   );
@@ -324,7 +331,7 @@ const styles = StyleSheet.create({
     padding: 8,
     alignItems: "center",
     position: "relative",
-    paddingBottom: 64
+    paddingBottom: 64,
   },
   locationName: {
     fontSize: 14,
@@ -333,18 +340,17 @@ const styles = StyleSheet.create({
     width: "100%",
     textAlign: "center",
     textAlignVertical: "center",
-    
   },
-  matchScoreContainer: {
+  hybrid_scoreContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
   },
-  matchScoreLabel: {
+  hybrid_scoreLabel: {
     fontSize: 16,
     marginRight: 5,
   },
-  matchScoreOval: {
+  hybrid_scoreOval: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -352,7 +358,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 15,
   },
-  matchScoreText: {
+  hybrid_scoreText: {
     fontSize: 16,
     fontWeight: "bold",
     color: "black",
@@ -368,7 +374,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   starContainer: {
-    flexDirection: "row"
+    flexDirection: "row",
   },
   ratingText: {
     fontSize: 16,
@@ -436,10 +442,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 10,
-    marginBottom: 128
+    marginBottom: 128,
   },
   locationColumn: {
-    width: "50%"
+    width: "50%",
   },
   labelCard: {
     backgroundColor: "#FFF",
@@ -451,13 +457,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     maxWidth: 120,
     minWidth: 36,
-    shadowOpacity: .3,
-    shadowOffset: {width: 0, height: 4}
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
   },
   infoRow: {
-    flexDirection: "row", 
-    justifyContent: "space-between", 
+    flexDirection: "row",
+    justifyContent: "space-between",
     width: "100%",
-    paddingTop: 4
-  }
+    paddingTop: 4,
+  },
 });
