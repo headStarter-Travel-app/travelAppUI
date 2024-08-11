@@ -116,6 +116,21 @@ export default function AIScreen() {
         } else {
           ids = groups.find((group) => group["$id"] === groupId).members;
         }
+
+        // Check for missing preferences
+        const missingPreferences = await axios.get(`${API_URL}/check-preferences`, {
+        params: { users: ids }
+        });
+
+        if (missingPreferences.data.missing) {
+          Alert.alert(
+            "Preferences Missing",
+            "Preferences quiz not submitted. Please take it.",
+            [{ text: "OK", onPress: () => router.push("/quiz") }]
+          );
+          return;
+        }
+
         let locationObject = [
           {
             lat: location.latitude,
@@ -142,7 +157,7 @@ export default function AIScreen() {
         } else if (response.data) {
           setRecommendations(response.data.recommendations);
         }
-        //router.push("/recommendations", { recommendations });
+        router.replace("/(tabs)/find");
       } catch (error) {
         console.error("Error fetching recommendations:", error);
         Alert.alert("Error", "Failed to fetch recommendations");
