@@ -160,22 +160,22 @@ export default function AIScreen() {
           ids = groups.find((group) => group["$id"] === groupId).members;
         }
 
-        // Check for missing preferences
-        // const missingPreferences = await axios.get(
-        //   `${API_URL}/check-preferences`,
-        //   {
-        //     params: { users: ids },
-        //   }
-        // );
+        
+        const missingPreferences = await axios.post(
+        `${API_URL}/check-preferences`,
+        {
+        params: { users: ids },
+        }
+        );
 
-        // if (missingPreferences.data.missing) {
-        //   Alert.alert(
-        //     "Preferences Missing",
-        //     "Preferences quiz not submitted. Please take it.",
-        //     [{ text: "OK", onPress: () => router.push("/quiz") }]
-        //   );
-        //   return;
-        // }
+        if (missingPreferences.data.missing) {
+        Alert.alert(
+        "Preferences Missing",
+        "Preferences quiz not submitted. Please take it.",
+        [{ text: "OK", onPress: () => router.push("/quiz") }]
+        );
+        return;
+        }
 
         let locationObject = [
           {
