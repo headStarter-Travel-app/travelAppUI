@@ -132,7 +132,7 @@ export default function AIScreen() {
   const handleSubmit = async () => {
     console.log("Submitting");
     const themeMap: { [key: string]: string } = {
-      "Romantic Date": "romatic_date",
+      "Romantic Date": "romantic_date",
       "Family Outing": "family_outing",
       "Outdoor Adventure": "outdoor_adventure",
       "Educational Trip": "educational_trip",
@@ -160,7 +160,6 @@ export default function AIScreen() {
           ids = groups.find((group) => group["$id"] === groupId).members;
         }
 
-        
         const missingPreferences = await axios.post(
           `${API_URL}/check-preferences`,
           { users: ids }
@@ -173,25 +172,25 @@ export default function AIScreen() {
 
           // Check if the current user is one of the missing users
           if (missingUserIds.includes(currentUserId)) {
-              Alert.alert(
-                  "Preferences Missing",
-                  `(${missingUsernames}) haven't taken the preference quiz. Please complete it.`,
-                  [
-                      {
-                          text: "OK",
-                          onPress: () => router.push("/quiz") // Redirect to quiz
-                      }
-                  ]
-              );
+            Alert.alert(
+              "Preferences Missing",
+              `(${missingUsernames}) haven't taken the preference quiz. Please complete it.`,
+              [
+                {
+                  text: "OK",
+                  onPress: () => router.push("/quiz"), // Redirect to quiz
+                },
+              ]
+            );
           } else {
-              Alert.alert(
-                  "Preferences Missing",
-                  `${missingUsernames} haven't taken the preference quiz. Please remind them to complete it.`,
-                  [{ text: "OK" }]
-              );
+            Alert.alert(
+              "Preferences Missing",
+              `${missingUsernames} haven't taken the preference quiz. Please remind them to complete it.`,
+              [{ text: "OK" }]
+            );
           }
           return;
-      }
+        }
 
         let locationObject = [
           {
