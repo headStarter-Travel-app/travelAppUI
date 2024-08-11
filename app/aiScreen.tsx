@@ -101,7 +101,7 @@ export default function AIScreen() {
       "Kids Fun Day": "kids_fun_day",
       "Historical / Cultural": "historical_and_cultural_exploration",
       Vacation: "vacation",
-      "Food and Drinks": "food_and_drinks",
+      "Food and Drinks": "food_and_drink",
     };
     if (submit) {
       try {
@@ -127,6 +127,7 @@ export default function AIScreen() {
           b = 0;
         }
         let otherInfo = addInfo.trim() ? addInfo.split(",") : [];
+        console.log("Other Info:", otherInfo);
 
         const response = await axios.post(`${API_URL}/get-recommendationsAI`, {
           users: ids,
@@ -135,8 +136,12 @@ export default function AIScreen() {
           other: otherInfo,
           budget: b,
         });
-        setRecommendations(response.data.recommendations);
-        console.log("Recommendations:", recommendations);
+        if (response.data.recommendations.length == 0) {
+          Alert.alert("No Recommendations", "No recommendations found");
+          return;
+        } else if (response.data) {
+          setRecommendations(response.data.recommendations);
+        }
         //router.push("/recommendations", { recommendations });
       } catch (error) {
         console.error("Error fetching recommendations:", error);
@@ -144,6 +149,10 @@ export default function AIScreen() {
       }
     }
   };
+
+  useEffect(() => {
+    console.log(recommendations);
+  }, [recommendations]);
 
   useEffect(() => {
     const fetchCurrentUserId = async () => {
