@@ -7,110 +7,33 @@ import {
   Image,
   Linking,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
-import React, { useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { FontAwesome } from "@expo/vector-icons";
 import moment from "moment-timezone";
+import { globalRecommendations } from "../aiScreen";
 
-const locationsData = [
-  {
-    locationName: "Central Park",
-    hybrid_score: 9,
-    photoURL: "https://example.com/photos/central_park.jpg",
-    rating: 4.5,
-    website: "https://centralpark.com",
-    budget: "$",
-    hours: [
-      "Monday: 6:00 AM – 11:00 PM",
-      "Tuesday: 6:00 AM – 11:00 PM",
-      "Wednesday: 6:00 AM – 11:00 PM",
-      "Thursday: 6:00 AM – 11:00 PM",
-      "Friday: 6:00 AM – 11:00 PM",
-      "Saturday: 6:00 AM – 11:00 PM",
-      "Sunday: 6:00 AM – 11:00 PM",
-    ],
-  },
-  {
-    locationName: "Golden Gate Bridge",
-    hybrid_score: 8,
-    photoURL: "https://example.com/photos/golden_gate_bridge.jpg",
-    rating: 4.7,
-    website: "https://goldengatebridge.org",
-    budget: "Free",
-    hours: [
-      "Monday: 5:00 AM – 9:00 PM",
-      "Tuesday: 5:00 AM – 7:00 AM",
-      "Wednesday: 5:00 AM – 9:00 PM",
-      "Thursday: 5:00 AM – 9:00 PM",
-      "Friday: 5:00 AM – 9:00 PM",
-      "Saturday: 5:00 AM – 9:00 PM",
-      "Sunday: 5:00 AM – 9:00 PM",
-    ],
-  },
-  {
-    locationName: "Eiffel Tower",
-    hybrid_score: 10,
-    photoURL: "https://example.com/photos/eiffel_tower.jpg",
-    rating: 4.8,
-    website: "https://toureiffel.paris",
-    budget: "$$$",
-    hours: [
-      "Monday: 9:00 AM – 12:00 AM",
-      "Tuesday: 9:00 AM – 12:00 AM",
-      "Wednesday: 9:00 AM – 12:00 AM",
-      "Thursday: 9:00 AM – 12:00 AM",
-      "Friday: 9:00 AM – 12:00 AM",
-      "Saturday: 9:00 AM – 12:00 AM",
-      "Sunday: 9:00 AM – 12:00 AM",
-    ],
-  },
-  {
-    locationName: "Louvre Museum",
-    hybrid_score: 7,
-    photoURL: "https://example.com/photos/louvre_museum.jpg",
-    rating: 4.6,
-    website: "https://louvre.fr",
-    budget: "$$",
-    hours: [
-      "Monday: Closed",
-      "Tuesday: 9:00 AM – 6:00 PM",
-      "Wednesday: 9:00 AM – 6:00 PM",
-      "Thursday: 9:00 AM – 6:00 PM",
-      "Friday: 9:00 AM – 9:45 PM",
-      "Saturday: 9:00 AM – 6:00 PM",
-      "Sunday: 9:00 AM – 6:00 PM",
-    ],
-  },
-  {
-    locationName: "Statue of Liberty",
-    hybrid_score: 8,
-    photoURL: "https://example.com/photos/statue_of_liberty.jpg",
-    rating: 4.4,
-    website: "https://nps.gov/stli",
-    budget: "$$",
-    hours: [
-      "Monday: 8:30 AM – 4:00 PM",
-      "Tuesday: 8:30 AM – 4:00 PM",
-      "Wednesday: 8:30 AM – 4:00 PM",
-      "Thursday: 8:30 AM – 4:00 PM",
-      "Friday: 8:30 AM – 4:00 PM",
-      "Saturday: 8:30 AM – 4:00 PM",
-      "Sunday: 8:30 AM – 4:00 PM",
-    ],
-  },
-];
+const EmptyStateMessage = () => (
+  <View style={styles.emptyStateContainer}>
+    <Text style={styles.emptyStateText}>
+      Take a preference quiz and generate recommendations!
+    </Text>
+    <TabBarIcon name="sparkles" color="#410DFF" size={50} />
+  </View>
+);
 
 interface RecommendationsProps {
   data: {
-    locationName: string;
-    hybrid_score: number;
-    photoURL: string;
-    rating: number;
-    website: string;
-    budget: string;
-    hours: string[];
+    name?: string;
+    hybrid_score?: number;
+    photoURL?: string;
+    rating?: number;
+    website?: string;
+    budget?: string;
+    hours?: string[];
   }[];
 }
 
@@ -120,17 +43,22 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
     return (
       <View key={key}>
         <Card
-          locationName={location.locationName}
-          hybrid_score={location.hybrid_score}
+          locationName={location.name || "Unknown Location"}
+          hybrid_score={location.hybrid_score || 0}
           photoURL={location.photoURL}
-          rating={location.rating}
-          website={location.website}
-          budget={location.budget}
-          hours={location.hours}
+          rating={location.rating || 0}
+          website={location.website || "#"}
+          budget={location.budget || "N/A"}
+          hours={location.hours || []}
         />
       </View>
     );
   }, []);
+
+  if (data.length === 0) {
+    return <EmptyStateMessage />;
+  }
+
   return (
     <ScrollView>
       <SafeAreaView>
@@ -145,29 +73,93 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
       <View style={styles.locationContainer}>
         <View style={styles.locationColumn}>
           {data.map((location, index) =>
-            index % 2 == 0 ? renderCard(location, index) : <></>
+            index % 2 == 0 ? renderCard(location, index) : null
           )}
         </View>
         <View style={styles.locationColumn}>
           {data.map((location, index) =>
-            index % 2 == 1 ? renderCard(location, index) : <></>
+            index % 2 == 1 ? renderCard(location, index) : null
           )}
         </View>
       </View>
     </ScrollView>
   );
 };
-
 const App = () => {
-  return <Recommendations data={locationsData} />;
-};
+  const [recommendations, setRecommendations] = useState<
+    RecommendationsProps["data"]
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [recDetails, setRecDetails] = useState([]);
 
+  const getRecDetails = useCallback(
+    async (addresses: string[], names: string[]) => {
+      console.log("Fetching details for:", addresses, names);
+      setLoading(true);
+      try {
+        const response = await fetch(
+          "https://travelappbackend-c7bj.onrender.com/get_batch_place_details",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ addresses, names }),
+          }
+        );
+
+        const result = await response.json();
+        if (result.detail) {
+          console.error("Error fetching place details:", result.detail);
+          setRecDetails([]);
+        } else {
+          setRecDetails(result);
+        }
+      } catch (error) {
+        console.error("Error in getRecDetails:", error);
+        setRecDetails([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    console.log("globalRecommendations updated:", globalRecommendations);
+    setRecommendations(globalRecommendations);
+
+    if (globalRecommendations.length > 0) {
+      const addresses = globalRecommendations.map((rec) => rec.address || "");
+      const names = globalRecommendations.map((rec) => rec.name || "");
+      getRecDetails(addresses, names);
+    } else {
+      setRecDetails([]);
+      setLoading(false);
+    }
+  }, [globalRecommendations, getRecDetails]);
+
+  useEffect(() => {
+    console.log("recDetails updated:", recDetails);
+  }, [recDetails]);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text>Loading recommendations...</Text>
+      </View>
+    );
+  }
+
+  return <Recommendations data={recommendations} />;
+};
 export default App;
 
 interface CardProps {
   locationName: string;
   hybrid_score: number;
-  photoURL: string;
+  photoURL?: string;
   rating: number;
   website: string;
   budget: string;
@@ -221,6 +213,10 @@ const Card: React.FC<CardProps> = ({
   };
 
   const isOpen = () => {
+    if (!Array.isArray(hours) || hours.length === 0) {
+      return "Unknown";
+    }
+
     const now = moment().tz("America/New_York");
     const day = now.format("dddd");
     const currentTime = now.format("HH:mm");
@@ -231,7 +227,9 @@ const Card: React.FC<CardProps> = ({
     const matchResult = todayHours.match(
       /(\d{1,2}:\d{2} [AP]M) – (\d{1,2}:\d{2} [AP]M)/
     );
-    const [, openTime, closeTime] = matchResult ? matchResult : ["", "", ""];
+    if (!matchResult) return "Unknown";
+
+    const [, openTime, closeTime] = matchResult;
     const open = moment(openTime, "h:mm A");
     let close = moment(closeTime, "h:mm A");
     if (closeTime === "12:00 AM") {
@@ -244,7 +242,12 @@ const Card: React.FC<CardProps> = ({
   };
 
   const openStatus = isOpen();
-  const statusColor = openStatus === "Open" ? "#12F19F" : "#FF5722";
+  const statusColor =
+    openStatus === "Open"
+      ? "#12F19F"
+      : openStatus === "Closed"
+      ? "#FF5722"
+      : "#FFA500";
 
   return (
     <View style={styles.cardBGStyle}>
@@ -269,10 +272,7 @@ const Card: React.FC<CardProps> = ({
           <View style={styles.labelCard}>
             <Text style={styles.budget}>{budget}</Text>
           </View>
-          <View style={[styles.labelCard]}>
-            {renderStars(rating)}
-            {/* <Text style={styles.ratingText}>({rating})</Text> */}
-          </View>
+          <View style={[styles.labelCard]}>{renderStars(rating)}</View>
         </View>
         <View style={styles.infoRow}>
           <View style={styles.labelCard}>
@@ -289,7 +289,9 @@ const Card: React.FC<CardProps> = ({
             ]}
           >
             <TabBarIcon name="sparkles" color="black" size={16} />
-            <Text style={styles.hybrid_scoreText}>{hybrid_score}</Text>
+            <Text style={styles.hybrid_scoreText}>
+              {hybrid_score.toFixed(1)}
+            </Text>
           </View>
         </View>
 
@@ -465,5 +467,19 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     paddingTop: 4,
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "#F0F8FF", // Light blue background
+  },
+  emptyStateText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+    fontFamily: "DM Sans",
   },
 });
