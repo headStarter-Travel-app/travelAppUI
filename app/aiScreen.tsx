@@ -169,6 +169,7 @@ export default function AIScreen() {
         if (missingPreferences.data.missing) {
           const missingUserIds = missingPreferences.data.users;
           const missingUsernames = missingPreferences.data.usernames;
+          console.log("Missing User IDs:", missingUsernames);
 
           // Check if the current user is one of the missing users
           if (missingUserIds.includes(currentUserId)) {
