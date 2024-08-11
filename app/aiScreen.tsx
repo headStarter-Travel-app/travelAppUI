@@ -167,13 +167,30 @@ export default function AIScreen() {
         );
 
         if (missingPreferences.data.missing) {
-        Alert.alert(
-        "Preferences Missing",
-        "Preferences quiz not submitted. Please take it.",
-        [{ text: "OK", onPress: () => router.push("/quiz") }]
-        );
-        return;
-        }
+          const missingUserIds = missingPreferences.data.users;
+          const missingUsernames = missingPreferences.data.usernames;
+
+          // Check if the current user is one of the missing users
+          if (missingUserIds.includes(currentUserId)) {
+              Alert.alert(
+                  "Preferences Missing",
+                  `(${missingUsernames}) haven't taken the preference quiz. Please complete it.`,
+                  [
+                      {
+                          text: "OK",
+                          onPress: () => router.push("/quiz") // Redirect to quiz
+                      }
+                  ]
+              );
+          } else {
+              Alert.alert(
+                  "Preferences Missing",
+                  `${missingUsernames} haven't taken the preference quiz. Please remind them to complete it.`,
+                  [{ text: "OK" }]
+              );
+          }
+          return;
+      }
 
         let locationObject = [
           {
