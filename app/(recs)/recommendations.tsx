@@ -45,9 +45,9 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
         <Card
           locationName={location.name || "Unknown Location"}
           hybrid_score={location.hybrid_score || 0}
-          photoURL={location.photoURL}
+          photoURL={location.photos ? location.photos[0] : ""}
           rating={location.rating || 0}
-          website={location.website || "#"}
+          website={location.url || "#"}
           budget={location.budget || "N/A"}
           hours={location.hours || []}
         />
@@ -152,7 +152,7 @@ const App = () => {
     );
   }
 
-  return <Recommendations data={recommendations} />;
+  return <Recommendations data={recDetails} />;
 };
 export default App;
 
