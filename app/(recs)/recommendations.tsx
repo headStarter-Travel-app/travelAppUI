@@ -35,9 +35,10 @@ interface RecommendationsProps {
     budget?: string;
     hours?: string[];
   }[];
+  scores: any[];
 }
 
-const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
+const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
   const num = data.length;
   const renderCard = useCallback((location: any, key: number) => {
     return (
@@ -152,7 +153,7 @@ const App = () => {
     );
   }
 
-  return <Recommendations data={recDetails} />;
+  return <Recommendations data={recDetails} scores={globalRecommendations} />;
 };
 export default App;
 
