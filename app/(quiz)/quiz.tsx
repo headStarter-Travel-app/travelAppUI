@@ -108,7 +108,7 @@ const PreferenceQuiz = () => {
     };
 
     checkProceed();
-  }, [cuisines, entertainment, sports, learning, page]);
+  }, [cuisines, entertainment, sports, learning, page, atmosphere, time]);
 
   const handleSavePreferences = async () => {
     setLoading(true);
