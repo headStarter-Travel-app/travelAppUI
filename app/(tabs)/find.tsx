@@ -8,6 +8,7 @@ import {
   Linking,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import React, { useCallback, useState, useEffect } from "react";
 import { useRouter } from "expo-router";
@@ -15,6 +16,7 @@ import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { FontAwesome } from "@expo/vector-icons";
 import moment from "moment-timezone";
 import { globalRecommendations } from "../aiScreen";
+import Button from "@/components/usableOnes/button";
 
 const EmptyStateMessage = () => (
   <View style={styles.emptyStateContainer}>
@@ -38,10 +40,37 @@ interface RecommendationsProps {
 }
 
 const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
+
+  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  const router = useRouter();
+
+  const handleSelectLocation = (location: any) => {
+    setSelectedLocation(location);
+  };
+
+  const handleChooseSpot = () => {
+    if (selectedLocation) {
+      router.push({
+        pathname: "/hangout",
+        params: { location: selectedLocation },
+      })
+    }else {
+        Alert.alert("Error", "Please select a location first!");
+      }
+    };
+
+
+
   const num = data.length;
-  const renderCard = useCallback((location: any, key: number) => {
-    return (
-      <View key={key}>
+  const renderCard = useCallback((location: any, key: number) => (
+      <TouchableOpacity
+        key={key}
+        onPress={() => handleSelectLocation(location)}
+        style={[
+          styles.cardBGStyle,
+          { borderColor: selectedLocation === location ? "#410DFF" : "#000" },
+        ]}
+      >
         <Card
           locationName={location.name || "Unknown Location"}
           hybrid_score={location.hybrid_score || 0}
@@ -51,9 +80,10 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
           budget={location.budget || "N/A"}
           hours={location.hours || []}
         />
-      </View>
-    );
-  }, []);
+      </TouchableOpacity>
+    ),
+    [selectedLocation]
+  );
 
   if (data.length === 0) {
     return <EmptyStateMessage />;
@@ -82,6 +112,10 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
           )}
         </View>
       </View>
+      <Button
+        title="Choose Spot"
+        onPress={handleChooseSpot}
+      />
     </ScrollView>
   );
 };
