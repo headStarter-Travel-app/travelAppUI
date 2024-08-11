@@ -53,7 +53,6 @@ const GroupsScreen = ({
   const [refreshing, setRefreshing] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [activeGroups, setActiveGroups] = useState<Group[]>([]);
-  const [isEditingGroupName, setIsEditingGroupName] = useState(false);
 
   const fetchGroups = useCallback(async () => {
     try {
@@ -109,36 +108,20 @@ const GroupsScreen = ({
     setNewGroupName("");
   };
 
-  const handleEditGroupName = useCallback(async () => {
-    if (!selectedGroup) return;
-    if (newGroupName.trim() === "") {
-      setNewGroupName(selectedGroup.name);
-      return;
-    }
-    try {
-      await axios.post(`${API_URL}/edit-group-name`, {
-        group_id: selectedGroup.$id,
-        new_name: newGroupName,
-      });
-      setSelectedGroup({ ...selectedGroup, name: newGroupName });
-      refreshGroups();
-    } catch (error) {
-      console.error("Error updating group name:", error);
-    }
-    setIsEditingGroupName(false);
-  }, [selectedGroup, newGroupName, refreshGroups]);
-
   const closeGroupDetailsModal = () => {
-    handleEditGroupName();
     setGroupDetailsModalVisible(false);
     setSelectedGroup(null);
     setSelectedMembers([]);
-    setIsEditingGroupName(false);
+  };
+  const closeGroupDetailsModalAddMembers = () => {
+    setGroupDetailsModalVisible(false);
+    setSelectedMembers([]);
   };
 
   const closeAddMembersModal = () => {
     setAddMembersModalVisible(false);
     setSelectedMembers([]);
+    setSelectedGroup(null);
   };
 
   const handleCreateGroup = useCallback(async () => {
@@ -386,24 +369,7 @@ const GroupsScreen = ({
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <TouchableOpacity
-              onPress={() => {
-                setIsEditingGroupName(true);
-                setNewGroupName(selectedGroup?.name || "");
-              }}
-            >
-              {isEditingGroupName ? (
-                <TextInput
-                  style={styles.editGroupNameInput}
-                  value={newGroupName}
-                  onChangeText={setNewGroupName}
-                  onBlur={handleEditGroupName}
-                  autoFocus
-                />
-              ) : (
-                <Text style={styles.modalTitle}>{selectedGroup?.name}</Text>
-              )}
-            </TouchableOpacity>
+            <Text style={styles.modalTitle}>{selectedGroup?.name}</Text>
             <Text style={styles.subTitle}>
               Members: {selectedGroup?.expanded_members?.length}
             </Text>
@@ -417,7 +383,7 @@ const GroupsScreen = ({
               <TouchableOpacity
                 style={styles.modalButton}
                 onPress={() => {
-                  closeGroupDetailsModal();
+                  closeGroupDetailsModalAddMembers();
                   setAddMembersModalVisible(true);
                 }}
               >
