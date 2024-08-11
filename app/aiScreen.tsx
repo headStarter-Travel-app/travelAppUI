@@ -162,10 +162,8 @@ export default function AIScreen() {
 
         
         const missingPreferences = await axios.post(
-        `${API_URL}/check-preferences`,
-        {
-        params: { users: ids },
-        }
+          `${API_URL}/check-preferences`,
+          { users: ids }
         );
 
         if (missingPreferences.data.missing) {
