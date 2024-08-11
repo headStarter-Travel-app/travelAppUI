@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useMemo } from "react";
 import { useRouter } from "expo-router";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { FontAwesome } from "@expo/vector-icons";
@@ -40,21 +40,33 @@ interface RecommendationsProps {
 
 const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
   const num = data.length;
-  const renderCard = useCallback((location: any, key: number) => {
-    return (
-      <View key={key}>
-        <Card
-          locationName={location.name || "Unknown Location"}
-          hybrid_score={location.hybrid_score || 0}
-          photoURL={location.photos ? location.photos[0] : ""}
-          rating={location.rating || 0}
-          website={location.url || "#"}
-          budget={location.budget || "N/A"}
-          hours={location.hours || []}
-        />
-      </View>
-    );
-  }, []);
+
+  const scoreMap = useMemo(() => {
+    return scores.reduce((acc, score) => {
+      acc[score.name] = score.hybrid_score;
+      return acc;
+    }, {});
+  }, [scores]);
+
+  const renderCard = useCallback(
+    (location: any, key: number) => {
+      const hybridScore = scoreMap[location.name] || 0;
+      return (
+        <View key={key}>
+          <Card
+            locationName={location.name || "Unknown Location"}
+            hybrid_score={hybridScore}
+            photoURL={location.photos ? location.photos[0] : ""}
+            rating={location.rating || 0}
+            website={location.url || "#"}
+            budget={location.budget || "N/A"}
+            hours={location.hours || []}
+          />
+        </View>
+      );
+    },
+    [scoreMap]
+  );
 
   if (data.length === 0) {
     return <EmptyStateMessage />;
@@ -140,9 +152,10 @@ const App = () => {
     }
   }, [globalRecommendations, getRecDetails]);
 
-  useEffect(() => {
-    console.log("recDetails updated:", recDetails);
-  }, [recDetails]);
+  // useEffect(() => {
+  //   console.log("recDetails updated:", recDetails);
+  //   console.log(globalRecommendations);
+  // }, [recDetails]);
 
   if (loading) {
     return (
@@ -224,22 +237,52 @@ const Card: React.FC<CardProps> = ({
 
     const todayHours = hours.find((hour) => hour.startsWith(day));
     if (!todayHours) return "Closed";
+    console.log("todayHours:", todayHours);
 
-    const matchResult = todayHours.match(
-      /(\d{1,2}:\d{2} [AP]M) – (\d{1,2}:\d{2} [AP]M)/
+    // Handle "Closed" case
+    if (todayHours.includes("Closed")) {
+      return "Closed";
+    }
+
+    // Normalize and correct the time string
+    const normalizedHours = todayHours
+      .replace(/\u202F/g, " ") // Replace non-breaking spaces
+      .replace(/–|—/g, "-") // Normalize dashes
+      .replace(
+        /(\d{1,2}:\d{2})\s?-\s?(\d{1,2}:\d{2})\s?(AM|PM)?/,
+        (match, p1, p2, p3) => {
+          if (!p3) {
+            const firstTime = parseInt(p1.split(":")[0], 10);
+            const secondTime = parseInt(p2.split(":")[0], 10);
+            // Assume AM for early hours (1-11) and PM for later hours (12 and above)
+            const period = firstTime < 12 && secondTime >= 12 ? "PM" : "AM";
+            return `${p1} ${period} - ${p2} ${period}`;
+          }
+          return match;
+        }
+      );
+
+    console.log("normalizedHours:", normalizedHours);
+
+    const matchResult = normalizedHours.match(
+      /(\d{1,2}:\d{2}\s?[AP]M)\s?-\s?(\d{1,2}:\d{2}\s?[AP]M)/
     );
-    if (!matchResult) return "Unknown";
+    if (!matchResult) {
+      console.log("no result");
+      return "Unknown";
+    }
 
     const [, openTime, closeTime] = matchResult;
     const open = moment(openTime, "h:mm A");
     let close = moment(closeTime, "h:mm A");
-    if (closeTime === "12:00 AM") {
+
+    // Handle cases where closing time is past midnight
+    if (close.isBefore(open)) {
       close.add(1, "day");
     }
 
-    return now.isBetween(open, close) || now.isSame(open) || now.isSame(close)
-      ? "Open"
-      : "Closed";
+    // Check if current time is between open and close times
+    return now.isBetween(open, close, null, "[]") ? "Open" : "Closed";
   };
 
   const openStatus = isOpen();
