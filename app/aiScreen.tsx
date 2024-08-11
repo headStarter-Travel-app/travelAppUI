@@ -5,6 +5,7 @@ import {
   View,
   Alert,
   Linking,
+  TouchableOpacity,
 } from "react-native";
 import React, { useState, useCallback, useEffect } from "react";
 import TitleContainer from "@/components/aiPage/TitleContainer";
@@ -17,6 +18,8 @@ const API_URL = "https://travelappbackend-c7bj.onrender.com";
 import { getUserId } from "@/lib/appwrite";
 import { useRouter } from "expo-router";
 import * as Location from "expo-location";
+import { G } from "react-native-svg";
+import { group } from "console";
 
 const DEFAULT_LOCATION = {
   latitude: 37.78825,
@@ -72,9 +75,6 @@ export default function AIScreen() {
     })();
   }, []);
 
-  useEffect(() => {
-    console.log("Location:", location);
-  }, [location]);
   const fetchGroups = useCallback(async (userId: any) => {
     try {
       const response = await axios.get(
@@ -88,16 +88,55 @@ export default function AIScreen() {
   }, []);
 
   const handleSubmit = async () => {
+    console.log("Submitting");
+    const themeMap: { [key: string]: string } = {
+      "Romantic Date": "romatic_date",
+      "Family Outing": "family_outing",
+      "Outdoor Adventure": "outdoor_adventure",
+      "Educational Trip": "educational_trip",
+      "Night Out": "night_out",
+      "Relaxation / Wellness": "relaxation_and_wellness",
+      "Sports and Fitness": "sports_and_fitness",
+      "Shopping Spree": "shopping_spree",
+      "Kids Fun Day": "kids_fun_day",
+      "Historical / Cultural": "historical_and_cultural_exploration",
+      Vacation: "vacation",
+      "Food and Drinks": "food_and_drinks",
+    };
     if (submit) {
       try {
+        let locationList = [];
+        locationList.push({
+          lat: location.latitude,
+          lon: location.longitude,
+        });
+        let ids = [];
+        if (groupId == "0") {
+          ids.push(currentUserId);
+        } else {
+          ids = groups.find((group) => group["$id"] === groupId).members;
+        }
+        let locationObject = [
+          {
+            lat: location.latitude,
+            lon: location.longitude,
+          },
+        ];
+        let b = Number(budget);
+        if (isNaN(budget)) {
+          b = 0;
+        }
+        let otherInfo = addInfo.trim() ? addInfo.split(",") : [];
+
         const response = await axios.post(`${API_URL}/get-recommendationsAI`, {
-          // users : [currentUserId],
-          // location: location,
-          // theme: theme,
-          // other : addInfo.split(","),
-          // budget: parseInt(budget),
+          users: ids,
+          location: locationObject,
+          theme: themeMap[theme],
+          other: otherInfo,
+          budget: b,
         });
         setRecommendations(response.data.recommendations);
+        console.log("Recommendations:", recommendations);
         //router.push("/recommendations", { recommendations });
       } catch (error) {
         console.error("Error fetching recommendations:", error);
@@ -149,7 +188,7 @@ export default function AIScreen() {
         group={formatted}
       />
       <AddInfoContainer addInfo={addInfo} setAddInfo={setAddInfo} />
-      <SubmitButton active={submit} />
+      <SubmitButton active={submit} onSubmit={handleSubmit} />
     </SafeAreaView>
   );
 }

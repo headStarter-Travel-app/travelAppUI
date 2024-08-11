@@ -23,10 +23,16 @@ const DEFAULT_ITEMS = [
   "Kids Fun Day",
   "Historical / Cultural",
   "Vacation",
-  "Food and Drinks"
+  "Food and Drinks",
 ];
 
-const ThemeContainer = ({setTheme, theme} : {setTheme: (theme: string) => void, theme: string}) => {
+const ThemeContainer = ({
+  setTheme,
+  theme,
+}: {
+  setTheme: (theme: string) => void;
+  theme: string;
+}) => {
   const renderCard = useCallback(
     ({ item, index }: { item: string; index: number }) => {
       return (
@@ -41,7 +47,7 @@ const ThemeContainer = ({setTheme, theme} : {setTheme: (theme: string) => void, 
               marginLeft: index % 4 == 2 || index % 4 == 3 ? 10 : 0,
               marginRight: index % 4 == 0 || index % 4 == 1 ? 10 : 0,
             },
-            {backgroundColor: (theme === item ? "#BB80DF" : "#FFF")}
+            { backgroundColor: theme === item ? "#BB80DF" : "#FFF" },
           ]}
         >
           <Text style={styles.themeCardText}>{item}</Text>
@@ -136,7 +142,7 @@ const styles = StyleSheet.create({
   themeScroll: {
     width: 330,
     height: 225,
-    paddingHorizontal:16,
+    paddingHorizontal: 16,
   },
   topFade: {
     position: "absolute",
