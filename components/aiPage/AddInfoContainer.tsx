@@ -1,5 +1,13 @@
-import { StyleSheet, Text, View, TextInput } from "react-native";
 import React from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Platform,
+} from "react-native";
 
 const AddInfoContainer = ({
   addInfo,
@@ -9,18 +17,25 @@ const AddInfoContainer = ({
   setAddInfo: (info: string) => void;
 }) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Additional Info</Text>
-      <TextInput
-        editable
-        multiline
-        numberOfLines={4}
-        maxLength={40}
-        style={styles.textBox}
-        value={addInfo}
-        onChangeText={(e) => setAddInfo(e)}
-      ></TextInput>
-    </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container}>
+        <Text style={styles.label}>Additional Info</Text>
+        <TextInput
+          editable
+          multiline
+          numberOfLines={4}
+          maxLength={40}
+          style={styles.textBox}
+          value={addInfo}
+          onChangeText={(e) => setAddInfo(e)}
+          returnKeyType="done"
+          blurOnSubmit={true}
+          onSubmitEditing={() => {
+            Keyboard.dismiss();
+          }}
+        />
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
