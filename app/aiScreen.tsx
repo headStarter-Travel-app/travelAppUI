@@ -160,37 +160,36 @@ export default function AIScreen() {
           ids = groups.find((group) => group["$id"] === groupId).members;
         }
 
-        const missingPreferences = await axios.post(
-          `${API_URL}/check-preferences`,
-          { users: ids }
-        );
+        // const missingPreferences = await axios.post(
+        //   `${API_URL}/check-preferences`,
+        //   { users: ids }
+        // );
 
-        if (missingPreferences.data.missing) {
-          const missingUserIds = missingPreferences.data.users;
-          const missingUsernames = missingPreferences.data.usernames;
-          console.log("Missing User IDs:", missingUsernames);
+        // if (missingPreferences.data.missing) {
+        //   const missingUserIds = missingPreferences.data.users;
+        //   const missingUsernames = missingPreferences.data.usernames;
+        //   console.log("Missing User IDs:", missingUsernames);
 
-          // Check if the current user is one of the missing users
-          if (missingUserIds.includes(currentUserId)) {
-            Alert.alert(
-              "Preferences Missing",
-              `(${missingUsernames}) haven't taken the preference quiz. Please complete it.`,
-              [
-                {
-                  text: "OK",
-                  onPress: () => router.push("/quiz"), // Redirect to quiz
-                },
-              ]
-            );
-          } else {
-            Alert.alert(
-              "Preferences Missing",
-              `${missingUsernames} haven't taken the preference quiz. Please remind them to complete it.`,
-              [{ text: "OK" }]
-            );
-          }
-          return;
-        }
+        //   // Check if the current user is one of the missing users
+        //   if (missingUserIds.includes(currentUserId)) {
+        //     Alert.alert(
+        //       "Preferences Missing",
+        //       `(${missingUsernames}) haven't taken the preference quiz. Please complete it.`,
+        //       [
+        //         {
+        //           text: "OK",
+        //           onPress: () => router.push("/quiz"), // Redirect to quiz
+        //         },
+        //       ]
+        //     );
+        //   } else {
+        //     Alert.alert(
+        //       "Preferences Missing",
+        //       `${missingUsernames} haven't taken the preference quiz. Please remind them to complete it.`,
+        //       [{ text: "OK" }]
+        //     );
+        //   }
+        // }
 
         let locationObject = [
           {
