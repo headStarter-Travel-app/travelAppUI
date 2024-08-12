@@ -100,15 +100,15 @@ const PreferenceQuiz = () => {
           setCanProceed(learning.length > 0);
           break;
         case 5:
-          setCanProceed(atmosphere.length > 0 && time.length > 0)
-          break
+          setCanProceed(atmosphere.length > 0 && time.length > 0 && shopping !== null && socializing !== null && familyFriendly !== null );  
+          break;
         default:
           setCanProceed(false);
       }
     };
-
+  
     checkProceed();
-  }, [cuisines, entertainment, sports, learning, page]);
+  }, [cuisines, entertainment, sports, learning, atmosphere, time, socializing, shopping, page]);
 
   const handleSavePreferences = async () => {
     setLoading(true);
