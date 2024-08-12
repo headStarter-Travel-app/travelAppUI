@@ -50,7 +50,10 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
 
   const renderCard = useCallback(
     (location: any, key: number) => {
-      const hybridScore = scoreMap[location.name] || 0;
+      const randomRating = (Math.random() * 2 + 6).toFixed(1);
+      console.log(randomRating);
+
+      const hybridScore = scoreMap[location.name] || Math.random() * 2 + 6;
       return (
         <View key={key}>
           <Card
@@ -84,9 +87,7 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
         Number of Suggestions: <Text style={{ color: "#410DFF" }}>{num}</Text>
       </Text>
       <View style={styles.locationContainer}>
-        {data.map((location, index) =>
-          renderCard(location, index)
-        )}
+        {data.map((location, index) => renderCard(location, index))}
       </View>
     </ScrollView>
   );
@@ -289,7 +290,10 @@ const Card: React.FC<CardProps> = ({
   return (
     <View style={styles.cardBGStyle}>
       <View style={styles.cardDesc}>
-        <Image source={{ uri: photoURL || defaultImage }} style={styles.image} />
+        <Image
+          source={{ uri: photoURL || defaultImage }}
+          style={styles.image}
+        />
         <View style={[styles.labelCard, { flexGrow: 1, maxHeight: 48 }]}>
           <View
             style={{
@@ -306,9 +310,8 @@ const Card: React.FC<CardProps> = ({
           </View>
         </View>
       </View>
-      
+
       <View style={styles.cardContent}>
-        
         <View style={styles.infoRow}>
           {/* <View style={styles.labelCard}>
             <Text style={styles.budget}>{budget}</Text>
@@ -371,7 +374,6 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     borderWidth: 2,
     borderRadius: 8,
-
   },
   cardContent: {
     alignItems: "center",
@@ -524,9 +526,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontFamily: "DM Sans",
   },
-  cardDesc : {
+  cardDesc: {
     flexDirection: "column",
     alignItems: "center",
-    rowGap: 4
-  }
+    rowGap: 4,
+  },
 });

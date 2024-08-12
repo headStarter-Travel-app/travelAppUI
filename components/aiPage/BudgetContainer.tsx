@@ -51,8 +51,8 @@ const BudgetContainer = ({
     <View style={[styles.container, { elevation: 1000, zIndex: 10000 }]}>
       <Text style={styles.label}>Info</Text>
       <View style={[styles.inputRow, { zIndex: 100000 }]}>
-        <View style={{ width: 180, height: 50 }}>
-          {/* <DropDownPicker 
+        {/* <View style={{ width: 180, height: 50 }}>
+          <DropDownPicker 
             open={openBudget}
             value={budget}
             items={budgetItems}
@@ -63,8 +63,8 @@ const BudgetContainer = ({
             style={styles.picker}
             textStyle={styles.pickerText}
             dropDownContainerStyle={styles.pickerItemContainer}
-          /> */}
-        </View>
+          />
+        </View> */}
         <View style={{ width: 180, height: 50 }}>
           <DropDownPicker
             open={openTime}

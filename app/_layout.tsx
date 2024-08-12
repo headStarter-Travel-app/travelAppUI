@@ -14,6 +14,7 @@ import * as Updates from "expo-updates";
 import { usePushNotifications } from "@/usePushNotifications";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { addNotificationToken } from "@/lib/appwrite";
+import { StatusBar } from "expo-status-bar";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -110,6 +111,8 @@ export default function RootLayout() {
     <ThemeProvider
       value={colorScheme === "dark" ? CustomDarkTheme : CustomDefaultTheme}
     >
+      <StatusBar style="dark" />
+
       <Stack
         screenOptions={
           {
