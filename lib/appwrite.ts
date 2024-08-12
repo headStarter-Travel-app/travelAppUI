@@ -56,7 +56,7 @@ export const CreateUser = async (
     return session; // Ensure this returns the session object
   } catch (error) {
     console.log(error);
-    alert("Error");
+    alert(`Error: ${(error as Error).message || error}`);
   }
 };
 

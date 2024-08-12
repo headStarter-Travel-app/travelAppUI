@@ -225,12 +225,13 @@ const Card: React.FC<CardProps> = ({
       return "Unknown";
     }
 
-    const now = moment().tz("America/New_York");
+    const now = moment().tz(moment.tz.guess());
     const day = now.format("dddd");
     const currentTime = now.format("HH:mm");
 
     const todayHours = hours.find((hour) => hour.startsWith(day));
     if (!todayHours) return "Closed";
+    console.log(currentTime);
     console.log("todayHours:", todayHours);
 
     // Handle "Closed" case
@@ -276,9 +277,16 @@ const Card: React.FC<CardProps> = ({
     }
 
     // Check if current time is between open and close times
-    return now.isBetween(open, close, null, "[]") ? "Open" : "Closed";
+    // If the current time is after midnight, compare with the previous day's opening hours
+    if (now.hour() < 12) {
+      const yesterdayOpen = moment(open).subtract(1, "day");
+      return now.isBetween(yesterdayOpen, close, null, "[]")
+        ? "Open"
+        : "Closed";
+    } else {
+      return now.isBetween(open, close, null, "[]") ? "Open" : "Closed";
+    }
   };
-
   const openStatus = isOpen();
   const statusColor =
     openStatus === "Open"
