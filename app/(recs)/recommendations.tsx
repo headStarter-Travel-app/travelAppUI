@@ -84,16 +84,9 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
         Number of Suggestions: <Text style={{ color: "#410DFF" }}>{num}</Text>
       </Text>
       <View style={styles.locationContainer}>
-        <View style={styles.locationColumn}>
-          {data.map((location, index) =>
-            index % 2 == 0 ? renderCard(location, index) : null
-          )}
-        </View>
-        <View style={styles.locationColumn}>
-          {data.map((location, index) =>
-            index % 2 == 1 ? renderCard(location, index) : null
-          )}
-        </View>
+        {data.map((location, index) =>
+          renderCard(location, index)
+        )}
       </View>
     </ScrollView>
   );
@@ -295,8 +288,8 @@ const Card: React.FC<CardProps> = ({
 
   return (
     <View style={styles.cardBGStyle}>
-      <Image source={{ uri: photoURL || defaultImage }} style={styles.image} />
-      <View style={styles.cardContent}>
+      <View style={styles.cardDesc}>
+        <Image source={{ uri: photoURL || defaultImage }} style={styles.image} />
         <View style={[styles.labelCard, { flexGrow: 1, maxHeight: 48 }]}>
           <View
             style={{
@@ -312,10 +305,14 @@ const Card: React.FC<CardProps> = ({
             <Text style={styles.locationName}>{locationName}</Text>
           </View>
         </View>
+      </View>
+      
+      <View style={styles.cardContent}>
+        
         <View style={styles.infoRow}>
-          <View style={styles.labelCard}>
+          {/* <View style={styles.labelCard}>
             <Text style={styles.budget}>{budget}</Text>
-          </View>
+          </View> */}
           <View style={[styles.labelCard]}>{renderStars(rating)}</View>
         </View>
         <View style={styles.infoRow}>
@@ -369,12 +366,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   image: {
-    width: "100%",
-    height: 120,
+    width: 180,
+    height: 86,
     resizeMode: "cover",
+    borderWidth: 2,
+    borderRadius: 8,
+
   },
   cardContent: {
-    padding: 8,
     alignItems: "center",
     position: "relative",
     paddingBottom: 64,
@@ -447,14 +446,17 @@ const styles = StyleSheet.create({
   },
   cardBGStyle: {
     backgroundColor: "#C7ECFD",
-    margin: 10,
+    marginBottom: 5,
     borderRadius: 8,
     borderColor: "#000",
     borderWidth: 2,
     overflow: "hidden",
     alignItems: "center",
     alignSelf: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
     width: "90%",
+    paddingHorizontal: 4,
   },
   websiteButton: {
     position: "absolute",
@@ -485,13 +487,10 @@ const styles = StyleSheet.create({
     fontFamily: "DM Sans",
   },
   locationContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-between",
-    paddingHorizontal: 10,
+    paddingHorizontal: 0,
     marginBottom: 128,
-  },
-  locationColumn: {
-    width: "50%",
   },
   labelCard: {
     backgroundColor: "#FFF",
@@ -509,7 +508,6 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "100%",
     paddingTop: 4,
   },
   emptyStateContainer: {
@@ -526,4 +524,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontFamily: "DM Sans",
   },
+  cardDesc : {
+    flexDirection: "column",
+    alignItems: "center",
+    rowGap: 4
+  }
 });
