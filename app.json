@@ -2,15 +2,11 @@
   "expo": {
     "name": "Proxi Link",
     "slug": "headstarterProject",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "orientation": "portrait",
     "icon": "./assets/images/favicon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "backgroundColor": "#000000"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.nnagelia.headstarterProject",
