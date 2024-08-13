@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+
 import React, { useCallback, useState, useEffect, useMemo } from "react";
 import { useRouter } from "expo-router";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
@@ -342,6 +343,12 @@ const Card: React.FC<CardProps> = ({
             <Text style={styles.locationName}>{locationName}</Text>
           </View>
         </View>
+        <TouchableOpacity style={styles.saveButton} onPress={onSave}>
+          <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+            <FontAwesome name="bookmark" size={20} color="white" />
+            <Text style={{ color: "white", marginLeft: 10 }}>Save</Text>
+          </View>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.cardContent}>
@@ -378,9 +385,6 @@ const Card: React.FC<CardProps> = ({
             onPress={() => Linking.openURL(website)}
           >
             <Text style={styles.buttonText}>Visit Website</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.saveButton} onPress={onSave}>
-            <Text style={styles.buttonText}>Save</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -568,17 +572,18 @@ const styles = StyleSheet.create({
   },
   websiteButton: {
     backgroundColor: "#1E90FF",
-    padding: 10,
+    padding: 8,
     borderRadius: 8,
     alignItems: "center",
     borderWidth: 2,
     borderBottomWidth: 4,
     flex: 1,
     marginRight: 4,
+    marginTop: 4,
   },
   saveButton: {
     backgroundColor: "#4CAF50",
-    padding: 10,
+    padding: 4,
     borderRadius: 8,
     alignItems: "center",
     borderWidth: 2,
@@ -589,6 +594,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontFamily: "spaceGroteskRegular",
-    fontSize: 16,
+    fontSize: 14,
+    textAlign: "center",
   },
 });

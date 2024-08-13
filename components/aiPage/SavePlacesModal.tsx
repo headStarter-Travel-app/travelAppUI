@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Modal,
   View,
@@ -6,14 +6,18 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import DropDownPicker from "react-native-dropdown-picker";
+import axios from "axios";
+const API_URL = "https://travelappbackend-c7bj.onrender.com";
+import { getUserId } from "@/lib/appwrite";
 
 interface SavePlaceModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onSave: (dateTime: Date, groupId: string) => void;
+  onSave: (dateTime: Date, groupMembers: string[]) => void;
   placeDetails: any;
 }
 
@@ -27,8 +31,54 @@ const SavePlaceModal: React.FC<SavePlaceModalProps> = ({
   const [dateTime, setDateTime] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState<"date" | "time">("date");
-  const [groupId, setGroupId] = useState<string | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [openGroup, setOpenGroup] = useState(false);
+  const [groups, setGroups] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [groupItems, setGroupItems] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
+
+  const fetchGroups = useCallback(async (userId: string) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/get-groups?user_id=${userId}`
+      );
+      setGroups(response.data.groups);
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+      Alert.alert("Error", "Failed to fetch groups");
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchCurrentUserId = async () => {
+      try {
+        const userId = await getUserId();
+        setCurrentUserId(userId);
+        if (userId) {
+          await fetchGroups(userId);
+        }
+      } catch (error) {
+        console.error("Error fetching user ID:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCurrentUserId();
+  }, [fetchGroups]);
+
+  useEffect(() => {
+    const formattedGroups = groups.map((group) => ({
+      label: group.name,
+      value: group.$id,
+    }));
+    setGroupItems([
+      { label: "Individual", value: "individual" },
+      ...formattedGroups,
+    ]);
+  }, [groups]);
 
   const onDateTimeChange = (event: any, selectedDateTime?: Date) => {
     const currentDateTime = selectedDateTime || dateTime;
@@ -47,10 +97,26 @@ const SavePlaceModal: React.FC<SavePlaceModalProps> = ({
   };
 
   const handleSave = () => {
-    if (groupId) {
-      onSave(dateTime, groupId);
-      onClose();
+    let members: string[] = [];
+    if (selectedGroup === "individual") {
+      members = currentUserId ? [currentUserId] : [];
+    } else {
+      const selectedGroupData = groups.find(
+        (group) => group.$id === selectedGroup
+      );
+      members = selectedGroupData ? selectedGroupData.members : [];
     }
+
+    onSave(dateTime, members);
+    console.log(
+      "Save",
+      dateTime,
+      members,
+      placeDetails.address,
+      placeDetails.name,
+      currentUserId
+    );
+    onClose();
   };
 
   return (
@@ -62,7 +128,7 @@ const SavePlaceModal: React.FC<SavePlaceModalProps> = ({
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Text style={styles.modalTitle}>Save Place</Text>
+          <Text style={styles.modalTitle}>Save and Schedule</Text>
 
           <Text style={styles.placeDetails}>{name}</Text>
 
@@ -82,24 +148,28 @@ const SavePlaceModal: React.FC<SavePlaceModalProps> = ({
           </View>
 
           {showPicker && (
-            <DateTimePicker
-              value={dateTime}
-              mode={pickerMode}
-              is24Hour={true}
-              display="default"
-              onChange={onDateTimeChange}
-            />
+            <View style={styles.pickerContainer}>
+              <DateTimePicker
+                value={dateTime}
+                mode={pickerMode}
+                is24Hour={true}
+                display="default"
+                onChange={onDateTimeChange}
+                textColor="#000"
+                themeVariant="light"
+              />
+            </View>
           )}
 
           <View style={styles.dropdownContainer}>
             <DropDownPicker
               open={openGroup}
-              value={groupId}
-              items={[]} // You need to provide the group items here
+              value={selectedGroup}
+              items={groupItems}
               setOpen={setOpenGroup}
-              setValue={setGroupId}
-              setItems={() => {}}
-              placeholder="Select Group"
+              setValue={setSelectedGroup}
+              setItems={setGroupItems}
+              placeholder="Select a Group"
               style={styles.dropdown}
               textStyle={styles.dropdownText}
             />
@@ -128,6 +198,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  pickerContainer: {
+    backgroundColor: "white",
   },
   modalView: {
     width: "100%",
@@ -167,6 +240,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     flex: 1,
     marginHorizontal: 5,
+    borderWidth: 2,
+    borderColor: "#000000",
+    fontFamily: "spaceGroteskRegular",
   },
   dropdownContainer: {
     width: "100%",
@@ -174,8 +250,9 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   dropdown: {
-    borderColor: "#BB80DF",
+    borderColor: "#000",
     height: 50,
+    borderWidth: 2,
   },
   dropdownText: {
     fontSize: 16,
@@ -195,14 +272,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     borderWidth: 2,
     borderColor: "#000000",
+    borderBottomWidth: 4,
+    fontFamily: "spaceGroteskRegular",
   },
   saveButton: {
     backgroundColor: "#4CAF50",
+    borderBottomWidth: 4,
   },
   buttonText: {
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
+    fontFamily: "spaceGroteskRegular",
   },
 });
 
