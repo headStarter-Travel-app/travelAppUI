@@ -15,6 +15,7 @@ import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { FontAwesome } from "@expo/vector-icons";
 import moment from "moment-timezone";
 import { globalRecommendations } from "../aiScreen";
+import SavePlaceModal from "@/components/aiPage/SavePlacesModal";
 
 const EmptyStateMessage = () => (
   <View style={styles.emptyStateContainer}>
@@ -37,8 +38,9 @@ interface RecommendationsProps {
   }[];
   scores: any[];
 }
-
 const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState(null);
   const num = data.length;
 
   const scoreMap = useMemo(() => {
@@ -48,11 +50,13 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
     }, {});
   }, [scores]);
 
+  const handleSave = (place: any) => {
+    setSelectedPlace(place);
+    setModalVisible(true);
+  };
+
   const renderCard = useCallback(
     (location: any, key: number) => {
-      const randomRating = (Math.random() * 2 + 6).toFixed(1);
-      console.log(randomRating);
-
       const hybridScore = scoreMap[location.name] || Math.random() * 2 + 6;
       return (
         <View key={key}>
@@ -64,11 +68,12 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
             website={location.url || "#"}
             budget={location.budget || "N/A"}
             hours={location.hours || []}
+            onSave={() => handleSave(location)}
           />
         </View>
       );
     },
-    [scoreMap]
+    [scoreMap, handleSave]
   );
 
   if (data.length === 0) {
@@ -89,9 +94,27 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
       <View style={styles.locationContainer}>
         {data.map((location, index) => renderCard(location, index))}
       </View>
+      <SavePlaceModal
+        isVisible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSave={(date, groupId) => {
+          console.log(
+            "Saving",
+            selectedPlace,
+            "for",
+            date,
+            "in group",
+            groupId
+          );
+          setModalVisible(false);
+          // Implement the actual save logic here
+        }}
+        placeDetails={selectedPlace}
+      />
     </ScrollView>
   );
 };
+
 const App = () => {
   const [recommendations, setRecommendations] = useState<
     RecommendationsProps["data"]
@@ -172,6 +195,7 @@ interface CardProps {
   website: string;
   budget: string;
   hours: string[];
+  onSave: () => void;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -182,6 +206,7 @@ const Card: React.FC<CardProps> = ({
   website,
   budget,
   hours,
+  onSave,
 }) => {
   const defaultImage = "https://via.placeholder.com/150";
 
@@ -347,12 +372,17 @@ const Card: React.FC<CardProps> = ({
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.websiteButton}
-          onPress={() => Linking.openURL(website)}
-        >
-          <Text style={styles.websiteButtonText}>Visit Website</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.websiteButton}
+            onPress={() => Linking.openURL(website)}
+          >
+            <Text style={styles.buttonText}>Visit Website</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.saveButton} onPress={onSave}>
+            <Text style={styles.buttonText}>Save</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -468,17 +498,6 @@ const styles = StyleSheet.create({
     width: "90%",
     paddingHorizontal: 4,
   },
-  websiteButton: {
-    position: "absolute",
-    backgroundColor: "#1E90FF",
-    padding: 10,
-    borderRadius: 8,
-    alignItems: "center",
-    borderWidth: 2,
-    borderBottomWidth: 4,
-    bottom: 4,
-    right: 4,
-  },
   websiteButtonText: {
     color: "white",
     fontFamily: "spaceGroteskRegular",
@@ -538,5 +557,38 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     rowGap: 4,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    position: "absolute",
+    bottom: 4,
+    paddingHorizontal: 4,
+  },
+  websiteButton: {
+    backgroundColor: "#1E90FF",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    borderWidth: 2,
+    borderBottomWidth: 4,
+    flex: 1,
+    marginRight: 4,
+  },
+  saveButton: {
+    backgroundColor: "#4CAF50",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    borderWidth: 2,
+    borderBottomWidth: 4,
+    flex: 1,
+    marginLeft: 4,
+  },
+  buttonText: {
+    color: "white",
+    fontFamily: "spaceGroteskRegular",
+    fontSize: 16,
   },
 });
