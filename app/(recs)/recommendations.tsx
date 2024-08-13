@@ -328,27 +328,24 @@ const Card: React.FC<CardProps> = ({
           source={{ uri: photoURL || defaultImage }}
           style={styles.image}
         />
-        <View style={[styles.labelCard, { flexGrow: 1, maxHeight: 48 }]}>
-          <View
-            style={{
+        <View style={{maxHeight: 48, flexDirection: "row"}}>
+          <View style={[styles.labelCard, { flexGrow: 1, maxHeight: 48 }]}>
+            <ScrollView style={{
+              height: 12,
               flexGrow: 1,
               flexWrap: "wrap",
               flex: 1,
               flexDirection: "column",
-              height: 12,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text style={styles.locationName}>{locationName}</Text>
+            }} horizontal>
+              <Text style={styles.locationName}>{locationName}</Text>
+            </ScrollView>
           </View>
+          <TouchableOpacity style={styles.saveButton} onPress={onSave}>
+            <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+              <FontAwesome name="bookmark" size={20} color="white" />
+            </View>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.saveButton} onPress={onSave}>
-          <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
-            <FontAwesome name="bookmark" size={20} color="white" />
-            <Text style={{ color: "white", marginLeft: 10 }}>Save</Text>
-          </View>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.cardContent}>
