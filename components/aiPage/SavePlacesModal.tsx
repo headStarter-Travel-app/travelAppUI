@@ -13,7 +13,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 interface SavePlaceModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onSave: (date: Date, groupId: string) => void;
+  onSave: (dateTime: Date, groupId: string) => void;
   placeDetails: any;
 }
 
@@ -23,23 +23,32 @@ const SavePlaceModal: React.FC<SavePlaceModalProps> = ({
   onSave,
   placeDetails,
 }) => {
-  console.log(placeDetails.name);
-  const name = placeDetails.name;
-  console.log(typeof placeDetails);
-  const [date, setDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const name = placeDetails?.name || "Place";
+  const [dateTime, setDateTime] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+  const [pickerMode, setPickerMode] = useState<"date" | "time">("date");
   const [groupId, setGroupId] = useState<string | null>(null);
   const [openGroup, setOpenGroup] = useState(false);
 
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(Platform.OS === "ios");
-    setDate(currentDate);
+  const onDateTimeChange = (event: any, selectedDateTime?: Date) => {
+    const currentDateTime = selectedDateTime || dateTime;
+    setShowPicker(Platform.OS === "ios");
+    setDateTime(currentDateTime);
+  };
+
+  const showDatepicker = () => {
+    setPickerMode("date");
+    setShowPicker(true);
+  };
+
+  const showTimepicker = () => {
+    setPickerMode("time");
+    setShowPicker(true);
   };
 
   const handleSave = () => {
     if (groupId) {
-      onSave(date, groupId);
+      onSave(dateTime, groupId);
       onClose();
     }
   };
@@ -55,35 +64,45 @@ const SavePlaceModal: React.FC<SavePlaceModalProps> = ({
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Save Place</Text>
 
-          <Text style={styles.placeDetails}>{name || "Place"}</Text>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <Text>{date.toLocaleDateString()}</Text>
-          </TouchableOpacity>
+          <Text style={styles.placeDetails}>{name}</Text>
 
-          {showDatePicker && (
+          <View style={styles.dateTimeContainer}>
+            <TouchableOpacity
+              style={styles.dateTimeButton}
+              onPress={showDatepicker}
+            >
+              <Text>{dateTime.toLocaleDateString()}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.dateTimeButton}
+              onPress={showTimepicker}
+            >
+              <Text>{dateTime.toLocaleTimeString()}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {showPicker && (
             <DateTimePicker
-              value={date}
-              mode="date"
+              value={dateTime}
+              mode={pickerMode}
+              is24Hour={true}
               display="default"
-              onChange={onDateChange}
+              onChange={onDateTimeChange}
             />
           )}
 
           <View style={styles.dropdownContainer}>
-            {/* <DropDownPicker
+            <DropDownPicker
               open={openGroup}
               value={groupId}
-              items={groupItems}
+              items={[]} // You need to provide the group items here
               setOpen={setOpenGroup}
               setValue={setGroupId}
               setItems={() => {}}
               placeholder="Select Group"
               style={styles.dropdown}
               textStyle={styles.dropdownText}
-            /> */}
+            />
           </View>
 
           <View style={styles.buttonContainer}>
@@ -130,16 +149,24 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 15,
+    fontFamily: "DM Sans",
   },
   placeDetails: {
     fontSize: 18,
     marginBottom: 15,
   },
-  dateButton: {
-    backgroundColor: "#e0e0e0",
+  dateTimeContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 15,
+  },
+  dateTimeButton: {
+    backgroundColor: "#BB80DF",
     padding: 10,
     borderRadius: 5,
-    marginBottom: 15,
+    flex: 1,
+    marginHorizontal: 5,
   },
   dropdownContainer: {
     width: "100%",
@@ -147,11 +174,12 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   dropdown: {
-    borderColor: "#B7B7B7",
+    borderColor: "#BB80DF",
     height: 50,
   },
   dropdownText: {
     fontSize: 16,
+    fontFamily: "spaceGroteskRegular",
   },
   buttonContainer: {
     flexDirection: "row",
@@ -165,6 +193,8 @@ const styles = StyleSheet.create({
     elevation: 2,
     flex: 1,
     marginHorizontal: 5,
+    borderWidth: 2,
+    borderColor: "#000000",
   },
   saveButton: {
     backgroundColor: "#4CAF50",
