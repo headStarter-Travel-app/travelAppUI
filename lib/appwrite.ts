@@ -314,3 +314,17 @@ export const addNotificationToken = async (token: string) => {
     throw error;
   }
 };
+
+export const getUser = async (userId: string) => {
+  try {
+    const user = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId
+    );
+    return user;
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    throw error;
+  }
+};
