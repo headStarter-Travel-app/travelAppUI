@@ -160,7 +160,7 @@ export default function AIScreen() {
           ids = groups.find((group) => group["$id"] === groupId).members;
         }
 
-        // const missingPreferences = await axios.post(
+        // const missingPreferences = await y(
         //   `${API_URL}/check-preferences`,
         //   { users: ids }
         // );

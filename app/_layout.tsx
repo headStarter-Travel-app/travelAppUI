@@ -5,14 +5,13 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Redirect, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import "react-native-reanimated";
-import { View, Text, Image } from "react-native"; // Add this import
+import { View, Image } from "react-native";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import * as Updates from "expo-updates";
 import { usePushNotifications } from "@/usePushNotifications";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { addNotificationToken } from "@/lib/appwrite";
 import { StatusBar } from "expo-status-bar";
 import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
@@ -51,22 +50,22 @@ const CustomDarkTheme = {
     background: "#DFF2F9", // Custom background color for dark theme
   },
 };
+
 async function onFetchUpdateAsync() {
   try {
     const update = await Updates.checkForUpdateAsync();
-
     if (update.isAvailable) {
       await Updates.fetchUpdateAsync();
       await Updates.reloadAsync();
     }
   } catch (error) {
-    // You can also add an alert() to see the error message in case of an error when fetching updates.
-    alert(`Error fetching latest Expo update: ${error}`);
+    console.error(`Error fetching latest Expo update: ${error}`);
   }
 }
 
 export default function RootLayout() {
-  const [fontsLoaded, error] = useFonts({
+  const [isLoading, setIsLoading] = useState(true);
+  const [fontsLoaded, fontError] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     dmSansBold: require("../assets/fonts/DMSans-Bold.ttf"),
     dmSansRegular: require("../assets/fonts/DMSans-Regular.ttf"),
@@ -75,49 +74,57 @@ export default function RootLayout() {
     spaceGroteskRegular: require("../assets/fonts/SpaceGrotesk-Regular.ttf"),
     spaceGroteskMedium: require("../assets/fonts/SpaceGrotesk-Regular.ttf"),
   });
+
   const { expoPushToken, notification } = usePushNotifications();
-  const data = JSON.stringify(notification, undefined, 2);
-
-  useEffect(() => {
-    if (expoPushToken) {
-      console.log("Expo Push Token:", expoPushToken.data);
-      addNotificationToken(expoPushToken.data);
-    }
-  }, [expoPushToken]);
-
   const colorScheme = useColorScheme();
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (fontsLoaded) {
-      const handlePermissions = async () => {
-        try {
-          const { status } = await requestTrackingPermissionsAsync();
-          if (status === "granted") {
-            console.log("Tracking permission granted.");
-          } else {
-            console.log("Tracking permission denied.");
-          }
-        } catch (error) {
-          console.error("Error requesting tracking permission:", error);
+    async function prepare() {
+      try {
+        // Wait for fonts to load and request tracking permission
+        await Promise.all([
+          new Promise((resolve) => {
+            if (fontsLoaded || fontError) {
+              console.log("Fonts loaded successfully");
+            }
+          }),
+          requestTrackingPermissionsAsync(),
+        ]);
+
+        // Fetch updates
+        await onFetchUpdateAsync();
+
+        // Handle push notification token
+        if (expoPushToken) {
+          console.log("Expo Push Token:", expoPushToken.data);
+          await addNotificationToken(expoPushToken.data);
         }
-      };
 
-      handlePermissions();
-
-      setTimeout(() => {
-        SplashScreen.hideAsync();
+        // Add a small delay to ensure smooth transition
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      } catch (e) {
+        console.warn("Error during app initialization:", e);
+      } finally {
         setIsLoading(false);
-      }, 2000);
+      }
     }
-  }, [fontsLoaded]);
+
+    prepare();
+  }, [fontsLoaded, fontError, expoPushToken]);
+
   useEffect(() => {
-    onFetchUpdateAsync();
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 5000); // Force exit loading state after 5 seconds
+
+    return () => clearTimeout(timer);
   }, []);
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  useEffect(() => {
+    if (!isLoading) {
+      SplashScreen.hideAsync();
+    }
+  }, [isLoading]);
 
   if (isLoading) {
     return <Splash />;
@@ -128,16 +135,12 @@ export default function RootLayout() {
       value={colorScheme === "dark" ? CustomDarkTheme : CustomDefaultTheme}
     >
       <StatusBar style="dark" />
-
       <Stack
-        screenOptions={
-          {
-            headerShown: false,
-            gestureEnabled: true,
-            gestureDirection: "horizontal",
-            cardStyle: { backgroundColor: "#DFF2F9" }, // Apply background color to all screens
-          } as any
-        }
+        screenOptions={{
+          headerShown: false,
+          gestureEnabled: true,
+          gestureDirection: "horizontal",
+        }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="introPage" options={{ headerShown: false }} />
