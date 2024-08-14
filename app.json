@@ -11,8 +11,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.nnagelia.headstarterProject",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "This app needs access to location to show your position on the map.",
-        "NSLocationAlwaysUsageDescription": "This app needs access to location to show your position on the map."
+        "NSLocationWhenInUseUsageDescription": "This app needs access to location to show your position on the map, and to help us generate the nearest and more relevant recommendations.",
+        "NSLocationAlwaysUsageDescription": "This app needs access to location to show your position on the map and to help us generate the nearest and more relevant recommendations.",
+        "NSUserTrackingUsageDescription": "Allow this app to collect app-related data that can be used for tracking you or your device for advertisers."
       }
     },
     "android": {
@@ -22,17 +23,23 @@
       },
       "package": "com.nnagelia.headstarterProject"
     },
+
     "web": {
       "bundler": "metro",
       "output": "server",
       "favicon": "./assets/images/favicon.png"
+    },
+    "splash": {
+      "image": "./assets/images/splashIcon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
     },
     "plugins": [
       "expo-router",
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location. Your location is used to help generate your nearest recommendations."
         }
       ],
       [
@@ -47,6 +54,12 @@
           "icon": "./assets/images/favicon.png",
           "color": "#ffffff",
           "sound": "./assets/sounds/NotiSound.wav"
+        }
+      ],
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "Allow this app to collect app-related data that can be used for tracking you or your device for advertisers.."
         }
       ],
       "expo-font"

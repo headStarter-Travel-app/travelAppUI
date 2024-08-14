@@ -5,6 +5,7 @@ import { getUserId } from "@/lib/appwrite";
 import { getUser } from "@/lib/appwrite";
 import axios from "axios";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const HangoutCard = ({ hangout }: { hangout: any }) => {
   const [members, setMembers] = useState<string[]>([]);
@@ -127,6 +128,43 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 10,
   },
+  container2: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
+    padding: 20,
+  },
+  title2: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginTop: 20,
+    color: "#333",
+  },
+  subtitle: {
+    fontSize: 18,
+    marginTop: 10,
+    color: "#666",
+    textAlign: "center",
+  },
+  message: {
+    fontSize: 16,
+    marginTop: 20,
+    color: "#888",
+    textAlign: "center",
+  },
 });
 
-export default HangoutsPage;
+const UnderConstruction = () => {
+  return (
+    <View style={styles.container2}>
+      <MaterialIcons name="construction" size={80} color="#FFA500" />
+      <Text style={styles.title2}>Under Construction</Text>
+      <Text style={styles.subtitle}>
+        We're working hard to create this page.
+      </Text>
+      <Text style={styles.message}>Please check back soon!</Text>
+    </View>
+  );
+};
+export default UnderConstruction;

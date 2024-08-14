@@ -15,6 +15,7 @@ import { usePushNotifications } from "@/usePushNotifications";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { addNotificationToken } from "@/lib/appwrite";
 import { StatusBar } from "expo-status-bar";
+import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -76,6 +77,7 @@ export default function RootLayout() {
   });
   const { expoPushToken, notification } = usePushNotifications();
   const data = JSON.stringify(notification, undefined, 2);
+
   useEffect(() => {
     if (expoPushToken) {
       console.log("Expo Push Token:", expoPushToken.data);
@@ -88,11 +90,25 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontsLoaded) {
-      // Hide the splash screen after a delay
+      const handlePermissions = async () => {
+        try {
+          const { status } = await requestTrackingPermissionsAsync();
+          if (status === "granted") {
+            console.log("Tracking permission granted.");
+          } else {
+            console.log("Tracking permission denied.");
+          }
+        } catch (error) {
+          console.error("Error requesting tracking permission:", error);
+        }
+      };
+
+      handlePermissions();
+
       setTimeout(() => {
         SplashScreen.hideAsync();
         setIsLoading(false);
-      }, 2000); // Adjust the delay as needed
+      }, 2000);
     }
   }, [fontsLoaded]);
   useEffect(() => {
