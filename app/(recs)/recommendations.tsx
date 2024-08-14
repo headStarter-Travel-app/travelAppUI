@@ -99,14 +99,6 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
         isVisible={modalVisible}
         onClose={() => setModalVisible(false)}
         onSave={(date, groupId) => {
-          console.log(
-            "Saving",
-            selectedPlace,
-            "for",
-            date,
-            "in group",
-            groupId
-          );
           setModalVisible(false);
           // Implement the actual save logic here
         }}
@@ -257,8 +249,6 @@ const Card: React.FC<CardProps> = ({
 
     const todayHours = hours.find((hour) => hour.startsWith(day));
     if (!todayHours) return "Closed";
-    console.log(currentTime);
-    console.log("todayHours:", todayHours);
 
     // Handle "Closed" case
     if (todayHours.includes("Closed")) {
@@ -282,8 +272,6 @@ const Card: React.FC<CardProps> = ({
           return match;
         }
       );
-
-    console.log("normalizedHours:", normalizedHours);
 
     const matchResult = normalizedHours.match(
       /(\d{1,2}:\d{2}\s?[AP]M)\s?-\s?(\d{1,2}:\d{2}\s?[AP]M)/
@@ -533,7 +521,7 @@ const styles = StyleSheet.create({
     height: 36,
     flexDirection: "column",
     justifyContent: "center",
-    maxWidth: 120,
+    maxWidth: 140,
     minWidth: 36,
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 4 },

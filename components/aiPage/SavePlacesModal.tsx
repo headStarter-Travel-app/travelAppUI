@@ -104,18 +104,32 @@ const SavePlaceModal: React.FC<SavePlaceModalProps> = ({
       const selectedGroupData = groups.find(
         (group) => group.$id === selectedGroup
       );
-      members = selectedGroupData ? selectedGroupData.members : [];
+      members = selectedGroupData ? selectedGroupData.members : [currentUserId];
     }
+    console.log(placeDetails);
 
     onSave(dateTime, members);
-    console.log(
-      "Save",
-      dateTime,
-      members,
-      placeDetails.address,
-      placeDetails.name,
-      currentUserId
-    );
+    let request = {
+      uid: currentUserId,
+      groupMembers: members,
+      date: dateTime.toISOString(),
+      rating: 0.0,
+      address: placeDetails.address,
+      // latitude: placeDetails.latitude,
+      // longitude: placeDetails.longitude,
+      name: placeDetails.name,
+    };
+    console.log(request);
+    axios
+      .post(`${API_URL}/save-preferences`, request)
+      .then((response) => {
+        console.log(response);
+        alert("Preferences saved successfully!");
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("Failed to save preferences.");
+      });
     onClose();
   };
 
