@@ -18,54 +18,28 @@ const HangoutCard = ({ hangout }: { hangout: any }) => {
   const [members, setMembers] = useState<string[]>([]);
 
   //This funciton gets all the member names
-  const getDate = useCallback((date: string) => {
-    var localTime = moment(date).tz(moment.tz.guess());
-    date = localTime.format();
-    var sample = "2024-08-14T03:50:07.151+00:00";
-    const month = date.substring(5, 7);
-    const day = date.substring(8, 10);
-    const hour = date.substring(11, 13);
-    const min = date.substring(14, 16);
-    var plainMonth;
-    switch (month) {
-      case "01":
-        plainMonth = "Janurary";
-        break;
-      case "02":
-        plainMonth = "Feburary";
-        break;
-      case "03":
-        plainMonth = "March";
-        break;
-      case "04":
-        plainMonth = "April";
-        break;
-      case "05":
-        plainMonth = "May";
-        break;
-      case "06":
-        plainMonth = "June";
-        break;
-      case "07":
-        plainMonth = "July";
-        break;
-      case "08":
-        plainMonth = "August";
-        break;
-      case "09":
-        plainMonth = "September";
-        break;
-      case "10":
-        plainMonth = "October";
-        break;
-      case "11":
-        plainMonth = "November";
-        break;
-      case "12":
-        plainMonth = "December";
-        break;
+  const getDate = useCallback((dateString: any) => {
+    try {
+      const date = new Date(dateString);
+
+      if (isNaN(date.getTime())) {
+        throw new Error("Invalid date");
+      }
+
+      const formatter = new Intl.DateTimeFormat("en-US", {
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+
+      return formatter.format(date);
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Invalid Date";
     }
-    return plainMonth + " " + day + " @ " + hour + ":" + min;
   }, []);
 
   useEffect(() => {
