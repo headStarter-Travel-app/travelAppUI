@@ -20,7 +20,36 @@ import {
 } from "@/lib/appwrite";
 import { ProfileSelector } from "@/components/settingsPage/ProfileSelector";
 import { Ionicons } from "@expo/vector-icons";
+import { DeleteUser } from "@/lib/appwrite";
 import { useRouter } from "expo-router";
+import { Account, Client, Databases, ID, Storage } from "react-native-appwrite";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { get } from "http";
+import { Query } from "react-native-appwrite";
+export const appwriteConfig = {
+  endpoint: "https://cloud.appwrite.io/v1",
+  platform: "com.nnagelia.headstarterProject",
+  projectId: "66930c61001b090ab206",
+  databaseId: "66930e1000087eb0d4bd",
+  userCollectionId: "66930e5900107bc194dc",
+  preferencesCollectionId: "6696016b00117bbf6352",
+  storageId: "66930ebf003d9d175225",
+  profileImageBucketID: "profilePictures",
+  notifications: "66abd65b0027a6d279bc",
+};
+import axios from "axios";
+import { log } from "console";
+const API_URL = "https://travelappbackend-c7bj.onrender.com";
+
+// Init your React Native SDK
+const client = new Client();
+
+client
+  .setEndpoint(appwriteConfig.endpoint) // Your Appwrite Endpoint
+  .setProject(appwriteConfig.projectId) // Your project ID
+  .setPlatform(appwriteConfig.platform); // Your application ID or bundle ID.
+
+const account = new Account(client);
 
 interface ProfileData {
   firstName: string;
@@ -94,6 +123,35 @@ export default function TabTwoScreen() {
       console.error("Logout failed:", error);
       Alert.alert("Logout failed. Please try again.");
       router.replace("/introPage");
+      await account.deleteSession("current");
+      await AsyncStorage.removeItem("userSession");
+      await AsyncStorage.clear();
+    }
+  };
+  const handleDeleteAccount = async () => {
+    try {
+      const result: any = await DeleteUser();
+
+      if (result && result.success) {
+        await AsyncStorage.clear();
+        router.replace("/introPage");
+
+        try {
+          await axios.delete(
+            `${API_URL}/deleteAccount?user_id=${result.userId}`
+          );
+          console.log("Server-side account deletion successful");
+        } catch (error) {
+          console.error("Error in server-side account deletion:", error);
+        }
+
+        // Show success message after everything is done
+        Alert.alert("Account deleted successfully");
+      }
+      // If result is false, it means the user cancelled, so we do nothing
+    } catch (error: any) {
+      console.error("Account deletion failed:", error);
+      Alert.alert("Account deletion failed. Please try again.");
     }
   };
 
@@ -172,6 +230,20 @@ export default function TabTwoScreen() {
               style={{ marginRight: 4 }}
             />
             <Text style={styles.label}>Logout</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={handleDeleteAccount}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Ionicons
+              name="trash-outline"
+              size={24}
+              color="white"
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.deleteButtonText}>Delete Account</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -321,5 +393,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+  },
+  deleteButton: {
+    backgroundColor: "#DC3545",
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 20,
+    borderColor: "#9A2A2A",
+    borderWidth: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  deleteButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+    fontFamily: "DM Sans",
   },
 });
