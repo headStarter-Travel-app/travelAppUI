@@ -2,7 +2,7 @@ import { Account, Client, Databases, ID, Storage } from "react-native-appwrite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { get } from "http";
 import { Query } from "react-native-appwrite";
-
+import { Alert } from "react-native";
 export const appwriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
   platform: "com.nnagelia.headstarterProject",
@@ -14,6 +14,8 @@ export const appwriteConfig = {
   profileImageBucketID: "profilePictures",
   notifications: "66abd65b0027a6d279bc",
 };
+import axios from "axios";
+const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
 // Init your React Native SDK
 const client = new Client();
@@ -104,7 +106,9 @@ export const LogoutUser = async () => {
     console.log("Logout successful");
   } catch (error) {
     console.error("Logout failed", error);
-    alert("Logout Failed");
+    await account.deleteSession("current");
+    await AsyncStorage.removeItem("userSession");
+    await AsyncStorage.clear();
   }
 };
 
@@ -327,4 +331,47 @@ export const getUser = async (userId: string) => {
     console.error("Error fetching user:", error);
     throw error;
   }
+};
+
+export const DeleteUser = () => {
+  return new Promise((resolve, reject) => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+          onPress: () => resolve(false), // Resolve with false instead of rejecting
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const user = await account.get();
+
+              // Delete document
+              try {
+                await databases.deleteDocument(
+                  appwriteConfig.databaseId,
+                  appwriteConfig.userCollectionId,
+                  user.$id
+                );
+              } catch (error) {
+                console.warn(
+                  "Document not found, proceeding with account deletion."
+                );
+              }
+
+              resolve({ success: true, userId: user.$id });
+            } catch (error) {
+              console.error("Error during account deletion process:", error);
+              reject(error);
+            }
+          },
+        },
+      ]
+    );
+  });
 };
