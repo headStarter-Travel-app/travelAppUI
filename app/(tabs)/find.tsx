@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import moment, { Moment } from "moment";
-import { StyleSheet, Text, View, FlatList } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import { Account, Client, Databases, ID, Storage } from "react-native-appwrite";
 import { getUserId } from "@/lib/appwrite";
 import { getUser } from "@/lib/appwrite";
@@ -13,30 +19,54 @@ const HangoutCard = ({ hangout }: { hangout: any }) => {
 
   //This funciton gets all the member names
   const getDate = useCallback((date: string) => {
-    var localTime = moment(date).tz(moment.tz.guess())
-    date = localTime.format()
-    var sample = "2024-08-14T03:50:07.151+00:00"
+    var localTime = moment(date).tz(moment.tz.guess());
+    date = localTime.format();
+    var sample = "2024-08-14T03:50:07.151+00:00";
     const month = date.substring(5, 7);
     const day = date.substring(8, 10);
     const hour = date.substring(11, 13);
     const min = date.substring(14, 16);
     var plainMonth;
-    switch(month){
-      case "01": plainMonth = "Janurary"; break;
-      case "02": plainMonth = "Feburary"; break;
-      case "03": plainMonth = "March"; break;
-      case "04": plainMonth = "April"; break;
-      case "05": plainMonth = "May"; break;
-      case "06": plainMonth = "June"; break;
-      case "07": plainMonth = "July"; break;
-      case "08": plainMonth = "August"; break;
-      case "09": plainMonth = "September"; break;
-      case "10": plainMonth = "October"; break;
-      case "11": plainMonth = "November"; break;
-      case "12": plainMonth = "December"; break;
+    switch (month) {
+      case "01":
+        plainMonth = "Janurary";
+        break;
+      case "02":
+        plainMonth = "Feburary";
+        break;
+      case "03":
+        plainMonth = "March";
+        break;
+      case "04":
+        plainMonth = "April";
+        break;
+      case "05":
+        plainMonth = "May";
+        break;
+      case "06":
+        plainMonth = "June";
+        break;
+      case "07":
+        plainMonth = "July";
+        break;
+      case "08":
+        plainMonth = "August";
+        break;
+      case "09":
+        plainMonth = "September";
+        break;
+      case "10":
+        plainMonth = "October";
+        break;
+      case "11":
+        plainMonth = "November";
+        break;
+      case "12":
+        plainMonth = "December";
+        break;
     }
     return plainMonth + " " + day + " @ " + hour + ":" + min;
-  }, [])
+  }, []);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -58,7 +88,6 @@ const HangoutCard = ({ hangout }: { hangout: any }) => {
   }, [hangout.groupMembers]);
 
   //Each UI carda is put here
-  console.log(hangout.date.moment)
   return (
     <View style={styles.card}>
       <Text style={styles.locationName}>{hangout.name}</Text>
@@ -70,7 +99,6 @@ const HangoutCard = ({ hangout }: { hangout: any }) => {
           {member}
         </Text>
       ))}
-      
     </View>
   );
 };
@@ -80,8 +108,7 @@ const HangoutCard = ({ hangout }: { hangout: any }) => {
 const HangoutsPage = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [hangouts, setHangouts] = useState<any[]>([]);
-
-  
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -90,45 +117,60 @@ const HangoutsPage = () => {
         setUserId(id);
       } catch (error) {
         console.error("Error fetching user ID:", error);
+        setIsLoading(false);
       }
     };
 
     fetchUserId();
   }, []);
-  //This gets all saved hangouts, console log it to see what you have
 
   useEffect(() => {
     if (userId) {
+      setIsLoading(true);
       axios
         .get(`${API_URL}/get-savedHangouts?user_id=${userId}`)
         .then((response) => {
           setHangouts(response.data.saved_hangouts);
+          setIsLoading(false);
         })
         .catch((error) => {
           console.error(error);
+          setIsLoading(false);
         });
     }
   }, [userId]);
 
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text style={styles.loadingText}>Loading hangouts...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Hangouts Page</Text>
-      <FlatList
-        data={hangouts}
-        keyExtractor={(item) => item.$id}
-        renderItem={({ item }) => <HangoutCard hangout={item} />}
-      />
+      {hangouts.length > 0 ? (
+        <FlatList
+          data={hangouts}
+          keyExtractor={(item) => item.$id}
+          renderItem={({ item }) => <HangoutCard hangout={item} />}
+        />
+      ) : (
+        <Text style={styles.noHangoutsText}>No hangouts found.</Text>
+      )}
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
     marginTop: 48,
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   title: {
     fontSize: 32,
@@ -141,7 +183,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 15,
     borderWidth: 2,
-    position: "relative"
+    position: "relative",
   },
   locationName: {
     fontSize: 18,
@@ -191,7 +233,22 @@ const styles = StyleSheet.create({
   date: {
     color: "#aaa",
     fontStyle: "italic",
-  }
+  },
+  loadingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#666",
+  },
+  noHangoutsText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 20,
+  },
 });
 
 const UnderConstruction = () => {

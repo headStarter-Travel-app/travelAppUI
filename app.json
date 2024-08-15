@@ -2,7 +2,7 @@
   "expo": {
     "name": "Proxi Link",
     "slug": "headstarterProject",
-    "version": "0.0.12",
+    "version": "0.1.2",
     "orientation": "portrait",
     "icon": "./assets/images/favicon.png",
     "scheme": "myapp",
@@ -30,7 +30,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "splash": {
-      "image": "./assets/images/splashIcon.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
