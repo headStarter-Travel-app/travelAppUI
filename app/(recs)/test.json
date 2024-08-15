@@ -195,3 +195,25 @@
     "name_encoded": 42
   }
 ]
+
+{
+  "$collectionId": "savedPreferences",
+  "$createdAt": "2024-08-14T03:51:00.270+00:00",
+  "$databaseId": "66930e1000087eb0d4bd",
+  "$id": "66bc29a3003d2116be49",
+  "$permissions": [],
+  "$tenant": "168138",
+  "$updatedAt": "2024-08-14T03:51:00.270+00:00",
+  "address": "3117 16th St, San Francisco, CA  94103, United States",
+  "date": "2024-08-14T03:50:07.151+00:00",
+  "groupMembers": [
+    "66b18b05002b647b10e0",
+    "66a58e55001acebf9f51",
+    "66996b7b0025b402922b"
+  ],
+  "latitude": 37.7647571,
+  "longitude": -122.4223816,
+  "name": "Roxie Theater",
+  "rating": 0,
+  "uid": "66b18b05002b647b10e0"
+}
