@@ -54,7 +54,7 @@ export default function TabLayout() {
           options={{
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon
-                name={focused ? "search" : "search-outline"}
+                name={focused ? "calendar" : "calendar-outline"}
                 color="black"
               />
             ),
