@@ -255,6 +255,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 5,
     borderWidth: 2,
+    borderBottomWidth: 4,
     borderColor: "#000000",
     fontFamily: "spaceGroteskRegular",
   },
@@ -267,6 +268,7 @@ const styles = StyleSheet.create({
     borderColor: "#000",
     height: 50,
     borderWidth: 2,
+    borderBottomWidth: 4
   },
   dropdownText: {
     fontSize: 16,
