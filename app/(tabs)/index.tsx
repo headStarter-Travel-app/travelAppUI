@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   Alert,
@@ -22,6 +22,8 @@ import axios from "axios";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import PlaceModal from "../../components/modal";
 import { Animated } from "react-native";
+import StatusBar from "@/components/usableOnes/StatusBar";
+import { config } from "process";
 
 // Default location (San Francisco)
 const DEFAULT_LOCATION = {
@@ -59,6 +61,8 @@ export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0.3));
   const [loadingRecs, setLoadingRecs] = useState(false);
+  const status = 100
+
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -127,6 +131,8 @@ export default function App() {
       }
     })();
   }, []);
+
+  /** status demo */
 
   const fetchRecommendations = async () => {
     setShowGetRecommendationsButton(false);
@@ -261,6 +267,9 @@ export default function App() {
           </Animated.View>
         )}
         <View style={styles.buttonsContainer}></View>
+        <View style={{width: 248, height: 24}}>
+          <StatusBar min={0} max={100} num={status} color={"#0f0"} />
+        </View>
         <View style={styles.buttonsContainer}>
           <TouchableOpacity onPress={handleQuizPress}>
             <ThemedView style={styles.card}>
