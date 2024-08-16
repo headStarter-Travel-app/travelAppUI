@@ -6,11 +6,14 @@ import {
   View,
   FlatList,
   ActivityIndicator,
+  RefreshControl,
+  SafeAreaView,
 } from "react-native";
 import { Account, Client, Databases, ID, Storage } from "react-native-appwrite";
 import { getUserId } from "@/lib/appwrite";
 import { getUser } from "@/lib/appwrite";
 import axios from "axios";
+import { useFocusEffect } from "expo-router";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -83,6 +86,29 @@ const HangoutsPage = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [hangouts, setHangouts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchHangouts = useCallback(async () => {
+    if (userId) {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(
+          `${API_URL}/get-savedHangouts?user_id=${userId}`
+        );
+        setHangouts(response.data.saved_hangouts);
+      } catch (error) {
+        console.error("Error fetching hangouts:", error);
+      } finally {
+        setIsLoading(false);
+        setRefreshing(false);
+      }
+    }
+  }, [userId]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchHangouts();
+  }, [fetchHangouts]);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -98,21 +124,14 @@ const HangoutsPage = () => {
     fetchUserId();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchHangouts();
+    }, [fetchHangouts])
+  );
   useEffect(() => {
-    if (userId) {
-      setIsLoading(true);
-      axios
-        .get(`${API_URL}/get-savedHangouts?user_id=${userId}`)
-        .then((response) => {
-          setHangouts(response.data.saved_hangouts);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error(error);
-          setIsLoading(false);
-        });
-    }
-  }, [userId]);
+    console.log("hangouts", hangouts);
+  }, [hangouts]);
 
   if (isLoading) {
     return (
@@ -131,6 +150,16 @@ const HangoutsPage = () => {
           data={hangouts}
           keyExtractor={(item) => item.$id}
           renderItem={({ item }) => <HangoutCard hangout={item} />}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#0000ff"]}
+              tintColor="#0000ff"
+            />
+          }
+          contentContainerStyle={styles.flatListContent}
+          showsVerticalScrollIndicator={false}
         />
       ) : (
         <Text style={styles.noHangoutsText}>No hangouts found.</Text>
@@ -138,6 +167,7 @@ const HangoutsPage = () => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -145,6 +175,7 @@ const styles = StyleSheet.create({
     marginTop: 48,
     flexDirection: "column",
     alignItems: "center",
+    paddingBottom: 20,
   },
   title: {
     fontSize: 32,
@@ -222,6 +253,9 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
     marginTop: 20,
+  },
+  flatListContent: {
+    paddingBottom: 100, // Add extra padding at the bottom
   },
 });
 

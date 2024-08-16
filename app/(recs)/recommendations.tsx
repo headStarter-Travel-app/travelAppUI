@@ -40,6 +40,7 @@ interface RecommendationsProps {
   scores: any[];
 }
 const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
+  const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const num = data.length;
@@ -82,19 +83,28 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
   }
 
   return (
-    <ScrollView>
-      <SafeAreaView>
-        <Text style={styles.title}>
-          AI <TabBarIcon name="sparkles" color="black" /> Suggestions
-        </Text>
-      </SafeAreaView>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.replace("/(tabs)")}
+          >
+            <FontAwesome name="arrow-left" size={20} color="blue" />
+          </TouchableOpacity>
+          <Text style={styles.title}>
+            AI <TabBarIcon name="sparkles" color="black" /> Suggestions
+          </Text>
+          <View style={styles.backButton} />
+        </View>
 
-      <Text style={styles.numHeading}>
-        Number of Suggestions: <Text style={{ color: "#410DFF" }}>{num}</Text>
-      </Text>
-      <View style={styles.locationContainer}>
-        {data.map((location, index) => renderCard(location, index))}
-      </View>
+        <Text style={styles.numHeading}>
+          Number of Suggestions: <Text style={{ color: "#410DFF" }}>{num}</Text>
+        </Text>
+        <View style={styles.locationContainer}>
+          {data.map((location, index) => renderCard(location, index))}
+        </View>
+      </ScrollView>
       <SavePlaceModal
         isVisible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -104,11 +114,12 @@ const Recommendations: React.FC<RecommendationsProps> = ({ data, scores }) => {
         }}
         placeDetails={selectedPlace}
       />
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const App = () => {
+  const router = useRouter();
   const [recommendations, setRecommendations] = useState<
     RecommendationsProps["data"]
   >([]);
@@ -117,7 +128,6 @@ const App = () => {
 
   const getRecDetails = useCallback(
     async (addresses: string[], names: string[]) => {
-      console.log("Fetching details for:", addresses, names);
       setLoading(true);
       try {
         const response = await fetch(
@@ -149,7 +159,6 @@ const App = () => {
   );
 
   useEffect(() => {
-    console.log("globalRecommendations updated:", globalRecommendations);
     setRecommendations(globalRecommendations);
 
     if (globalRecommendations.length > 0) {
@@ -316,20 +325,25 @@ const Card: React.FC<CardProps> = ({
           source={{ uri: photoURL || defaultImage }}
           style={styles.image}
         />
-        <View style={{maxHeight: 48, flexDirection: "row"}}>
+        <View style={{ maxHeight: 48, flexDirection: "row" }}>
           <View style={[styles.labelCard, { flexGrow: 1, maxHeight: 48 }]}>
-            <ScrollView style={{
-              height: 12,
-              flexGrow: 1,
-              flexWrap: "wrap",
-              flex: 1,
-              flexDirection: "column",
-            }} horizontal>
+            <ScrollView
+              style={{
+                height: 12,
+                flexGrow: 1,
+                flexWrap: "wrap",
+                flex: 1,
+                flexDirection: "column",
+              }}
+              horizontal
+            >
               <Text style={styles.locationName}>{locationName}</Text>
             </ScrollView>
           </View>
           <TouchableOpacity style={styles.saveButton} onPress={onSave}>
-            <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+            <View
+              style={{ flex: 1, flexDirection: "row", alignItems: "center" }}
+            >
               <FontAwesome name="bookmark" size={20} color="white" />
             </View>
           </TouchableOpacity>
@@ -378,6 +392,25 @@ const Card: React.FC<CardProps> = ({
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+    marginBottom: 10,
+  },
+  backButton: {
+    padding: 10,
+    width: 50,
+  },
   parentView: {
     padding: 10,
   },
