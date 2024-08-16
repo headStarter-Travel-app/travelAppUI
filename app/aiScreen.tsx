@@ -21,6 +21,8 @@ import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import { G } from "react-native-svg";
 import { group } from "console";
+import { FontAwesome } from "@expo/vector-icons";
+
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -258,7 +260,16 @@ export default function AIScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <TitleContainer />
+      <View style={styles.titleContainer}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <FontAwesome name="arrow-left" size={20} color="blue" />
+        </TouchableOpacity>
+        <TitleContainer />
+      </View>
+
       <ThemeContainer setTheme={setTheme} theme={theme} />
       <BudgetContainer
         budget={budget}
@@ -311,6 +322,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     textAlign: "center",
+  },
+  backButton: {
+    padding: 10,
+    width: 50,
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 16,
   },
 });
 

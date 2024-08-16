@@ -17,6 +17,7 @@ import { useFocusEffect } from "expo-router";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 import { MaterialIcons } from "@expo/vector-icons";
 
+let globalHangouts: any[] = [];
 const HangoutCard = ({ hangout }: { hangout: any }) => {
   const [members, setMembers] = useState<string[]>([]);
 
@@ -129,9 +130,6 @@ const HangoutsPage = () => {
       fetchHangouts();
     }, [fetchHangouts])
   );
-  useEffect(() => {
-    console.log("hangouts", hangouts);
-  }, [hangouts]);
 
   if (isLoading) {
     return (
@@ -272,3 +270,4 @@ const UnderConstruction = () => {
   );
 };
 export default HangoutsPage;
+export { globalHangouts };

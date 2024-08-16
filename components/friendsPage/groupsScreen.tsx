@@ -158,13 +158,11 @@ const GroupsScreen = ({
         group_id: selectedGroup.$id,
         members: selectedMembers,
       });
-      Alert.alert("Success", "Members added successfully");
       closeAddMembersModal();
       closeGroupDetailsModal();
       refreshGroups();
     } catch (error) {
       console.error("Error adding members:", error);
-      Alert.alert("Error", "Failed to add members");
     }
   }, [selectedGroup, selectedMembers, refreshGroups]);
 
@@ -410,6 +408,7 @@ const GroupsScreen = ({
             <Text style={styles.modalTitle}>
               Add Members to {selectedGroup?.name}
             </Text>
+            <Text style={styles.subTitle}>You can only add friends:</Text>
             <FlatList
               data={friends}
               renderItem={renderFriendItem}

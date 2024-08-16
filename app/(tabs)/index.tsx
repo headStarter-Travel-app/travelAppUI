@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   StyleSheet,
   Alert,
@@ -24,6 +24,12 @@ import PlaceModal from "../../components/modal";
 import { Animated } from "react-native";
 import StatusBar from "@/components/usableOnes/StatusBar";
 import { config } from "process";
+import { useFocusEffect } from "expo-router";
+import { getUserId } from "@/lib/appwrite";
+import { RecommendationMarker } from "@/components/homepage/markers";
+import { HangoutMarker } from "@/components/homepage/markers";
+
+const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
 // Default location (San Francisco)
 const DEFAULT_LOCATION = {
@@ -61,7 +67,41 @@ export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0.3));
   const [loadingRecs, setLoadingRecs] = useState(false);
-  const status = 100
+  const [userId, setUserId] = useState<string | null>(null);
+  const [hangouts, setHangouts] = useState<any[]>([]);
+  const status = 100;
+
+  const fetchHangouts = useCallback(async () => {
+    if (userId) {
+      try {
+        const response = await axios.get(
+          `${API_URL}/get-savedHangouts?user_id=${userId}`
+        );
+        setHangouts(response.data.saved_hangouts);
+      } catch (error) {
+        console.error("Error fetching hangouts:", error);
+      }
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    const fetchUserId = async () => {
+      try {
+        const id = await getUserId();
+        setUserId(id);
+      } catch (error) {
+        console.error("Error fetching user ID:", error);
+      }
+    };
+
+    fetchUserId();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchHangouts();
+    }, [fetchHangouts])
+  );
 
   useEffect(() => {
     Animated.loop(
@@ -102,7 +142,6 @@ export default function App() {
 
       try {
         let currentLocation = await Location.getCurrentPositionAsync({});
-        console.log(location);
 
         setLocation({
           latitude: currentLocation.coords.latitude,
@@ -118,7 +157,7 @@ export default function App() {
         });
 
         const response = await axios.get(
-          `https://travelappbackend-c7bj.onrender.com/initial-recommendations?lat=${currentLocation.coords.latitude}&lon=${currentLocation.coords.longitude}`
+          `${API_URL}/initial-recommendations?lat=${currentLocation.coords.latitude}&lon=${currentLocation.coords.longitude}`
         );
         setRecommendations(response.data.recommendations);
         setIsLoading(false);
@@ -132,17 +171,12 @@ export default function App() {
     })();
   }, []);
 
-  /** status demo */
-
   const fetchRecommendations = async () => {
     setShowGetRecommendationsButton(false);
     setIsLoading(true);
     try {
-      console.log(
-        `https://travelappbackend-c7bj.onrender.com/initial-recommendations?lat=${location.latitude}&lon=${location.longitude}`
-      );
       const response = await axios.get(
-        `https://travelappbackend-c7bj.onrender.com/initial-recommendations?lat=${location.latitude}&lon=${location.longitude}`
+        `${API_URL}/initial-recommendations?lat=${location.latitude}&lon=${location.longitude}`
       );
       setRecommendations(response.data.recommendations);
     } catch (error) {
@@ -160,13 +194,27 @@ export default function App() {
     try {
       const formattedAddressString = place.formattedAddressLines.join(", ");
 
-      const response = await axios.post(
-        "https://travelappbackend-c7bj.onrender.com/get_place_details",
-        {
-          address: formattedAddressString,
-          name: place.name,
-        }
-      );
+      const response = await axios.post(`${API_URL}/get_place_details`, {
+        address: formattedAddressString,
+        name: place.name,
+      });
+      setSelectedPlaceDetails(response.data);
+      setSelectedPlace(place);
+    } catch (error) {
+      console.error("Error fetching place details:", error);
+      setSelectedPlaceDetails("error");
+    }
+  };
+
+  const handleHangoutPress = async (place: any) => {
+    setSelectedPlaceDetails(null);
+    setSelectedPlace(null);
+    setModalVisible(true);
+    try {
+      const response = await axios.post(`${API_URL}/get_place_details`, {
+        address: place.address,
+        name: place.name,
+      });
       setSelectedPlaceDetails(response.data);
       setSelectedPlace(place);
     } catch (error) {
@@ -180,11 +228,6 @@ export default function App() {
     setSelectedPlace(null);
   };
 
-  const getMarkerColor = (index: number) => {
-    const colors = ["#FF5252", "#4CAF50", "#2196F3", "#FFC107", "#9C27B0"];
-    return colors[index % colors.length];
-  };
-
   const handleQuizPress = () => {
     router.push("/quiz");
   };
@@ -192,17 +235,6 @@ export default function App() {
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <SafeAreaView style={styles.container}>
-        {/* <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Create a new party..."
-            placeholderTextColor="#000"
-          />
-          <Image
-            source={require("@/public/utilities/search.png")}
-            style={styles.Magnicon}
-          />
-        </View> */}
         {!isLoading ? (
           <MapView
             style={styles.map}
@@ -214,41 +246,20 @@ export default function App() {
             pitchEnabled={true}
           >
             {recommendations.map((place, index) => (
-              <Marker
-                key={index}
-                coordinate={{
-                  latitude: place.coordinate.latitude,
-                  longitude: place.coordinate.longitude,
-                }}
-                title={place.name}
-                description={place.description}
-                onPress={() => handleMarkerPress(place)}
-              >
-                <View style={styles.markerContainer}>
-                  <View
-                    style={[
-                      styles.markerOuter,
-                      { backgroundColor: getMarkerColor(index) },
-                    ]}
-                  >
-                    <Text style={styles.markerText}>{index + 1}</Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.markerArrow,
-                      { borderTopColor: getMarkerColor(index) },
-                    ]}
-                  >
-                    <Text style={styles.markerText}>{index + 1}</Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.markerArrow,
-                      { borderTopColor: getMarkerColor(index) },
-                    ]}
-                  />
-                </View>
-              </Marker>
+              <RecommendationMarker
+                key={`recommendation-${index}`}
+                place={place}
+                index={index}
+                onPress={handleMarkerPress}
+              />
+            ))}
+            {hangouts.map((place, index) => (
+              <HangoutMarker
+                key={`hangout-${index}`}
+                place={place}
+                index={index}
+                onPress={handleHangoutPress}
+              />
             ))}
           </MapView>
         ) : (
@@ -266,10 +277,6 @@ export default function App() {
             </Text>
           </Animated.View>
         )}
-        <View style={styles.buttonsContainer}></View>
-        <View style={{width: 248, height: 24}}>
-          <StatusBar min={0} max={100} num={status} color={"#0f0"} />
-        </View>
         <View style={styles.buttonsContainer}>
           <TouchableOpacity onPress={handleQuizPress}>
             <ThemedView style={styles.card}>
@@ -482,5 +489,40 @@ const styles = StyleSheet.create({
     flex: 1,
     height: "50%",
     backgroundColor: "#E0E0E0",
+  },
+
+  markerLabel: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 4,
+  },
+  labelText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  hangoutMarkerOuter: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  hangoutMarkerLabel: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 4,
+  },
+  hangoutLabelText: {
+    color: "white",
+    fontSize: 11,
+    fontWeight: "bold",
   },
 });
