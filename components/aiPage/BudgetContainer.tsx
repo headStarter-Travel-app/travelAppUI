@@ -1,7 +1,16 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Keyboard,
+  ScrollView,
+} from "react-native";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
-import { group } from "console";
+import axios from "axios";
+
+const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
 interface BudgetProps {
   budget: number;
@@ -10,9 +19,10 @@ interface BudgetProps {
   location: string;
   setBudget: (budget: any) => void;
   setTime: (time: any) => void;
-  setGroupId: (is: any) => void;
+  setGroupId: (id: any) => void;
   setLocation: (location: any) => void;
   group: any[];
+  setIsValid: (isValid: boolean) => void;
 }
 
 const BudgetContainer = ({
@@ -25,6 +35,7 @@ const BudgetContainer = ({
   setLocation,
   setTime,
   group,
+  setIsValid,
 }: BudgetProps) => {
   const [openBudget, setOpenBudget] = useState(false);
   const [openTime, setOpenTime] = useState(false);
@@ -42,108 +53,199 @@ const BudgetContainer = ({
   const [groupItems, setGroupItems] = useState([
     { label: "Individual", value: "0" },
   ]);
+
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [locationText, setLocationText] = useState(location);
+  const [isLocationValid, setIsLocationValid] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
+
   useEffect(() => {
     if (!group) return;
     setGroupItems([{ label: "Individual", value: "0" }, ...group]);
   }, [group]);
 
+  const fetchGeoLocation = async () => {
+    if (locationText === "" || locationText === undefined) {
+      setLocation(location);
+      setIsValid(true);
+      setIsLocationValid(true);
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(`${API_URL}/geoCode`, {
+        query: locationText,
+      });
+      if (data && data.length > 0) {
+        setLocation(data[0]); // Assuming the first result is the most relevant
+        setIsValid(true);
+        setIsLocationValid(true);
+      } else {
+        setIsValid(false);
+        setIsLocationValid(false);
+      }
+    } catch (error) {
+      console.error("Error fetching geolocation:", error);
+      setIsValid(false);
+      setIsLocationValid(false);
+    }
+  };
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }
+    );
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        if (isTyping) {
+          fetchGeoLocation();
+          setIsTyping(false);
+        }
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, [isTyping, locationText]);
+
+  const handleLocationChange = (text: string) => {
+    setLocationText(text);
+    setIsTyping(true);
+    if (text === "") {
+      setIsLocationValid(true);
+      setIsValid(true);
+    }
+  };
+
+  const handleLocationBlur = () => {
+    if (isTyping) {
+      fetchGeoLocation();
+      setIsTyping(false);
+    }
+  };
+
   return (
-    <View style={[styles.container, { elevation: 1000, zIndex: 10000 }]}>
-      <Text style={styles.label}>Info</Text>
-      <View style={[styles.inputRow, { zIndex: 100000 }]}>
-        {/* <View style={{ width: 180, height: 50 }}>
-          <DropDownPicker 
-            open={openBudget}
-            value={budget}
-            items={budgetItems}
-            setOpen={setOpenBudget}
-            setValue={setBudget}
-            setItems={setBudgetItems}
-            placeholder="Select Budget"
-            style={styles.picker}
-            textStyle={styles.pickerText}
-            dropDownContainerStyle={styles.pickerItemContainer}
-          />
-        </View> */}
-        <View style={{ width: 180, height: 50 }}>
-          <DropDownPicker
-            open={openTime}
-            value={time}
-            items={timeItems}
-            setOpen={setOpenTime}
-            setValue={setTime}
-            setItems={setTimeItems}
-            placeholder="Select Time"
-            style={styles.picker}
-            textStyle={styles.pickerText}
-          />
-        </View>
-      </View>
-      <View style={styles.inputRow}>
-        <View style={{ width: 180, height: 50 }}>
-          <DropDownPicker
-            open={openGroup}
-            value={groupId}
-            items={groupItems}
-            setOpen={setOpenGroup}
-            setValue={setGroupId}
-            setItems={setGroupItems}
-            placeholder="Select Group"
-            style={styles.picker}
-            textStyle={styles.pickerText}
-          />
-        </View>
-        {/* <View style={{width: 180, height: 50}}>
+    <ScrollView
+      ref={scrollViewRef}
+      contentContainerStyle={styles.scrollViewContent}
+    >
+      <View style={styles.container}>
+        <Text style={styles.label}>Info</Text>
+        <View style={styles.inputContainer}>
+          <Text style={styles.subTitle}>
+            Enter Location, leave blank for current
+          </Text>
           <TextInput
-            style={[styles.picker]}
+            style={[
+              styles.input,
+              { borderColor: isLocationValid ? "green" : "red" },
+            ]}
             placeholder="Enter Location"
-            onChangeText={e => setLocation(e)}
-            value={location}
+            onChangeText={handleLocationChange}
+            onBlur={handleLocationBlur}
+            value={locationText}
           />
-        </View> */}
+        </View>
+        <View style={styles.pickerContainer}>
+          <View style={styles.pickerWrapper}>
+            <DropDownPicker
+              open={openGroup}
+              value={groupId}
+              items={groupItems}
+              setOpen={setOpenGroup}
+              setValue={setGroupId}
+              setItems={setGroupItems}
+              placeholder="Select Group"
+              style={styles.picker}
+              textStyle={styles.pickerText}
+              containerStyle={styles.pickerInnerContainer}
+            />
+          </View>
+          <View style={styles.pickerWrapper}>
+            <DropDownPicker
+              open={openTime}
+              value={time}
+              items={timeItems}
+              setOpen={setOpenTime}
+              setValue={setTime}
+              setItems={setTimeItems}
+              placeholder="Select Time"
+              style={styles.picker}
+              textStyle={styles.pickerText}
+              containerStyle={styles.pickerInnerContainer}
+            />
+          </View>
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 export default BudgetContainer;
 
 const styles = StyleSheet.create({
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+  },
   container: {
     flexDirection: "column",
     alignItems: "center",
     position: "relative",
-    rowGap: 12,
+    width: "100%",
+    padding: 16,
   },
   label: {
     fontSize: 24,
     fontWeight: "bold",
     letterSpacing: 0.3,
     fontFamily: "DM Sans",
+    marginBottom: 16,
   },
-  picker: {
-    padding: 1,
+  inputContainer: {
+    width: "100%",
+    marginBottom: 16,
+  },
+  input: {
     borderWidth: 2,
     borderBottomWidth: 4,
     borderRadius: 8,
     backgroundColor: "#FFF",
-    margin: 0,
-    flex: 0,
-    height: "100%",
-    paddingLeft: 8,
+    padding: 10,
+    height: 50,
+    width: "100%",
+  },
+  pickerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  pickerWrapper: {
+    width: "48%", // Adjust this value to control the gap between pickers
+  },
+  picker: {
+    borderWidth: 2,
+    borderBottomWidth: 4,
+    borderRadius: 8,
+    backgroundColor: "#FFF",
+  },
+  pickerInnerContainer: {
+    height: 50,
   },
   pickerText: {
-    margin: 1,
-    padding: 0,
     fontFamily: "DM Sans",
     fontWeight: "bold",
   },
-  pickerItemContainer: {
-    zIndex: 50,
-    elevation: 50000000,
-  },
-  inputRow: {
-    flexDirection: "row",
-    columnGap: 16,
+  subTitle: {
+    fontSize: 12,
+    color: "gray",
+    marginBottom: 5,
   },
 });

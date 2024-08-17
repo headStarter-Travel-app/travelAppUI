@@ -77,6 +77,7 @@ export default function AIScreen() {
   const [time, setTime] = useState("");
   const [groupId, setGroupId] = useState("0");
   const [location, setLocation] = useState<any>(DEFAULT_LOCATION);
+  const [locationString, setLocationString] = useState("");
   const [addInfo, setAddInfo] = useState("");
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,10 +85,15 @@ export default function AIScreen() {
   const [formatted, setFormatted] = useState<any[]>([]);
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [recsLoading, setRecsLoading] = useState(false);
+  const [valid, setValid] = useState(true);
 
   const router = useRouter();
 
-  const submit = theme !== "" && location !== "";
+  useEffect(() => {
+    console.log(location);
+  }, [location]);
+
+  const submit = theme !== "" && location !== "" && valid;
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -281,6 +287,7 @@ export default function AIScreen() {
         setGroupId={(id) => setGroupId(id)}
         setLocation={(location) => setLocation(location)}
         group={formatted}
+        setIsValid={setValid}
       />
       <AddInfoContainer addInfo={addInfo} setAddInfo={setAddInfo} />
       <SubmitButton active={submit} onSubmit={handleSubmit} />
