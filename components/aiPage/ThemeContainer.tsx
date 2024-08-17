@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
     alignItems: "center",
-    height: 250,
+    height: 240,
     position: "relative",
     rowGap: 12,
   },

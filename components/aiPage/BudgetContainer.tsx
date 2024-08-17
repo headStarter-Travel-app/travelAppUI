@@ -132,10 +132,7 @@ const BudgetContainer = ({
   };
 
   return (
-    <ScrollView
-      ref={scrollViewRef}
-      contentContainerStyle={styles.scrollViewContent}
-    >
+
       <View style={styles.container}>
         <Text style={styles.label}>Info</Text>
         <View style={styles.inputContainer}>
@@ -184,7 +181,6 @@ const BudgetContainer = ({
           </View>
         </View>
       </View>
-    </ScrollView>
   );
 };
 
@@ -210,7 +206,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   inputContainer: {
-    width: "100%",
+    width: 360,
     marginBottom: 16,
   },
   input: {
