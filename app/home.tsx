@@ -33,9 +33,9 @@ const Home = () => {
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <SafeAreaView style={styles.container}>
         <PreferenceQuizButton />
-        <CurrentHangout />
+        <CurrentHangout title={"Golden Gate Bridge"} members={["Miguel", "Naman", "B", "The Amazing Doctor Marioa"]} eta={{start: 0, curr: 4, end: 10}} />
         <Map />
-        <PastHangouts />
+        <PastHangouts hangouts={[{title: "asd", rating: 4.5, date: {month: "jan", date: "12"}}]} />
       </SafeAreaView>
     </ScrollView>
   )
