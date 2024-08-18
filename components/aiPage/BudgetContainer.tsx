@@ -133,64 +133,63 @@ const BudgetContainer = ({
 
   return (
 
-      <View style={styles.container}>
-        <Text style={styles.label}>Info</Text>
-        <View style={styles.inputContainer}>
-          <Text style={styles.subTitle}>
-            Enter Location, leave blank for current
-          </Text>
-          <TextInput
-            style={[
-              styles.input,
-              { borderColor: isLocationValid ? "green" : "red" },
-            ]}
-            placeholder="Enter Location"
-            onChangeText={handleLocationChange}
-            onBlur={handleLocationBlur}
-            value={locationText}
-          />
-        </View>
-        <View style={styles.pickerContainer}>
-          <View style={styles.pickerWrapper}>
-            <DropDownPicker
-              open={openGroup}
-              value={groupId}
-              items={groupItems}
-              setOpen={setOpenGroup}
-              setValue={setGroupId}
-              setItems={setGroupItems}
-              placeholder="Select Group"
-              style={styles.picker}
-              textStyle={styles.pickerText}
-              containerStyle={styles.pickerInnerContainer}
-            />
-          </View>
-          <View style={styles.pickerWrapper}>
-            <DropDownPicker
-              open={openTime}
-              value={time}
-              items={timeItems}
-              setOpen={setOpenTime}
-              setValue={setTime}
-              setItems={setTimeItems}
-              placeholder="Select Time"
-              style={styles.picker}
-              textStyle={styles.pickerText}
-              containerStyle={styles.pickerInnerContainer}
-            />
-          </View>
+    <View style={styles.container}>
+      <Text style={styles.label}>Info</Text>
+      <View style={styles.inputContainer}>
+        <Text style={styles.subTitle}>
+          Enter Location, leave blank for current
+        </Text>
+        <TextInput
+          style={[
+            styles.input,
+            { borderColor: isLocationValid ? "green" : "red" },
+          ]}
+          placeholder="Enter Location"
+          onChangeText={handleLocationChange}
+          onBlur={handleLocationBlur}
+          value={locationText}
+        />
+        <View style={styles.locationIcon}>
+          {(isLocationValid ? <Text>O</Text> : <Text>X</Text>)}
         </View>
       </View>
+      <View style={styles.pickerContainer}>
+        <View style={styles.pickerWrapper}>
+          <DropDownPicker
+            open={openGroup}
+            value={groupId}
+            items={groupItems}
+            setOpen={setOpenGroup}
+            setValue={setGroupId}
+            setItems={setGroupItems}
+            placeholder="Select Group"
+            style={styles.picker}
+            textStyle={styles.pickerText}
+            containerStyle={styles.pickerInnerContainer}
+          />
+        </View>
+        <View style={styles.pickerWrapper}>
+          <DropDownPicker
+            open={openTime}
+            value={time}
+            items={timeItems}
+            setOpen={setOpenTime}
+            setValue={setTime}
+            setItems={setTimeItems}
+            placeholder="Select Time"
+            style={styles.picker}
+            textStyle={styles.pickerText}
+            containerStyle={styles.pickerInnerContainer}
+          />
+        </View>
+      </View>
+    </View>
   );
 };
 
 export default BudgetContainer;
 
 const styles = StyleSheet.create({
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: "center",
-  },
   container: {
     flexDirection: "column",
     alignItems: "center",
@@ -208,6 +207,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     width: 360,
     marginBottom: 16,
+    position: "relative"
   },
   input: {
     borderWidth: 2,
@@ -231,9 +231,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 4,
     borderRadius: 8,
     backgroundColor: "#FFF",
+    
   },
   pickerInnerContainer: {
     height: 50,
+    
   },
   pickerText: {
     fontFamily: "DM Sans",
@@ -244,4 +246,9 @@ const styles = StyleSheet.create({
     color: "gray",
     marginBottom: 5,
   },
+  locationIcon: {
+    position: "absolute",
+    right: 10,
+    top: 35,
+  }
 });

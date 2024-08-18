@@ -28,6 +28,7 @@ import { useFocusEffect } from "expo-router";
 import { getUserId } from "@/lib/appwrite";
 import { RecommendationMarker } from "@/components/homepage/markers";
 import { HangoutMarker } from "@/components/homepage/markers";
+import Home from "../home";
 
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
@@ -231,7 +232,7 @@ export default function App() {
   const handleQuizPress = () => {
     router.push("/quiz");
   };
-
+  return(<Home></Home>)
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <SafeAreaView style={styles.container}>
