@@ -1,5 +1,5 @@
 import { Animated, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import MapView from 'react-native-maps'
 import { HangoutMarker, RecommendationMarker } from './markers'
 
@@ -7,9 +7,9 @@ interface MapProps {
   mapLoading : boolean
   region: any
   recommendations: Place[],
-  setRegion: () => void,
-  markerPress: () => any,
-  hangoutPress: () => any,
+  setRegion: (any : any) => void,
+  markerPress: (any : any) => any,
+  hangoutPress: (any : any) => any,
   hangouts: any[]
 }
 const DEFAULT_LOCATION = {
@@ -41,7 +41,22 @@ const Map = ({
   hangouts,
 } : MapProps) => {
   const [fadeAnim] = useState(new Animated.Value(0.3));
-  
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0.3,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
   return (
     !mapLoading ? (
       <MapView
@@ -94,8 +109,14 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
     marginTop: 0,
-    height: "50%", // Increase map height
+    height: 375, // Increase map height
+    width: 375,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 2,
+    borderBottomWidth: 8,
+    borderRadius: 16,
+    marginHorizontal: 8,
+    marginVertical: 16,
   },
 })

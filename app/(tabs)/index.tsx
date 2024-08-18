@@ -232,7 +232,7 @@ export default function App() {
   const handleQuizPress = () => {
     router.push("/quiz");
   };
-  // return(<Home></Home>)
+  return(<Home></Home>)
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <SafeAreaView style={styles.container}>

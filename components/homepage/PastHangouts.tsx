@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useCallback } from 'react'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface HangoutProps {
   title: string,
@@ -24,11 +25,26 @@ const PastHangouts = ({ hangouts } : PastHangoutsProps) => {
 }
 
 const HangoutCard = ({title, rating, date} : HangoutProps) => {
+  const renderStars = useCallback((stars: number) => {
+    const fullStars = Math.floor(stars);
+    const halfStar = stars - fullStars >= .5
+    var starList = [];
+    for(let i = 0; i < 5; i++){
+      if(i < fullStars){
+        starList.push(<MaterialIcons size={24} color={"#ff0"} name="star" />);
+      } else if (i == fullStars && halfStar) {
+        starList.push(<MaterialIcons size={24} color={"#ff0"} name="star-half" />)
+      } else {
+        starList.push(<MaterialIcons size={24} color={"#ff0"} name="star-border" />)
+      }
+    }
+    return starList;
+  },[])
   return(
     <View style={styles.card}>
       <Text style={styles.hangoutLabel}>{title}</Text>
-      <Text style={styles.rating}>{rating}</Text>
-      <Text style={styles.date}>{date.date}{date.month}</Text>
+      <View style={styles.rating}>{renderStars(rating)}</View>
+      <Text style={styles.date}>{date.month} {date.date}</Text>
     </View>
   )
 }
@@ -56,10 +72,25 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     rowGap: 4,
     position: "relative",
+    backgroundColor: "#fff"
   },
   date:{
     position: "absolute",
     top: 10,
-    right: 10
-  }
+    right: 10,
+    fontStyle: "italic",
+    fontSize: 12,
+  },
+  hangoutLabel: {
+    fontSize: 16,
+    fontWeight: "bold"
+  },
+  rating: {
+    flexDirection: "row",
+    padding: 2,
+    // backgroundColor: "#000",
+    width: 90,
+    borderRadius: 8
+  },
+
 })

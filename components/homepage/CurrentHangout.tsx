@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   },
   memberCard: {
     borderWidth: 2,
-    backgroundColor: "#ABFF24",
+    backgroundColor: "#EFFAFF",
     padding: 4,
     borderRadius: 8,
     height: 28,

@@ -10,7 +10,7 @@ interface PreferenceQuizProps {
 
 const PreferenceQuizButton = ({handleQuizPress} : PreferenceQuizProps) => {
   return (
-    <View style={styles.buttonsContainer}>
+    <View style={styles.container}>
       <TouchableOpacity onPress={handleQuizPress}>
         <ThemedView style={styles.card}>
           <MaterialCommunityIcons
@@ -37,10 +37,12 @@ const PreferenceQuizButton = ({handleQuizPress} : PreferenceQuizProps) => {
 export default PreferenceQuizButton
 
 const styles = StyleSheet.create({
+  container:{
+    paddingHorizontal: 30
+  },
   card: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
     padding: 20, // Increase padding for larger text
     backgroundColor: "#E6F7FF", // Light blue background similar to the page
     borderRadius: 5,
