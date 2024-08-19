@@ -1,13 +1,24 @@
-import { Alert, Animated, Linking, RefreshControlComponent, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
-import CurrentHangout from '@/components/homepage/CurrentHangout'
-import PreferenceQuizButton from '@/components/homepage/PreferenceQuizButton'
-import Map from "@/components/homepage/Map"
-import PastHangouts from '@/components/homepage/PastHangouts'
-import { useFocusEffect, useRouter } from 'expo-router'
-import axios from 'axios'
-import { getUserId } from '@/lib/appwrite'
+import {
+  Alert,
+  Animated,
+  Linking,
+  RefreshControlComponent,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import CurrentHangout from "@/components/homepage/CurrentHangout";
+import PreferenceQuizButton from "@/components/homepage/PreferenceQuizButton";
+import Map from "@/components/homepage/Map";
+import PastHangouts from "@/components/homepage/PastHangouts";
+import { useFocusEffect, useRouter } from "expo-router";
+import axios from "axios";
+import { getUserId } from "@/lib/appwrite";
 import * as Location from "expo-location";
+import PlaceModal from "@/components/modal";
 
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
@@ -33,7 +44,6 @@ interface Place {
 }
 
 const Home = () => {
-
   const router = useRouter();
   const [region, setRegion] = useState(DEFAULT_LOCATION);
   const [isLoading, setIsLoading] = useState(true);
@@ -170,6 +180,7 @@ const Home = () => {
   };
 
   const handleHangoutPress = async (place: any) => {
+    console.log("pressed");
     setSelectedPlaceDetails(null);
     setSelectedPlace(null);
     setModalVisible(true);
@@ -197,28 +208,42 @@ const Home = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <SafeAreaView style={styles.container}>    
-        <CurrentHangout title={"Golden Gate Bridge"} members={["Miguel", "Naman", "B", "The Amazing Doctor Marioa"]} eta={{start: 0, curr: 4, end: 10}} />
-        <Map 
-          region={region} 
-          setRegion={setRegion} 
-          mapLoading={isLoading} 
+      <SafeAreaView style={styles.container}>
+        <CurrentHangout
+          title={"Golden Gate Bridge"}
+          members={["Miguel", "Naman", "B", "The Amazing Doctor Marioa"]}
+          eta={{ start: 0, curr: 4, end: 10 }}
+        />
+        <Map
+          region={region}
+          setRegion={setRegion}
+          mapLoading={isLoading}
           recommendations={recommendations}
           markerPress={handleMarkerPress}
           hangoutPress={handleHangoutPress}
           hangouts={hangouts}
         />
-        <PreferenceQuizButton
-          handleQuizPress={handleQuizPress}
+        <PreferenceQuizButton handleQuizPress={handleQuizPress} />
+        <PastHangouts
+          hangouts={[
+            {
+              title: "Black Wax Mueseum",
+              rating: 4.5,
+              date: { month: "Janurary", date: "12th" },
+            },
+          ]}
         />
-        <PastHangouts hangouts={[{title: "Black Wax Mueseum", rating: 4.5, date: {month: "Janurary", date: "12th"}}]} />
-        
       </SafeAreaView>
+      <PlaceModal
+        isVisible={modalVisible}
+        place={selectedPlaceDetails}
+        onClose={() => setModalVisible(false)}
+      />
     </ScrollView>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -231,4 +256,4 @@ const styles = StyleSheet.create({
     marginVertical: 50, // Move everything down by 50 pixels
     flexDirection: "column",
   },
-})
+});
