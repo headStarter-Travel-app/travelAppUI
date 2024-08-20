@@ -122,10 +122,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    console.log("isloading", isLoading);
-  }, [isLoading]);
-
-  useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -232,7 +228,7 @@ export default function App() {
   const handleQuizPress = () => {
     router.push("/quiz");
   };
-  return(<Home></Home>)
+  return <Home></Home>;
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <SafeAreaView style={styles.container}>

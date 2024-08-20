@@ -89,10 +89,6 @@ export default function AIScreen() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    console.log(location);
-  }, [location]);
-
   const submit = theme !== "" && location !== "" && valid;
   useEffect(() => {
     (async () => {
