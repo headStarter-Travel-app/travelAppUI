@@ -94,10 +94,6 @@ const Home = () => {
   );
 
   useEffect(() => {
-    console.log("isloading", isLoading);
-  }, [isLoading]);
-
-  useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -180,7 +176,6 @@ const Home = () => {
   };
 
   const handleHangoutPress = async (place: any) => {
-    console.log("pressed");
     setSelectedPlaceDetails(null);
     setSelectedPlace(null);
     setModalVisible(true);
