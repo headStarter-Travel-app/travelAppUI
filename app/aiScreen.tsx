@@ -30,6 +30,8 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
+import { ScrollView } from "react-native";
 
 let globalRecommendations: any[] = [];
 
@@ -261,8 +263,12 @@ export default function AIScreen() {
   }, [groups]);
 
   return (
+    <ScrollView>
     <SafeAreaView style={styles.screen}>
+      
+      <PremiumBanner />
       <View style={styles.titleContainer}>
+        
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
@@ -271,6 +277,7 @@ export default function AIScreen() {
         </TouchableOpacity>
         <TitleContainer />
       </View>
+      
 
       <ThemeContainer setTheme={setTheme} theme={theme} />
       <BudgetContainer
@@ -291,8 +298,22 @@ export default function AIScreen() {
       <Modal transparent={true} visible={recsLoading} animationType="fade">
         <LoadingOverlay />
       </Modal>
+      
     </SafeAreaView>
+    </ScrollView>
   );
+}
+
+const PremiumBanner = () => {
+  return <View style={styles.banner}>
+    <LinearGradient style={styles.bannerGradient} colors={["#8A94FF", "#0073C5"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
+    <Text style={styles.bannerText}>Get Premium</Text>
+    <TouchableOpacity style={styles.planButton}>
+      <Text style={styles.planLabel}>
+        Buy Premium
+      </Text>
+    </TouchableOpacity>
+  </View>
 }
 
 const styles = StyleSheet.create({
@@ -336,6 +357,37 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 16,
   },
+  banner: {
+    position: "relative",
+    width: "100%",
+    height: 48,
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  bannerGradient: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    left: 0,
+    height: "100%"
+  },
+  bannerText: {
+    color: "#fff"
+  },
+  planLabel: {
+    color: "#000"
+  },
+  planButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 128,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#fff"
+  }
 });
 
 export { globalRecommendations };

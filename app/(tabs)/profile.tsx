@@ -39,6 +39,7 @@ export const appwriteConfig = {
 };
 import axios from "axios";
 import { log } from "console";
+import { LinearGradient } from "expo-linear-gradient";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
 // Init your React Native SDK
@@ -167,7 +168,10 @@ export default function TabTwoScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.headerText}>Account Information</Text>
+      <PremiumBanner />
       <ProfileSelector userData={userData} refreshUserData={fetchUserData} />
+
+      
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>First Name</Text>
@@ -221,6 +225,9 @@ export default function TabTwoScreen() {
         <TouchableOpacity style={styles.button} onPress={handleUpdatePassword}>
           <Text style={styles.buttonText}>Update Password</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleUpdatePassword}>
+          <Text style={styles.buttonText}>Plans Page</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <View style={{ flexDirection: "row" }}>
             <Ionicons
@@ -236,6 +243,7 @@ export default function TabTwoScreen() {
           style={styles.deleteButton}
           onPress={handleDeleteAccount}
         >
+          
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Ionicons
               name="trash-outline"
@@ -251,10 +259,23 @@ export default function TabTwoScreen() {
   );
 }
 
+const PremiumBanner = () => {
+  return <View style={styles.banner}>
+    <LinearGradient style={styles.bannerGradient} colors={["#8A94FF", "#0073C5"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
+    <Text style={styles.bannerText}>Get Premium</Text>
+    <TouchableOpacity style={styles.planButton}>
+      <Text style={styles.planLabel}>
+        Buy Premium
+      </Text>
+    </TouchableOpacity>
+  </View>
+}
+
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingBottom: 90,
+    position: "relative"
   },
   loadingContainer: {
     flex: 1,
@@ -271,8 +292,9 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 28,
     textAlign: "center",
-    marginTop: 20,
+    marginTop: 10,
     paddingTop: 50,
+    marginBottom: 0,
     fontFamily: "DM Sans",
   },
   profileText: {
@@ -414,4 +436,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "DM Sans",
   },
+  banner: {
+    position: "relative",
+    width: "100%",
+    height: 48,
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  bannerGradient: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    left: 0,
+    height: "100%"
+  },
+  bannerText: {
+    color: "#fff"
+  },
+  planLabel: {
+    color: "#000"
+  },
+  planButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 128,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#fff"
+  },
+  
 });
