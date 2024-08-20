@@ -8,7 +8,8 @@ interface CurrentHangoutProps {
   eta: {
     start: number, 
     end: number, 
-    curr: number
+    curr: number,
+    units: string
   }
 }
 

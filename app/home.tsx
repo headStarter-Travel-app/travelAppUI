@@ -198,7 +198,7 @@ const Home = () => {
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <SafeAreaView style={styles.container}>    
-        <CurrentHangout title={"Golden Gate Bridge"} members={["Miguel", "Naman", "B", "The Amazing Doctor Marioa"]} eta={{start: 0, curr: 4, end: 10}} />
+        <CurrentHangout title={"Golden Gate Bridge"} members={["Miguel", "Naman", "B", "The Amazing Doctor Marioa"]} eta={{start: 0, curr: 4, end: 10, units: "hours"}} />
         <Map 
           region={region} 
           setRegion={setRegion} 
