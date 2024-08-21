@@ -1,0 +1,34 @@
+{
+  "activeSubscriptions": ["pla_2"],
+  "allExpirationDates": {
+    "pla_1": "2024-08-21T03:59:09Z",
+    "pla_2": "2024-08-21T04:59:09Z"
+  },
+  "allExpirationDatesMillis": {
+    "pla_1": 1724212749000,
+    "pla_2": 1724216349000
+  },
+  "allPurchaseDates": {
+    "pla_1": "2024-08-21T03:54:09Z",
+    "pla_2": "2024-08-21T03:59:09Z"
+  },
+  "allPurchaseDatesMillis": { "pla_1": 1724212449000, "pla_2": 1724212749000 },
+  "allPurchasedProductIdentifiers": ["pla_1", "pla_2"],
+  "entitlements": {
+    "active": { "Premium": " [Object" },
+    "all": { "Premium": " [Object" },
+    "verification": "NOT_REQUESTED"
+  },
+  "firstSeen": "2024-08-21T03:43:32Z",
+  "firstSeenMillis": 1724211812000,
+  "latestExpirationDate": "2024-08-21T04:59:09Z",
+  "latestExpirationDateMillis": 1724216349000,
+  "managementURL": "https://apps.apple.com/account/subscriptions",
+  "nonSubscriptionTransactions": [],
+  "originalAppUserId": "$RCAnonymousID:442c4904a2f54eaa96c41d6074279014",
+  "originalApplicationVersion": "1.0",
+  "originalPurchaseDate": "2013-08-01T07:00:00Z",
+  "originalPurchaseDateMillis": 1375340400000,
+  "requestDate": "2024-08-21T04:07:54Z",
+  "requestDateMillis": 1724213274000
+}

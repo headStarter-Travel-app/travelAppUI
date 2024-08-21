@@ -263,58 +263,63 @@ export default function AIScreen() {
   }, [groups]);
 
   return (
-    <ScrollView>
-    <SafeAreaView style={styles.screen}>
-      
-      <PremiumBanner />
-      <View style={styles.titleContainer}>
-        
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <FontAwesome name="arrow-left" size={20} color="blue" />
-        </TouchableOpacity>
-        <TitleContainer />
-      </View>
-      
+    <>
+      <SafeAreaView style={styles.screen}>
+        <PremiumBanner />
+        <View style={styles.titleContainer}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <FontAwesome name="arrow-left" size={20} color="blue" />
+          </TouchableOpacity>
+          <TitleContainer />
+        </View>
 
-      <ThemeContainer setTheme={setTheme} theme={theme} />
-      <BudgetContainer
-        budget={budget}
-        time={time}
-        groupId={groupId}
-        location={location}
-        setBudget={(num) => setBudget(Number(num))}
-        setTime={(time) => setTime(time)}
-        setGroupId={(id) => setGroupId(id)}
-        setLocation={(location) => setLocation(location)}
-        group={formatted}
-        setIsValid={setValid}
-      />
-      <AddInfoContainer addInfo={addInfo} setAddInfo={setAddInfo} />
-      <SubmitButton active={submit} onSubmit={handleSubmit} />
+        <ThemeContainer setTheme={setTheme} theme={theme} />
+        <BudgetContainer
+          budget={budget}
+          time={time}
+          groupId={groupId}
+          location={location}
+          setBudget={(num) => setBudget(Number(num))}
+          setTime={(time) => setTime(time)}
+          setGroupId={(id) => setGroupId(id)}
+          setLocation={(location) => setLocation(location)}
+          group={formatted}
+          setIsValid={setValid}
+        />
+        <AddInfoContainer addInfo={addInfo} setAddInfo={setAddInfo} />
+        <SubmitButton active={submit} onSubmit={handleSubmit} />
 
-      <Modal transparent={true} visible={recsLoading} animationType="fade">
-        <LoadingOverlay />
-      </Modal>
-      
-    </SafeAreaView>
-    </ScrollView>
+        <Modal transparent={true} visible={recsLoading} animationType="fade">
+          <LoadingOverlay />
+        </Modal>
+      </SafeAreaView>
+    </>
   );
 }
 
 const PremiumBanner = () => {
-  return <View style={styles.banner}>
-    <LinearGradient style={styles.bannerGradient} colors={["#8A94FF", "#0073C5"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
-    <Text style={styles.bannerText}>Get Premium</Text>
-    <TouchableOpacity style={styles.planButton}>
-      <Text style={styles.planLabel}>
-        Buy Premium
-      </Text>
-    </TouchableOpacity>
-  </View>
-}
+  const router = useRouter();
+  const handleBuyPremium = () => {
+    router.push("/premium");
+  };
+  return (
+    <View style={styles.banner}>
+      <LinearGradient
+        style={styles.bannerGradient}
+        colors={["#8A94FF", "#0073C5"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+      <Text style={styles.bannerText}>Get Premium</Text>
+      <TouchableOpacity style={styles.planButton} onPress={handleBuyPremium}>
+        <Text style={styles.planLabel}>Buy Premium</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   screen: {
@@ -372,13 +377,13 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     left: 0,
-    height: "100%"
+    height: "100%",
   },
   bannerText: {
-    color: "#fff"
+    color: "#fff",
   },
   planLabel: {
-    color: "#000"
+    color: "#000",
   },
   planButton: {
     alignItems: "center",
@@ -386,8 +391,8 @@ const styles = StyleSheet.create({
     width: 128,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#fff"
-  }
+    backgroundColor: "#fff",
+  },
 });
 
 export { globalRecommendations };

@@ -147,7 +147,9 @@ const HangoutsPage = () => {
         <FlatList
           data={hangouts}
           keyExtractor={(item) => item.$id}
-          renderItem={({ item }) => <HangoutCard hangout={item} />}
+          renderItem={({ item }) => (
+            <HangoutCard key={item.$id} hangout={item} />
+          )}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}

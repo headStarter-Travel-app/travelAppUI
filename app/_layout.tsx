@@ -8,13 +8,14 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import "react-native-reanimated";
-import { View, Image } from "react-native";
+import { View, Image, Platform } from "react-native";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import * as Updates from "expo-updates";
 import { usePushNotifications } from "@/usePushNotifications";
 import { addNotificationToken } from "@/lib/appwrite";
 import { StatusBar } from "expo-status-bar";
 import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
+import Purchases from "react-native-purchases";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -108,9 +109,29 @@ export default function RootLayout() {
         setIsLoading(false);
       }
     }
+    async function checkPremium() {
+      const ci = await Purchases.getCustomerInfo();
+      console.log(ci);
+      if (ci?.entitlements.active["Premium"] !== undefined) {
+        console.log("User is premium");
+        // const user = await getUserId();
+        // setIsSubscribed(true);
+      } else {
+        console.log("User is not premium");
+      }
+    }
 
     prepare();
+    checkPremium();
   }, [fontsLoaded, fontError, expoPushToken]);
+
+  //Set up reveneu cat
+  Purchases.setLogLevel(Purchases.LOG_LEVEL.VERBOSE);
+  useEffect(() => {
+    if (Platform.OS === "ios") {
+      Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_RC_APPLE! });
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {

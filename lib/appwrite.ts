@@ -375,3 +375,22 @@ export const DeleteUser = () => {
     );
   });
 };
+
+export const setUserPremium = async () => {
+  try {
+    const user = await getUserId();
+    // const res = users.updateLabels(user, ["premium"]);
+
+    // await databases.updateDocument(
+    //   appwriteConfig.databaseId,
+    //   appwriteConfig.userCollectionId,
+    //   user,
+    //   {
+    //     premium: true,
+    //   }
+    // );
+  } catch (error) {
+    console.error("Error setting user to premium:", error);
+    throw error;
+  }
+};

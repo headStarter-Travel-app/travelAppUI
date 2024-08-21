@@ -1,0 +1,29 @@
+{
+  "identifier": "$rc_annual",
+  "offeringIdentifier": "defaultOffering",
+  "packageType": "ANNUAL",
+  "presentedOfferingContext": {
+    "offeringIdentifier": "defaultOffering",
+    "placementIdentifier": null,
+    "targetingContext": null
+  },
+  "product": {
+    "currencyCode": "USD",
+    "description": "Get More AI Calls, and Exclusive Features!",
+    "discounts": [],
+    "identifier": "pla_2",
+    "introPrice": null,
+    "price": 69.99,
+    "pricePerMonth": 5.83,
+    "pricePerMonthString": "$5.83",
+    "pricePerWeek": 1.34,
+    "pricePerWeekString": "$1.34",
+    "pricePerYear": 69.99,
+    "pricePerYearString": "$69.99",
+    "priceString": "$69.99",
+    "productCategory": "SUBSCRIPTION",
+    "productType": "AUTO_RENEWABLE_SUBSCRIPTION",
+    "subscriptionPeriod": "P1Y",
+    "title": "Proxi Link Premium (Yearly)"
+  }
+}
