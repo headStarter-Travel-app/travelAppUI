@@ -209,15 +209,17 @@ const Home = () => {
           members={["Miguel", "Naman", "B", "The Amazing Doctor Marioa"]}
           eta={{ start: 0, curr: 4, end: 10, units: "hours" }}
         />
-        <Map
-          region={region}
-          setRegion={setRegion}
-          mapLoading={isLoading}
-          recommendations={recommendations}
-          markerPress={handleMarkerPress}
-          hangoutPress={handleHangoutPress}
-          hangouts={hangouts}
-        />
+        <View style={styles.mapContainer}>
+          <Map
+            region={region}
+            setRegion={setRegion}
+            mapLoading={isLoading}
+            recommendations={recommendations}
+            markerPress={handleMarkerPress}
+            hangoutPress={handleHangoutPress}
+            hangouts={hangouts}
+          />
+        </View>
         <PreferenceQuizButton handleQuizPress={handleQuizPress} />
         <PastHangouts
           hangouts={[
@@ -248,7 +250,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#E6F7FF", // Very light blue background
-    marginVertical: 50, // Move everything down by 50 pixels
+    marginVertical: 25, // Move everything down by 50 pixels
     flexDirection: "column",
+  },
+
+  mapContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 10, // Add some vertical spacing
   },
 });

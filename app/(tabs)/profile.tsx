@@ -171,8 +171,6 @@ export default function TabTwoScreen() {
       <PremiumBanner />
       <ProfileSelector userData={userData} refreshUserData={fetchUserData} />
 
-      
-
       <View style={styles.inputContainer}>
         <Text style={styles.label}>First Name</Text>
         <TextInput
@@ -243,7 +241,6 @@ export default function TabTwoScreen() {
           style={styles.deleteButton}
           onPress={handleDeleteAccount}
         >
-          
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Ionicons
               name="trash-outline"
@@ -260,22 +257,31 @@ export default function TabTwoScreen() {
 }
 
 const PremiumBanner = () => {
-  return <View style={styles.banner}>
-    <LinearGradient style={styles.bannerGradient} colors={["#8A94FF", "#0073C5"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
-    <Text style={styles.bannerText}>Get Premium</Text>
-    <TouchableOpacity style={styles.planButton}>
-      <Text style={styles.planLabel}>
-        Buy Premium
-      </Text>
-    </TouchableOpacity>
-  </View>
-}
+  const router = useRouter();
+  const handleBuyPremium = () => {
+    router.push("/premium");
+  };
+  return (
+    <View style={styles.banner}>
+      <LinearGradient
+        style={styles.bannerGradient}
+        colors={["#8A94FF", "#0073C5"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+      <Text style={styles.bannerText}>Get Premium</Text>
+      <TouchableOpacity style={styles.planButton} onPress={handleBuyPremium}>
+        <Text style={styles.planLabel}>Buy Premium</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingBottom: 90,
-    position: "relative"
+    position: "relative",
   },
   loadingContainer: {
     flex: 1,
@@ -451,13 +457,13 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     left: 0,
-    height: "100%"
+    height: "100%",
   },
   bannerText: {
-    color: "#fff"
+    color: "#fff",
   },
   planLabel: {
-    color: "#000"
+    color: "#000",
   },
   planButton: {
     alignItems: "center",
@@ -465,7 +471,6 @@ const styles = StyleSheet.create({
     width: 128,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
-  
 });

@@ -1,68 +1,96 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, { useCallback } from 'react'
-import { MaterialIcons } from '@expo/vector-icons'
+import { StyleSheet, Text, View } from "react-native";
+import React, { useCallback } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface HangoutProps {
-  title: string,
-  rating: number,
+  title: string;
+  rating: number;
   date: {
-    month: string,
-    date: string
-  }
+    month: string;
+    date: string;
+  };
 }
 
 interface PastHangoutsProps {
-  hangouts: HangoutProps[]
+  hangouts: HangoutProps[];
 }
 
-const PastHangouts = ({ hangouts } : PastHangoutsProps) => {
+const PastHangouts = ({ hangouts }: PastHangoutsProps) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Past Hangouts</Text>
-      {hangouts?.map(item => <HangoutCard title={item.title} rating={item.rating} date={item.date} />)}
+      {hangouts?.map((item, index) => (
+        <HangoutCard
+          title={item.title}
+          rating={item.rating}
+          date={item.date}
+          key={index}
+        />
+      ))}
     </View>
-  )
-}
+  );
+};
 
-const HangoutCard = ({title, rating, date} : HangoutProps) => {
+const HangoutCard = ({ title, rating, date }: HangoutProps) => {
   const renderStars = useCallback((stars: number) => {
     const fullStars = Math.floor(stars);
-    const halfStar = stars - fullStars >= .5
-    var starList = [];
-    for(let i = 0; i < 5; i++){
-      if(i < fullStars){
-        starList.push(<MaterialIcons size={24} color={"#ff0"} name="star" />);
-      } else if (i == fullStars && halfStar) {
-        starList.push(<MaterialIcons size={24} color={"#ff0"} name="star-half" />)
+    const halfStar = stars - fullStars >= 0.5;
+    const starList = [];
+
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        starList.push(
+          <MaterialIcons key={`star-${i}`} size={24} color="#ff0" name="star" />
+        );
+      } else if (i === fullStars && halfStar) {
+        starList.push(
+          <MaterialIcons
+            key={`star-${i}`}
+            size={24}
+            color="#ff0"
+            name="star-half"
+          />
+        );
       } else {
-        starList.push(<MaterialIcons size={24} color={"#ff0"} name="star-border" />)
+        starList.push(
+          <MaterialIcons
+            key={`star-${i}`}
+            size={24}
+            color="#ff0"
+            name="star-border"
+          />
+        );
       }
     }
+
     return starList;
-  },[])
-  return(
+  }, []);
+
+  return (
     <View style={styles.card}>
       <Text style={styles.hangoutLabel}>{title}</Text>
       <View style={styles.rating}>{renderStars(rating)}</View>
-      <Text style={styles.date}>{date.month} {date.date}</Text>
+      <Text style={styles.date}>
+        {date.month} {date.date}
+      </Text>
     </View>
-  )
-}
+  );
+};
 
-export default PastHangouts
+export default PastHangouts;
 
 const styles = StyleSheet.create({
   container: {
     margin: 30,
     flexDirection: "column",
     alignItems: "center",
-    rowGap: 12
+    rowGap: 12,
   },
   title: {
     fontSize: 36,
     fontStyle: "italic",
     color: "#666",
-    fontWeight: 800
+    fontWeight: 800,
   },
   card: {
     width: "100%",
@@ -72,9 +100,9 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     rowGap: 4,
     position: "relative",
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
-  date:{
+  date: {
     position: "absolute",
     top: 10,
     right: 10,
@@ -83,14 +111,13 @@ const styles = StyleSheet.create({
   },
   hangoutLabel: {
     fontSize: 16,
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   rating: {
     flexDirection: "row",
     padding: 2,
     // backgroundColor: "#000",
     width: 90,
-    borderRadius: 8
+    borderRadius: 8,
   },
-
-})
+});
