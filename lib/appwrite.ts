@@ -376,19 +376,47 @@ export const DeleteUser = () => {
   });
 };
 
-export const setUserPremium = async () => {
+export const setUserPremium = async (status: boolean) => {
   try {
     const user = await getUserId();
-    // const res = users.updateLabels(user, ["premium"]);
+    if (status === true) {
+      await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        user,
+        {
+          premium: true,
+        }
+      );
+    } else {
+      await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        user,
+        {
+          premium: false,
+        }
+      );
+    }
+  } catch (error) {
+    console.error("Error setting user to premium:", error);
+    throw error;
+  }
+};
 
-    // await databases.updateDocument(
-    //   appwriteConfig.databaseId,
-    //   appwriteConfig.userCollectionId,
-    //   user,
-    //   {
-    //     premium: true,
-    //   }
-    // );
+export const setUses = async (status: boolean) => {
+  try {
+    const user = await getUserId();
+    if (status === true) {
+      await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.userCollectionId,
+        user,
+        {
+          uses: 20,
+        }
+      );
+    }
   } catch (error) {
     console.error("Error setting user to premium:", error);
     throw error;

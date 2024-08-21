@@ -16,6 +16,8 @@ import { addNotificationToken } from "@/lib/appwrite";
 import { StatusBar } from "expo-status-bar";
 import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
 import Purchases from "react-native-purchases";
+import { getUserId } from "@/lib/appwrite";
+import { setUserPremium } from "@/lib/appwrite";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -114,9 +116,10 @@ export default function RootLayout() {
       console.log(ci);
       if (ci?.entitlements.active["Premium"] !== undefined) {
         console.log("User is premium");
-        // const user = await getUserId();
-        // setIsSubscribed(true);
+        setUserPremium(true);
       } else {
+        setUserPremium(false);
+
         console.log("User is not premium");
       }
     }

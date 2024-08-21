@@ -12,6 +12,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { getUser, getUserId } from "@/lib/appwrite";
 import Purchases, { CustomerInfo } from "react-native-purchases";
+import { setUserPremium } from "@/lib/appwrite";
+import { setUses } from "@/lib/appwrite";
 
 const Plans = () => {
   const [user, setUser] = useState(null);
@@ -76,6 +78,8 @@ const Plans = () => {
       if (customerInfo.entitlements.active["Premium"] !== undefined) {
         setIsSubscribed(true);
         Alert.alert("Success", "Subscription successful!");
+        setUserPremium(true);
+        setUses(true);
       }
       //AppWrite Logic
     } catch (e) {
@@ -89,6 +93,10 @@ const Plans = () => {
     const customerInfo = await Purchases.getCustomerInfo();
     console.log(customerInfo);
     Linking.openURL("https://apps.apple.com/account/subscriptions");
+    if (customerInfo.entitlements.active["Premium"] !== undefined) {
+    } else {
+      setUserPremium(false);
+    }
   };
 
   if (loading) {
@@ -175,7 +183,7 @@ const Plans = () => {
         </LinearGradient>
       </TouchableOpacity>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={[styles.actionButton, !isSubscribed && styles.disabledButton]}
         // disabled={!isSubscribed}
         onPress={handleCancelSubscription}
@@ -188,7 +196,7 @@ const Plans = () => {
         >
           <Text style={styles.actionButtonText}>Cancel Subscription</Text>
         </LinearGradient>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </ScrollView>
   );
 };
