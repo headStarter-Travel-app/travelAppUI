@@ -10,13 +10,12 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import { getUser, getUserId } from "@/lib/appwrite";
+import { getUserInfo, setUserPremium, setUses } from "@/lib/appwrite";
 import Purchases, { CustomerInfo } from "react-native-purchases";
-import { setUserPremium } from "@/lib/appwrite";
-import { setUses } from "@/lib/appwrite";
+import Packages from "./package";
+import { getPremiumStatus } from "@/lib/appwrite";
 
 const Plans = () => {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [packages, setPackages] = useState<any>([]);
@@ -26,27 +25,27 @@ const Plans = () => {
   useEffect(() => {
     const init = async () => {
       await loadOfferings();
-      const ci = await Purchases.getCustomerInfo();
-      console.log(ci);
-      Purchases.addCustomerInfoUpdateListener((customerInfo) => {
-        console.log("customer info updated", customerInfo);
-        updateInformation(customerInfo);
-      });
+      await checkSubscriptionStatus();
     };
 
     init();
   }, []);
 
-  const updateInformation = async (customerInfo: CustomerInfo) => {
-    if (customerInfo?.entitlements.active["Premium"] !== undefined) {
-      console.log("User is premium");
-      const user = await getUserId();
-      setIsSubscribed(true);
-    } else {
-      setIsSubscribed(false);
+  const checkSubscriptionStatus = async () => {
+    try {
+      const customerInfo = await Purchases.getCustomerInfo();
+      updateSubscriptionStatus(customerInfo);
+    } catch (e) {
+      console.error("Error checking subscription status:", e);
     }
-    // const user = await getUser();
-    // setUser(user);
+  };
+
+  const updateSubscriptionStatus = (customerInfo: CustomerInfo) => {
+    const isPremium =
+      customerInfo?.entitlements.active["Premium"] !== undefined;
+    setIsSubscribed(isPremium);
+    setUserPremium(isPremium);
+    setUses(true);
   };
 
   const loadOfferings = async () => {
@@ -58,7 +57,7 @@ const Plans = () => {
         setPackages(currentOffering.availablePackages);
       }
     } catch (e) {
-      console.log(e);
+      console.error("Error loading offerings:", e);
       setError("Failed to load offerings");
     } finally {
       setLoading(false);
@@ -75,28 +74,21 @@ const Plans = () => {
     }
     try {
       const { customerInfo } = await Purchases.purchasePackage(selectedPackage);
-      if (customerInfo.entitlements.active["Premium"] !== undefined) {
-        setIsSubscribed(true);
+      updateSubscriptionStatus(customerInfo);
+      if (isSubscribed) {
         Alert.alert("Success", "Subscription successful!");
-        setUserPremium(true);
-        setUses(true);
       }
-      //AppWrite Logic
     } catch (e) {
-      console.log(e);
+      console.error("Error subscribing:", e);
       Alert.alert("Error", "Failed to subscribe. Please try again.");
     }
   };
 
   const handleCancelSubscription = async () => {
     // Note: This is just for testing. In a real app, you'd typically redirect to the app store or a web portal for cancellation.
-    const customerInfo = await Purchases.getCustomerInfo();
-    console.log(customerInfo);
     Linking.openURL("https://apps.apple.com/account/subscriptions");
-    if (customerInfo.entitlements.active["Premium"] !== undefined) {
-    } else {
-      setUserPremium(false);
-    }
+    // After redirecting, you might want to refresh the subscription status
+    await checkSubscriptionStatus();
   };
 
   if (loading) {
@@ -110,67 +102,20 @@ const Plans = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {packages.map((pkg: any, index: number) => (
-        <TouchableOpacity
+        <Packages
           key={index}
-          onPress={() => handlePackageSelect(pkg)}
-          style={styles.planBoxWrapper}
-        >
-          <LinearGradient
-            colors={
-              selectedPackage === pkg
-                ? ["#6a11cb", "#2575fc"]
-                : ["#e0e0e0", "#e0e0e0"]
-            }
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.gradientBorder}
-          >
-            <View
-              style={[
-                styles.planBox,
-                selectedPackage === pkg && styles.selectedPlanBox,
-              ]}
-            >
-              <View style={styles.bannerContainer}>
-                <LinearGradient
-                  colors={["#6a11cb", "#2575fc"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.banner}
-                >
-                  <Text style={styles.title}>{pkg.product.title}</Text>
-                </LinearGradient>
-              </View>
-              <View style={styles.contentContainer}>
-                <View style={styles.checkboxContainer}>
-                  <View style={styles.checkbox}>
-                    {selectedPackage === pkg && (
-                      <Ionicons name="checkmark" size={20} color="#6a11cb" />
-                    )}
-                  </View>
-                </View>
-                <Text style={styles.price}>
-                  {pkg.product.priceString} /
-                  {pkg.product.subscriptionPeriod === "P1M"
-                    ? "Mo"
-                    : pkg.product.subscriptionPeriod === "P1Y"
-                    ? "Yr"
-                    : ""}
-                </Text>
-                <Text style={styles.description}>
-                  {pkg.product.description}
-                </Text>
-              </View>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
+          index={index}
+          pkg={pkg}
+          selectedPackage={selectedPackage}
+          handlePackageSelect={handlePackageSelect}
+        />
       ))}
       <TouchableOpacity
         style={[
           styles.actionButton,
-          selectedPackage === null && styles.disabledButton,
+          (selectedPackage === null || isSubscribed) && styles.disabledButton,
         ]}
-        disabled={selectedPackage === null}
+        disabled={selectedPackage === null || isSubscribed}
         onPress={handleSubscribe}
       >
         <LinearGradient
@@ -179,24 +124,27 @@ const Plans = () => {
           end={{ x: 1, y: 0 }}
           style={styles.actionButton}
         >
-          <Text style={styles.actionButtonText}>Subscribe</Text>
+          <Text style={styles.actionButtonText}>
+            {isSubscribed ? "Already Subscribed" : "Subscribe"}
+          </Text>
         </LinearGradient>
       </TouchableOpacity>
 
-      {/* <TouchableOpacity
-        style={[styles.actionButton, !isSubscribed && styles.disabledButton]}
-        // disabled={!isSubscribed}
-        onPress={handleCancelSubscription}
-      >
-        <LinearGradient
-          colors={["#cb1111", "#fc2525"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
+      {/* {isSubscribed && (
+        <TouchableOpacity
           style={styles.actionButton}
+          onPress={handleCancelSubscription}
         >
-          <Text style={styles.actionButtonText}>Cancel Subscription</Text>
-        </LinearGradient>
-      </TouchableOpacity> */}
+          <LinearGradient
+            colors={["#cb1111", "#fc2525"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.actionButton}
+          >
+            <Text style={styles.actionButtonText}>Manage Subscription</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      )} */}
     </ScrollView>
   );
 };

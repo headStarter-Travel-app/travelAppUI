@@ -12,12 +12,14 @@ import { View, Image, Platform } from "react-native";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import * as Updates from "expo-updates";
 import { usePushNotifications } from "@/usePushNotifications";
-import { addNotificationToken } from "@/lib/appwrite";
+import {
+  addNotificationToken,
+  setUserPremium,
+  getPremiumStatus,
+} from "@/lib/appwrite";
 import { StatusBar } from "expo-status-bar";
 import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
 import Purchases from "react-native-purchases";
-import { getUserId } from "@/lib/appwrite";
-import { setUserPremium } from "@/lib/appwrite";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -42,7 +44,7 @@ const CustomDefaultTheme = {
   ...NavigationDefaultTheme,
   colors: {
     ...NavigationDefaultTheme.colors,
-    background: "#DFF2F9", // Custom background color for light theme
+    background: "#DFF2F9",
   },
 };
 
@@ -50,7 +52,7 @@ const CustomDarkTheme = {
   ...NavigationDarkTheme,
   colors: {
     ...NavigationDarkTheme.colors,
-    background: "#DFF2F9", // Custom background color for dark theme
+    background: "#DFF2F9",
   },
 };
 
@@ -78,13 +80,12 @@ export default function RootLayout() {
     spaceGroteskMedium: require("../assets/fonts/SpaceGrotesk-Regular.ttf"),
   });
 
-  const { expoPushToken, notification } = usePushNotifications();
+  const { expoPushToken } = usePushNotifications();
   const colorScheme = useColorScheme();
 
   useEffect(() => {
     async function prepare() {
       try {
-        // Wait for fonts to load and request tracking permission
         await Promise.all([
           new Promise((resolve) => {
             if (fontsLoaded || fontError) {
@@ -94,16 +95,13 @@ export default function RootLayout() {
           requestTrackingPermissionsAsync(),
         ]);
 
-        // Fetch updates
         await onFetchUpdateAsync();
 
-        // Handle push notification token
         if (expoPushToken) {
           console.log("Expo Push Token:", expoPushToken.data);
           await addNotificationToken(expoPushToken.data);
         }
 
-        // Add a small delay to ensure smooth transition
         await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (e) {
         console.warn("Error during app initialization:", e);
@@ -111,35 +109,42 @@ export default function RootLayout() {
         setIsLoading(false);
       }
     }
-    async function checkPremium() {
-      const ci = await Purchases.getCustomerInfo();
-      console.log(ci);
-      if (ci?.entitlements.active["Premium"] !== undefined) {
-        console.log("User is premium");
-        setUserPremium(true);
-      } else {
-        setUserPremium(false);
 
-        console.log("User is not premium");
+    async function initializePurchases() {
+      if (Platform.OS === "ios") {
+        Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_RC_APPLE! });
       }
+      // For Android, you would add a similar check and configuration here
+
+      Purchases.setLogLevel(Purchases.LOG_LEVEL.VERBOSE);
+
+      const customerInfo = await Purchases.getCustomerInfo();
+      console.log("RevenueCat customer info:", customerInfo);
+      updatePremiumStatus(customerInfo);
+
+      Purchases.addCustomerInfoUpdateListener((info) => {
+        console.log("RevenueCat customer info updated", info);
+        updatePremiumStatus(info);
+      });
     }
 
     prepare();
-    checkPremium();
+    initializePurchases();
   }, [fontsLoaded, fontError, expoPushToken]);
 
-  //Set up reveneu cat
-  Purchases.setLogLevel(Purchases.LOG_LEVEL.VERBOSE);
-  useEffect(() => {
-    if (Platform.OS === "ios") {
-      Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_RC_APPLE! });
-    }
-  }, []);
+  async function updatePremiumStatus(customerInfo: any) {
+    const isPremium =
+      customerInfo?.entitlements.active["Premium"] !== undefined;
+    console.log("User premium status:", isPremium);
+    await setUserPremium(isPremium);
+    const currentStatus = await getPremiumStatus();
+    console.log("Current premium status in Appwrite:", currentStatus);
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 5000); // Force exit loading state after 5 seconds
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);

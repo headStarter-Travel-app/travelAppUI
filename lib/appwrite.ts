@@ -215,6 +215,7 @@ export const getUserInfo = async () => {
 
     // Fetch user account information
     const userAccount = await account.get();
+    console.log(userAccount);
 
     // Fetch additional user information from your database
     // Assuming you have a 'users' collection in your database
@@ -230,6 +231,10 @@ export const getUserInfo = async () => {
       email: userAccount.email,
       address: userData.address,
       profileImageUrl: userAccount.prefs.profileImageUrl,
+      labels: userAccount.labels,
+      premium: userData.premium,
+      uses: userData.monthly_uses,
+      uid: userAccount.$id,
       // Add any other fields you want to return
     };
   } catch (error) {
@@ -397,6 +402,12 @@ export const setUserPremium = async (status: boolean) => {
           premium: false,
         }
       );
+      // await fetch(`${API_URL}/api/cancel-premium?user_id=${user}`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
     }
   } catch (error) {
     console.error("Error setting user to premium:", error);
@@ -413,12 +424,33 @@ export const setUses = async (status: boolean) => {
         appwriteConfig.userCollectionId,
         user,
         {
-          uses: 20,
+          monthly_uses: 20,
         }
       );
     }
   } catch (error) {
     console.error("Error setting user to premium:", error);
+    throw error;
+  }
+};
+
+export const getPremiumStatus = async () => {
+  try {
+    const user = await getUserId();
+    const userAccount = await account.get();
+
+    const userData = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      user
+    );
+    if (userData.premium && userAccount.labels.includes("premium")) {
+      return true;
+    } else {
+      return userData.premium;
+    }
+  } catch (error) {
+    console.error("Error fetching premium status:", error);
     throw error;
   }
 };
