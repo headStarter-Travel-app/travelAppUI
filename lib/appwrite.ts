@@ -211,6 +211,12 @@ export const updateProfileImage = async (fileId: string) => {
 };
 export const getUserInfo = async () => {
   try {
+    try {
+      const userId = await getUserId();
+    } catch (error) {
+      console.log("No user found");
+      return null;
+    }
     const userId = await getUserId();
 
     // Fetch user account information

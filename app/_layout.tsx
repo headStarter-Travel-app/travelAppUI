@@ -20,7 +20,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
 import Purchases from "react-native-purchases";
-
+import { getUserInfo } from "@/lib/appwrite";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 const splashImage = require("../public/splash.png");
@@ -133,6 +133,16 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError, expoPushToken]);
 
   async function updatePremiumStatus(customerInfo: any) {
+    const currentUser = await getUserInfo();
+    if (!currentUser) {
+      console.log("No logged-in user, skipping premium status update");
+      return;
+    }
+    if (!currentUser) {
+      console.log("No logged-in user, skipping premium status update");
+      return;
+    }
+
     const isPremium =
       customerInfo?.entitlements.active["Premium"] !== undefined;
     console.log("User premium status:", isPremium);
