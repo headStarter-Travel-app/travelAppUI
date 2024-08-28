@@ -202,12 +202,13 @@ const Home = () => {
   };
 
   return (
+    <SafeAreaView style={styles.container}>
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <SafeAreaView style={styles.container}>
+      
         <CurrentHangout
           title={"Golden Gate Bridge"}
           members={["Miguel", "Naman", "B", "The Amazing Doctor Marioa"]}
-          eta={{ start: 0, curr: 4, end: 10, units: "hours" }}
+          eta={{ start: 0, curr: 0, end: 10, units: "hours" }}
         />
         <View style={styles.mapContainer}>
           <Map
@@ -230,13 +231,14 @@ const Home = () => {
             },
           ]}
         />
-      </SafeAreaView>
+      
       <PlaceModal
         isVisible={modalVisible}
         place={selectedPlaceDetails}
         onClose={() => setModalVisible(false)}
       />
     </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -246,12 +248,15 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 4,
     paddingBottom: 80,
+    backgroundColor: "#E6F7FF",
+    
   },
   container: {
     flex: 1,
     backgroundColor: "#E6F7FF", // Very light blue background
-    marginVertical: 25, // Move everything down by 50 pixels
+    paddingTop: 50, // Move everything down by 50 pixels
     flexDirection: "column",
+
   },
 
   mapContainer: {

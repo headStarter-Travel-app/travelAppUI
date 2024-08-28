@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#E6F7FF",
-    marginTop: 50,
   },
   friendsIcon: {
     position: "absolute",

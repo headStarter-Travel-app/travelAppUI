@@ -1,24 +1,20 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { useCallback } from 'react'
+import { LinearGradient } from 'expo-linear-gradient';
+import { relative } from 'path';
 
 interface StatusBarProps {
   num: number,
   max: number,
-  min: number,
-  color: string
+  min: number
 }
 
-const StatusBar = ({num, max, min, color} : StatusBarProps) => {
-
-  const currWidth = useCallback(() => {
-    return num / (max-min) * 93 + 7;
-  }, [num, max, min]);
+const StatusBar = ({num, max, min} : StatusBarProps) => {
+  const calcNumber = (num/(max-min))*97 + 3
   return (
     <View style={styles.container}>
-      <View style={[styles.bar, {
-        width: `${currWidth()}%`,
-        backgroundColor: color
-      }]} />
+      <LinearGradient style={{height: "100%", width: "100%", borderRadius: 8 }} start={{x: 0, y: 0}} end={{x:1, y:0}} colors={['#FF0000', '#FFDD00',  '#FFFF00', '#DDFF00', '#00FF00']} />
+      <View style={[styles.bar, {left: `${calcNumber}%`}]} />
     </View>
   )
 }
@@ -34,11 +30,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 4,
     flexDirection: "column",
     alignItems: "flex-start",
-    overflow: "hidden"
+    overflow: "hidden",
+    position: "relative",
+
   },
   bar: {
+    position: "absolute",
+    right: 0,
     height: "100%",
     borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: 0, 
+    borderBottomLeftRadius: 0, 
   }
   
 })
