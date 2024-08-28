@@ -221,7 +221,6 @@ export const getUserInfo = async () => {
 
     // Fetch user account information
     const userAccount = await account.get();
-    console.log(userAccount);
 
     // Fetch additional user information from your database
     // Assuming you have a 'users' collection in your database

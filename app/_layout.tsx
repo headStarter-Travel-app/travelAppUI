@@ -119,11 +119,9 @@ export default function RootLayout() {
       Purchases.setLogLevel(Purchases.LOG_LEVEL.VERBOSE);
 
       const customerInfo = await Purchases.getCustomerInfo();
-      console.log("RevenueCat customer info:", customerInfo);
       updatePremiumStatus(customerInfo);
 
       Purchases.addCustomerInfoUpdateListener((info) => {
-        console.log("RevenueCat customer info updated", info);
         updatePremiumStatus(info);
       });
     }
@@ -145,7 +143,6 @@ export default function RootLayout() {
 
     const isPremium =
       customerInfo?.entitlements.active["Premium"] !== undefined;
-    console.log("User premium status:", isPremium);
     await setUserPremium(isPremium);
     const currentStatus = await getPremiumStatus();
     console.log("Current premium status in Appwrite:", currentStatus);
