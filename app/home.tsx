@@ -59,7 +59,8 @@ const Home = () => {
   const [loadingRecs, setLoadingRecs] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [hangouts, setHangouts] = useState<any[]>([]);
-  const status = 100;
+  const [upcomingHangout, setUpcomingHangout] = useState<any | null>(null);
+  const [hangoutLoading, setHangoutLoading] = useState(true);
 
   const fetchHangouts = useCallback(async () => {
     if (userId) {
@@ -70,6 +71,21 @@ const Home = () => {
         setHangouts(response.data.saved_hangouts);
       } catch (error) {
         console.error("Error fetching hangouts:", error);
+      }
+    }
+  }, [userId]);
+
+  const fetchUpcomingHangout = useCallback(async () => {
+    if (userId) {
+      try {
+        const response = await axios.get(
+          `${API_URL}/get-latest-hangout?user_id=${userId}`
+        );
+        setUpcomingHangout(response.data);
+      } catch (error) {
+        console.error("Error fetching upcoming hangout:", error);
+      } finally {
+        setHangoutLoading(false);
       }
     }
   }, [userId]);
@@ -90,7 +106,8 @@ const Home = () => {
   useFocusEffect(
     useCallback(() => {
       fetchHangouts();
-    }, [fetchHangouts])
+      fetchUpcomingHangout();
+    }, [fetchHangouts, fetchUpcomingHangout])
   );
 
   useEffect(() => {
@@ -135,6 +152,9 @@ const Home = () => {
           "Error getting location or fetching recommendations:",
           error
         );
+        fetchHangouts();
+        fetchUpcomingHangout();
+
         setIsLoading(false);
       }
     })();
@@ -200,16 +220,54 @@ const Home = () => {
   const handleQuizPress = () => {
     router.push("/quiz");
   };
+  useEffect(() => {
+    console.log(upcomingHangout);
+  }, [upcomingHangout]);
+  const calculateETA = (hangout: any) => {
+    const now = new Date();
+    const createdAt = new Date(hangout.$createdAt);
+    const scheduledDate = new Date(hangout.date);
+
+    const start = createdAt.getTime();
+    const curr = now.getTime();
+    const end = scheduledDate.getTime();
+
+    const totalDuration = end - start;
+    const elapsedDuration = curr - start;
+
+    let units = "mins";
+    let scaledStart = 0;
+    let scaledCurr = Math.round(elapsedDuration / (60 * 1000));
+    let scaledEnd = Math.round(totalDuration / (60 * 1000));
+
+    if (scaledEnd > 60 * 24) {
+      // If more than a day, show in days
+      units = "days";
+      scaledCurr = Math.round(elapsedDuration / (24 * 60 * 60 * 1000));
+      scaledEnd = Math.round(totalDuration / (24 * 60 * 60 * 1000));
+    } else if (scaledEnd > 60) {
+      // If more than an hour, show in hours
+      units = "hours";
+      scaledCurr = Math.round(elapsedDuration / (60 * 60 * 1000));
+      scaledEnd = Math.round(totalDuration / (60 * 60 * 1000));
+    }
+
+    return { start: scaledStart, curr: scaledCurr, end: scaledEnd, units };
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      
-        <CurrentHangout
-          title={"Golden Gate Bridge"}
-          members={["Miguel", "Naman", "B", "The Amazing Doctor Marioa"]}
-          eta={{ start: 0, curr: 0, end: 10, units: "hours" }}
-        />
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        {!hangoutLoading &&
+          upcomingHangout &&
+          Object.keys(upcomingHangout).length > 0 && (
+            <CurrentHangout
+              title={upcomingHangout.name || "Hangout"}
+              members={upcomingHangout.groupMemberNames || []}
+              eta={calculateETA(upcomingHangout)}
+            />
+          )}
+
         <View style={styles.mapContainer}>
           <Map
             region={region}
@@ -225,19 +283,19 @@ const Home = () => {
         <PastHangouts
           hangouts={[
             {
-              title: "Black Wax Mueseum",
+              title: "Black Wax Museum",
               rating: 4.5,
-              date: { month: "Janurary", date: "12th" },
+              date: { month: "January", date: "12th" },
             },
           ]}
         />
-      
-      <PlaceModal
-        isVisible={modalVisible}
-        place={selectedPlaceDetails}
-        onClose={() => setModalVisible(false)}
-      />
-    </ScrollView>
+
+        <PlaceModal
+          isVisible={modalVisible}
+          place={selectedPlaceDetails}
+          onClose={() => setModalVisible(false)}
+        />
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -249,14 +307,12 @@ const styles = StyleSheet.create({
     flexGrow: 4,
     paddingBottom: 80,
     backgroundColor: "#E6F7FF",
-    
   },
   container: {
     flex: 1,
     backgroundColor: "#E6F7FF", // Very light blue background
     paddingTop: 50, // Move everything down by 50 pixels
     flexDirection: "column",
-
   },
 
   mapContainer: {

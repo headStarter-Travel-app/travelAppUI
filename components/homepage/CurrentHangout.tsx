@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import React, { useCallback } from "react";
+import React from "react";
 import StatusBar from "@/components/usableOnes/StatusBar";
 
 interface CurrentHangoutProps {
@@ -14,6 +14,11 @@ interface CurrentHangoutProps {
 }
 
 const CurrentHangout = ({ title, members, eta }: CurrentHangoutProps) => {
+  const getTimeLeft = () => {
+    const timeLeft = eta.end - eta.curr;
+    return `${timeLeft} ${eta.units}`;
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
@@ -28,14 +33,12 @@ const CurrentHangout = ({ title, members, eta }: CurrentHangoutProps) => {
         </View>
       </View>
       <View style={styles.eta}>
-        <Text style={styles.label}>
-          Time to Meet: {eta?.end - eta?.curr} mins
-        </Text>
+        <Text style={styles.label}>Time to Meet: {getTimeLeft()}</Text>
         <View style={styles.bar}>
           <StatusBar
-            num={eta?.curr}
-            min={eta?.start}
-            max={eta?.end}
+            num={eta.curr}
+            min={eta.start}
+            max={eta.end}
             color={"#ABFF24"}
           />
         </View>
@@ -65,7 +68,6 @@ const styles = StyleSheet.create({
   },
   members: {
     flexDirection: "column",
-
     rowGap: 4,
   },
   label: {
