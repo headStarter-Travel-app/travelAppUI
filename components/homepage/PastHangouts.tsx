@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
+import StarRating from 'react-native-star-rating-widget';
 
 interface HangoutProps {
   title: string;
@@ -9,6 +10,7 @@ interface HangoutProps {
     month: string;
     date: string;
   };
+  changeRating: (rating: number) => void
 }
 
 interface PastHangoutsProps {
@@ -25,51 +27,25 @@ const PastHangouts = ({ hangouts }: PastHangoutsProps) => {
           rating={item.rating}
           date={item.date}
           key={index}
+          changeRating={item.changeRating}
         />
       ))}
     </View>
   );
 };
 
-const HangoutCard = ({ title, rating, date }: HangoutProps) => {
-  const renderStars = useCallback((stars: number) => {
-    const fullStars = Math.floor(stars);
-    const halfStar = stars - fullStars >= 0.5;
-    const starList = [];
-
-    for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        starList.push(
-          <MaterialIcons key={`star-${i}`} size={24} color="#ff0" name="star" />
-        );
-      } else if (i === fullStars && halfStar) {
-        starList.push(
-          <MaterialIcons
-            key={`star-${i}`}
-            size={24}
-            color="#ff0"
-            name="star-half"
-          />
-        );
-      } else {
-        starList.push(
-          <MaterialIcons
-            key={`star-${i}`}
-            size={24}
-            color="#ff0"
-            name="star-border"
-          />
-        );
-      }
-    }
-
-    return starList;
-  }, []);
-
+const HangoutCard = ({ title, rating, date, changeRating }: HangoutProps) => {
+  const [newRating, setRating] = useState(rating)
   return (
     <View style={styles.card}>
       <Text style={styles.hangoutLabel}>{title}</Text>
-      <View style={styles.rating}>{renderStars(rating)}</View>
+      <StarRating
+        rating={newRating}
+        onChange={(newRating) => setRating(newRating)}
+        onRatingEnd={() => changeRating(newRating)}
+        maxStars={5}
+        starSize={30}
+        />
       <Text style={styles.date}>
         {date.month} {date.date}
       </Text>

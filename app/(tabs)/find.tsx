@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import moment, { Moment } from "moment";
 import {
   StyleSheet,
@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   SafeAreaView,
+  Animated
 } from "react-native";
 import { Account, Client, Databases, ID, Storage } from "react-native-appwrite";
 import { getUserId } from "@/lib/appwrite";
@@ -16,11 +17,20 @@ import axios from "axios";
 import { useFocusEffect } from "expo-router";
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 import { MaterialIcons } from "@expo/vector-icons";
+import { opacity } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 
 let globalHangouts: any[] = [];
 const HangoutCard = ({ hangout }: { hangout: any }) => {
   const [members, setMembers] = useState<string[]>([]);
+  const fadeAnim = useRef(new Animated.Value(0)).current
+  useEffect(() => {
 
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 400*hangout.index + 1000,
+      useNativeDriver: true,
+    }).start()
+  }, [hangout])
   //This funciton gets all the member names
   const getDate = useCallback((dateString: any) => {
     try {
@@ -67,7 +77,7 @@ const HangoutCard = ({ hangout }: { hangout: any }) => {
 
   //Each UI carda is put here
   return (
-    <View style={styles.card}>
+    <Animated.View style={[styles.card, {opacity: fadeAnim}]}>
       <Text style={styles.locationName}>{hangout.name}</Text>
       <Text style={styles.date}>{getDate(hangout.date)}</Text>
       <Text style={styles.address}>{hangout.address}</Text>
@@ -77,7 +87,7 @@ const HangoutCard = ({ hangout }: { hangout: any }) => {
           {member}
         </Text>
       ))}
-    </View>
+    </Animated.View>
   );
 };
 
@@ -96,7 +106,10 @@ const HangoutsPage = () => {
         const response = await axios.get(
           `${API_URL}/get-savedHangouts?user_id=${userId}`
         );
-        setHangouts(response.data.saved_hangouts);
+        const hangoutsIndexed = (response.data.saved_hangouts as any[]).map((item, index) => {
+          return {...item, index: index}
+        })
+        setHangouts(hangoutsIndexed);
       } catch (error) {
         console.error("Error fetching hangouts:", error);
       } finally {
@@ -139,10 +152,10 @@ const HangoutsPage = () => {
       </View>
     );
   }
-
+  console.log(hangouts[0])
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Hangouts Page</Text>
+      <Text style={styles.title}>Hangouts</Text>
       {hangouts.length > 0 ? (
         <FlatList
           data={hangouts}
@@ -179,8 +192,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontWeight: "900",
     marginBottom: 20,
+    fontFamily: "spaceGroteskBold"
   },
   card: {
     backgroundColor: "#fff",
@@ -189,16 +203,20 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 2,
     position: "relative",
+    shadowOpacity: .3,
+    shadowOffset: {width: 0, height:4}
   },
   locationName: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5,
+    fontFamily: "spaceGroteskBold"
   },
   address: {
     fontSize: 14,
     color: "#666",
     marginBottom: 10,
+    fontFamily: "spaceGroteskRegular"
   },
   membersTitle: {
     fontSize: 16,
@@ -209,6 +227,7 @@ const styles = StyleSheet.create({
   memberName: {
     fontSize: 14,
     marginLeft: 10,
+    fontFamily: "spaceGroteskRegular"
   },
   container2: {
     flex: 1,
@@ -228,6 +247,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: "#666",
     textAlign: "center",
+    fontFamily: "spaceGroteskRegular"
   },
   message: {
     fontSize: 16,
@@ -238,6 +258,7 @@ const styles = StyleSheet.create({
   date: {
     color: "#aaa",
     fontStyle: "italic",
+    fontFamily: "spaceGroteskItalic"
   },
   loadingContainer: {
     justifyContent: "center",

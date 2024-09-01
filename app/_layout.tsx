@@ -21,6 +21,7 @@ import { StatusBar } from "expo-status-bar";
 import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
 import Purchases from "react-native-purchases";
 import { getUserInfo } from "@/lib/appwrite";
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 const splashImage = require("../public/splash.png");

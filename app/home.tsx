@@ -19,6 +19,7 @@ import axios from "axios";
 import { getUserId } from "@/lib/appwrite";
 import * as Location from "expo-location";
 import PlaceModal from "@/components/modal";
+import StarRating from 'react-native-star-rating-widget';
 
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
@@ -61,6 +62,7 @@ const Home = () => {
   const [hangouts, setHangouts] = useState<any[]>([]);
   const [upcomingHangout, setUpcomingHangout] = useState<any | null>(null);
   const [hangoutLoading, setHangoutLoading] = useState(true);
+  const [rating, setRating] = useState(0);
 
   const fetchHangouts = useCallback(async () => {
     if (userId) {
@@ -286,10 +288,12 @@ const Home = () => {
               title: "Black Wax Museum",
               rating: 4.5,
               date: { month: "January", date: "12th" },
+              changeRating: (rating:number) => {console.log("Implement a way to submit a rating change " + rating)}
             },
           ]}
         />
-
+        
+        
         <PlaceModal
           isVisible={modalVisible}
           place={selectedPlaceDetails}

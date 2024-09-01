@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     alignItems: "center",
-    rowGap: 10,
+    rowGap: 2,
   },
   loadingOverlay: {
     flex: 1,
