@@ -22,7 +22,7 @@ import * as Location from "expo-location";
 import { G } from "react-native-svg";
 import { group } from "console";
 import { FontAwesome } from "@expo/vector-icons";
-
+import { getNumberofCalls } from "@/lib/appwrite";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -32,6 +32,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { ScrollView } from "react-native";
+import { decrementCallCount } from "@/lib/appwrite";
 
 let globalRecommendations: any[] = [];
 
@@ -88,10 +89,19 @@ export default function AIScreen() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [recsLoading, setRecsLoading] = useState(false);
   const [valid, setValid] = useState(true);
-
+  const [uses, setUses] = useState(0);
   const router = useRouter();
-
   const submit = theme !== "" && location !== "" && valid;
+
+  const fetchUses = async () => {
+    const uses = await getNumberofCalls();
+    setUses(uses);
+    console.log("uses", uses);
+  };
+  useEffect(() => {
+    fetchUses();
+  }, []);
+
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -223,6 +233,7 @@ export default function AIScreen() {
         } else if (response.data) {
           setRecommendations(response.data.recommendations);
           globalRecommendations = response.data.recommendations;
+          decrementCallCount();
           router.push("/recommendations");
         }
       } catch (error) {
@@ -291,6 +302,13 @@ export default function AIScreen() {
         />
         <AddInfoContainer addInfo={addInfo} setAddInfo={setAddInfo} />
         <SubmitButton active={submit} onSubmit={handleSubmit} />
+
+        {/* Make this poriton look nice */}
+        <View style={{ height: 100 }}>
+          <Text style={{ color: "black" }}>
+            You have {uses} recommendations left
+          </Text>
+        </View>
 
         <Modal transparent={true} visible={recsLoading} animationType="fade">
           <LoadingOverlay />

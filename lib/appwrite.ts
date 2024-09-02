@@ -459,3 +459,45 @@ export const getPremiumStatus = async () => {
     throw error;
   }
 };
+
+//Get number of calls remaining
+
+export const getNumberofCalls = async () => {
+  //1. Get the user ID
+  const userId = await getUserId();
+  //2: Get the user document, and then the calls remaining
+  const user = await databases.getDocument(
+    appwriteConfig.databaseId,
+    appwriteConfig.userCollectionId,
+    userId
+  );
+  //3: Return calls
+  return user.monthly_uses;
+};
+
+//Decrement Call count function
+
+export const decrementCallCount = async () => {
+  //1. Get the user ID
+  const userId = await getUserId();
+  //2: Get the user document, and then the calls remaining
+  const user = await databases.getDocument(
+    appwriteConfig.databaseId,
+    appwriteConfig.userCollectionId,
+    userId
+  );
+  //3: Decrement the calls remaining. if calls remaining is 0, return false. else return true and proceed
+  if (user.monthly_uses === 0) {
+    return false;
+  } else {
+    await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId,
+      {
+        monthly_uses: user.monthly_uses - 1,
+      }
+    );
+    return true;
+  }
+};
