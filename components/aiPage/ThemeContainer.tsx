@@ -77,16 +77,22 @@ const ThemeContainer = ({
     <View style={styles.container}>
       <Text style={styles.label}>Theme</Text>
 
-      <FlatList
+      {/* <FlatList
         style={styles.themeScroll}
         data={DEFAULT_ITEMS}
         renderItem={renderCard}
         numColumns={2}
-      ></FlatList>
-      <LinearGradient
+      ></FlatList> */}
+
+      <View style={styles.grid}>
+        <View style={styles.gridCols}>{DEFAULT_ITEMS.map((item, index) => (index %2 == 0 ? renderCard({item, index}) : <></>))}</View>
+        <View style={styles.gridCols}>{DEFAULT_ITEMS.map((item, index) => (index %2 == 1 ? renderCard({item, index}) : <></>))}</View>
+      </View>
+
+      {/* <LinearGradient
         style={styles.topFade}
         colors={["#D9F0F8FF", "#D9F0F811"]}
-      ></LinearGradient>
+      ></LinearGradient> */}
     </View>
   );
 };
@@ -97,7 +103,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
     alignItems: "center",
-    height: 240,
     position: "relative",
     rowGap: 12,
   },
@@ -136,8 +141,12 @@ const styles = StyleSheet.create({
   },
   gridCols: {
     flexDirection: "column",
-    width: "50%",
-    backgroundColor: "#CCC",
+    width: "40%",
+    alignItems: "center"
+  },
+  grid: {
+    flexDirection: "row",
+    justifyContent: "center"
   },
   themeScroll: {
     width: 330,

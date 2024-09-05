@@ -10,11 +10,16 @@ const SubmitButton = ({
   onSubmit: () => void;
 }) => {
   return (
-    <View>
+    <View style={styles.container}>
       <Button title={"Submit"} disabled={!active} onPress={onSubmit} />
     </View>
   );
 };
 
 export default SubmitButton;
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    alignSelf: "center",
+    marginVertical: 12
+  }
+});

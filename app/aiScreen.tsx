@@ -276,43 +276,46 @@ export default function AIScreen() {
   return (
     <>
       <SafeAreaView style={styles.screen}>
-        <PremiumBanner />
-        <View style={styles.titleContainer}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <FontAwesome name="arrow-left" size={20} color="blue" />
-          </TouchableOpacity>
-          <TitleContainer />
-        </View>
+        <ScrollView style={{paddingBottom: 2}}>
+          <PremiumBanner />
+          <View style={styles.titleContainer}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <FontAwesome name="arrow-left" size={20} color="blue" />
+            </TouchableOpacity>
+            <TitleContainer />
+          </View>
 
-        <ThemeContainer setTheme={setTheme} theme={theme} />
-        <BudgetContainer
-          budget={budget}
-          time={time}
-          groupId={groupId}
-          location={location}
-          setBudget={(num) => setBudget(Number(num))}
-          setTime={(time) => setTime(time)}
-          setGroupId={(id) => setGroupId(id)}
-          setLocation={(location) => setLocation(location)}
-          group={formatted}
-          setIsValid={setValid}
-        />
-        <AddInfoContainer addInfo={addInfo} setAddInfo={setAddInfo} />
-        <SubmitButton active={submit} onSubmit={handleSubmit} />
+          <ThemeContainer setTheme={setTheme} theme={theme} />
+          <BudgetContainer
+            budget={budget}
+            time={time}
+            groupId={groupId}
+            location={location}
+            setBudget={(num) => setBudget(Number(num))}
+            setTime={(time) => setTime(time)}
+            setGroupId={(id) => setGroupId(id)}
+            setLocation={(location) => setLocation(location)}
+            group={formatted}
+            setIsValid={setValid}
+          />
+          <AddInfoContainer addInfo={addInfo} setAddInfo={setAddInfo} />
+          <SubmitButton active={submit} onSubmit={handleSubmit} />
 
-        {/* Make this poriton look nice */}
-        <View style={{ height: 100 }}>
-          <Text style={{ color: "black" }}>
-            You have {uses} recommendations left
-          </Text>
-        </View>
+          {/* Make this poriton look nice */}
+          <View style={{ height: 100, alignSelf: "center" }}>
+            <Text style={{ color: "black", fontFamily:"spaceGroteskRegular" }}>
+              You have {uses} recommendations left
+            </Text>
+          </View>
 
-        <Modal transparent={true} visible={recsLoading} animationType="fade">
-          <LoadingOverlay />
-        </Modal>
+          <Modal transparent={true} visible={recsLoading} animationType="fade">
+            <LoadingOverlay />
+          </Modal>
+          <View style={{height: 100, width: 1}}></View>
+        </ScrollView>
       </SafeAreaView>
     </>
   );
