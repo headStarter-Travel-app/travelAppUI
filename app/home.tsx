@@ -222,9 +222,7 @@ const Home = () => {
   const handleQuizPress = () => {
     router.push("/quiz");
   };
-  useEffect(() => {
-    console.log(upcomingHangout);
-  }, [upcomingHangout]);
+
   const calculateETA = (hangout: any) => {
     const now = new Date();
     const createdAt = new Date(hangout.$createdAt);
@@ -253,10 +251,6 @@ const Home = () => {
       scaledCurr = Math.round((curr - start) / (60 * 60 * 1000));
       scaledEnd = Math.round(totalDuration / (60 * 60 * 1000));
     }
-
-    console.log(
-      `Scaled values: curr: ${scaledCurr}, end: ${scaledEnd}, units: ${units}`
-    );
 
     return { start: scaledStart, curr: scaledCurr, end: scaledEnd, units };
   };
