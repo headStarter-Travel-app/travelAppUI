@@ -161,7 +161,7 @@ export default function AIScreen() {
       Vacation: "vacation",
       "Food and Drinks": "food_and_drink",
     };
-    if (submit) {
+    if (submit && uses > 0) {
       try {
         setRecsLoading(true);
         let locationList = [];
@@ -242,6 +242,8 @@ export default function AIScreen() {
       } finally {
         setRecsLoading(false);
       }
+    } else if (uses <= 0) {
+      //Logic to open modal for premium
     }
   };
 
@@ -276,7 +278,7 @@ export default function AIScreen() {
   return (
     <>
       <SafeAreaView style={styles.screen}>
-        <ScrollView style={{paddingBottom: 2}}>
+        <ScrollView style={{ paddingBottom: 2 }}>
           <PremiumBanner />
           <View style={styles.titleContainer}>
             <TouchableOpacity
@@ -306,7 +308,7 @@ export default function AIScreen() {
 
           {/* Make this poriton look nice */}
           <View style={{ height: 100, alignSelf: "center" }}>
-            <Text style={{ color: "black", fontFamily:"spaceGroteskRegular" }}>
+            <Text style={{ color: "black", fontFamily: "spaceGroteskRegular" }}>
               You have {uses} recommendations left
             </Text>
           </View>
@@ -314,7 +316,7 @@ export default function AIScreen() {
           <Modal transparent={true} visible={recsLoading} animationType="fade">
             <LoadingOverlay />
           </Modal>
-          <View style={{height: 100, width: 1}}></View>
+          <View style={{ height: 100, width: 1 }}></View>
         </ScrollView>
       </SafeAreaView>
     </>

@@ -19,7 +19,7 @@ import axios from "axios";
 import { getUserId } from "@/lib/appwrite";
 import * as Location from "expo-location";
 import PlaceModal from "@/components/modal";
-import StarRating from 'react-native-star-rating-widget';
+import StarRating from "react-native-star-rating-widget";
 
 const API_URL = "https://travelappbackend-c7bj.onrender.com";
 
@@ -235,28 +235,31 @@ const Home = () => {
     const end = scheduledDate.getTime();
 
     const totalDuration = end - start;
-    const elapsedDuration = curr - start;
+    const remainingDuration = end - curr;
 
     let units = "mins";
     let scaledStart = 0;
-    let scaledCurr = Math.round(elapsedDuration / (60 * 1000));
+    let scaledCurr = Math.round((curr - start) / (60 * 1000));
     let scaledEnd = Math.round(totalDuration / (60 * 1000));
 
-    if (scaledEnd > 60 * 24) {
-      // If more than a day, show in days
+    if (remainingDuration > 24 * 60 * 60 * 1000) {
+      // If more than a day remaining, show in days
       units = "days";
-      scaledCurr = Math.round(elapsedDuration / (24 * 60 * 60 * 1000));
+      scaledCurr = Math.round((curr - start) / (24 * 60 * 60 * 1000));
       scaledEnd = Math.round(totalDuration / (24 * 60 * 60 * 1000));
-    } else if (scaledEnd > 60) {
-      // If more than an hour, show in hours
+    } else if (remainingDuration > 60 * 60 * 1000) {
+      // If more than an hour remaining, show in hours
       units = "hours";
-      scaledCurr = Math.round(elapsedDuration / (60 * 60 * 1000));
+      scaledCurr = Math.round((curr - start) / (60 * 60 * 1000));
       scaledEnd = Math.round(totalDuration / (60 * 60 * 1000));
     }
 
+    console.log(
+      `Scaled values: curr: ${scaledCurr}, end: ${scaledEnd}, units: ${units}`
+    );
+
     return { start: scaledStart, curr: scaledCurr, end: scaledEnd, units };
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -288,12 +291,15 @@ const Home = () => {
               title: "Black Wax Museum",
               rating: 4.5,
               date: { month: "January", date: "12th" },
-              changeRating: (rating:number) => {console.log("Implement a way to submit a rating change " + rating)}
+              changeRating: (rating: number) => {
+                console.log(
+                  "Implement a way to submit a rating change " + rating
+                );
+              },
             },
           ]}
         />
-        
-        
+
         <PlaceModal
           isVisible={modalVisible}
           place={selectedPlaceDetails}

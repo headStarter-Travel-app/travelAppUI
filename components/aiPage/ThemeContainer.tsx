@@ -38,7 +38,6 @@ const ThemeContainer = ({
       return (
         <Pressable
           onPress={() => setTheme(item)}
-          key={index}
           style={[
             styles.themeCard,
             {
@@ -57,22 +56,6 @@ const ThemeContainer = ({
     [setTheme, theme]
   );
 
-  // const renderGrid = useCallback((args : string[]) => {
-  //   return (
-  //     <View style={styles.themeContainer}>
-  //       <View style={styles.gridCols}>
-  //         {args.map(((item, index) => {
-  //           return (index % 2 == 0 ? renderCard(item, index) : <></>)
-  //         }))}
-  //       </View>
-  //       <View style={styles.gridCols}>
-  //         {args.map(((item, index) => {
-  //           return (index % 2 == 1 ? renderCard(item, index) : <></>)
-  //         }))}
-  //       </View>
-  //     </View>
-  //   )
-  // }, [])
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Theme</Text>
@@ -85,8 +68,24 @@ const ThemeContainer = ({
       ></FlatList> */}
 
       <View style={styles.grid}>
-        <View style={styles.gridCols}>{DEFAULT_ITEMS.map((item, index) => (index %2 == 0 ? renderCard({item, index}) : <></>))}</View>
-        <View style={styles.gridCols}>{DEFAULT_ITEMS.map((item, index) => (index %2 == 1 ? renderCard({item, index}) : <></>))}</View>
+        <View style={styles.gridCols}>
+          {DEFAULT_ITEMS.map((item, index) =>
+            index % 2 == 0 ? (
+              <React.Fragment key={index}>
+                {renderCard({ item, index })}
+              </React.Fragment>
+            ) : null
+          )}
+        </View>
+        <View style={styles.gridCols}>
+          {DEFAULT_ITEMS.map((item, index) =>
+            index % 2 == 1 ? (
+              <React.Fragment key={index}>
+                {renderCard({ item, index })}
+              </React.Fragment>
+            ) : null
+          )}
+        </View>
       </View>
 
       {/* <LinearGradient
@@ -142,11 +141,11 @@ const styles = StyleSheet.create({
   gridCols: {
     flexDirection: "column",
     width: "40%",
-    alignItems: "center"
+    alignItems: "center",
   },
   grid: {
     flexDirection: "row",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   themeScroll: {
     width: 330,
