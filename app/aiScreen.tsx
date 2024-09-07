@@ -33,6 +33,7 @@ import Animated, {
 import { LinearGradient } from "expo-linear-gradient";
 import { ScrollView } from "react-native";
 import { decrementCallCount } from "@/lib/appwrite";
+import BuyPremiumModal from "@/components/aiPage/buyPremiumModal";
 
 let globalRecommendations: any[] = [];
 
@@ -90,6 +91,7 @@ export default function AIScreen() {
   const [recsLoading, setRecsLoading] = useState(false);
   const [valid, setValid] = useState(true);
   const [uses, setUses] = useState(0);
+  const [isPremiumModalVisible, setIsPremiumModalVisible] = useState(false);
   const router = useRouter();
   const submit = theme !== "" && location !== "" && valid;
 
@@ -244,6 +246,7 @@ export default function AIScreen() {
       }
     } else if (uses <= 0) {
       //Logic to open modal for premium
+      setIsPremiumModalVisible(true);
     }
   };
 
@@ -277,6 +280,10 @@ export default function AIScreen() {
 
   return (
     <>
+      <BuyPremiumModal
+        visible={isPremiumModalVisible}
+        onClose={() => setIsPremiumModalVisible(false)}
+      />
       <SafeAreaView style={styles.screen}>
         <ScrollView style={{ paddingBottom: 2 }}>
           <PremiumBanner />
