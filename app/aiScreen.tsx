@@ -97,7 +97,7 @@ export default function AIScreen() {
 
   const fetchUses = async () => {
     const uses = await getNumberofCalls();
-    setUses(0); //Temp
+    setUses(uses);
     console.log("uses", uses);
   };
   useEffect(() => {
@@ -244,7 +244,7 @@ export default function AIScreen() {
       } finally {
         setRecsLoading(false);
       }
-    } else if ( true || uses <= 0) {
+    } else if ( uses <= 0) {
       //Logic to open modal for premium
       setIsPremiumModalVisible(true);
     }
